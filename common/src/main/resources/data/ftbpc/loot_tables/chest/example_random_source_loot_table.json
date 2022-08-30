@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 10,
+      "bonus_rolls": 4,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stone",
+          "functions": [
+            {
+              "function": "ftbpc:random_loot_item_function",
+              "nameSetKey": "example"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

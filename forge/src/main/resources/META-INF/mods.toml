@@ -1,0 +1,35 @@
+modLoader = "javafml"
+loaderVersion = "[41,)"
+#issueTrackerURL = ""
+license = "ARR"
+
+[[mods]]
+modId = "ftbpc"
+version = "${version}"
+displayName = "FTB Pack Companion"
+authors = "Me!"
+description = '''
+This is an example description! Tell everyone what your mod is about!
+'''
+#logoFile = ""
+
+[[dependencies.ftbpc]]
+modId = "forge"
+mandatory = true
+versionRange = "[41,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ftbpc]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ftbpc]]
+modId = "architectury"
+mandatory = true
+versionRange = "[5.12.42,)"
+ordering = "AFTER"
+side = "BOTH"

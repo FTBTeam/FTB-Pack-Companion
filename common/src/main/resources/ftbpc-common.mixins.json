@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "dev.ftb.packcompanion.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "features.notoast.TutorialMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
