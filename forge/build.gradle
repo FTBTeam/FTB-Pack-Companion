@@ -140,7 +140,7 @@ if (ENV.CURSEFORGE_KEY) {
             id = rootProject.curseforge_id
             releaseType = relType
             addGameVersion "Forge"
-            addGameVersion = rootProject.minecraft_version
+            addGameVersion rootProject.minecraft_version
             mainArtifact(remapJar.archiveFile)
             relations {
                 requiredDependency 'ftb-library-forge'

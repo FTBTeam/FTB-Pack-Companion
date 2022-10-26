@@ -124,6 +124,7 @@ if (ENV.TAG != null) {
         relType = "beta"
     }
 }
+
 if (ENV.CURSEFORGE_KEY) {
     curseforge {
         apiKey = ENV.CURSEFORGE_KEY
@@ -131,7 +132,7 @@ if (ENV.CURSEFORGE_KEY) {
             id = rootProject.curseforge_id
             releaseType = relType
             addGameVersion "Fabric"
-            addGameVersion = rootProject.minecraft_version
+            addGameVersion rootProject.minecraft_version
             mainArtifact(remapJar.archiveFile)
             relations {
                 requiredDependency 'ftb-library-fabric'
