@@ -137,7 +137,7 @@ if (ENV.CURSEFORGE_KEY) {
             relations {
                 requiredDependency 'ftb-library-fabric'
             }
-            changelog = file("./CHANGELOG.md")
+            changelog = file("./../CHANGELOG.md")
             changelogType = 'markdown'
         }
     }

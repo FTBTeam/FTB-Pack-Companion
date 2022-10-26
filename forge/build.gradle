@@ -145,7 +145,7 @@ if (ENV.CURSEFORGE_KEY) {
             relations {
                 requiredDependency 'ftb-library-forge'
             }
-            changelog = file("./CHANGELOG.md")
+            changelog = file("./../CHANGELOG.md")
             changelogType = 'markdown'
         }
     }
