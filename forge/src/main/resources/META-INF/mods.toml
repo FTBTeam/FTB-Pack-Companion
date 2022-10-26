@@ -7,9 +7,9 @@ license = "ARR"
 modId = "ftbpc"
 version = "${version}"
 displayName = "FTB Pack Companion"
-authors = "Me!"
+authors = "FTB Team"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+A Modpack developers best friend
 '''
 #logoFile = ""
 

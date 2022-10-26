@@ -17,9 +17,9 @@ public class CommandRegistry {
     public static void setup(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection selection) {
         LiteralArgumentBuilder<CommandSourceStack> companionRootCommand = Commands.literal(PackCompanion.MOD_ID);
 
-        for (CommandEntry command : COMMANDS) {
-            companionRootCommand.then(command.register());
-        }
+//        for (CommandEntry command : COMMANDS) {
+//            companionRootCommand.then(command.register());
+//        }
 
         dispatcher.register(companionRootCommand);
     }

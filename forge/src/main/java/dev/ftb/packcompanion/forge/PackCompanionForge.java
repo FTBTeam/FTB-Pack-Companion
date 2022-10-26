@@ -2,6 +2,7 @@ package dev.ftb.packcompanion.forge;
 
 import dev.architectury.platform.forge.EventBuses;
 import dev.ftb.packcompanion.PackCompanion;
+import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 

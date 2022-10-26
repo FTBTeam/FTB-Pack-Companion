@@ -21,13 +21,13 @@ public class LootTableGeneratorCommand implements CommandEntry {
     }
 
     private int runCommand(CommandContext<CommandSourceStack> commandSourceStackCommandContext) {
-        System.out.println("Hello");
-
-        ServerLevel level = commandSourceStackCommandContext.getSource().getLevel();
-
-        level.getServer().getLootTables().
-        LootTable lootTable = level.getServer().getLootTables().get(new ResourceLocation("modid", "name"));
-        ObjectArrayList<ItemStack> randomItems = lootTable.getRandomItems(new LootContext.Builder(level).create(LootContextParamSet.builder().build()));
+//        System.out.println("Hello");
+//
+//        ServerLevel level = commandSourceStackCommandContext.getSource().getLevel();
+//
+//        level.getServer().getLootTables().
+//        LootTable lootTable = level.getServer().getLootTables().get(new ResourceLocation("modid", "name"));
+//        ObjectArrayList<ItemStack> randomItems = lootTable.getRandomItems(new LootContext.Builder(level).create(LootContextParamSet.builder().build()));
 
         return 1;
     }

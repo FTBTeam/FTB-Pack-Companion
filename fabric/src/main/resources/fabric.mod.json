@@ -3,15 +3,15 @@
   "id": "ftbpc",
   "version": "${version}",
   "name": "FTB Pack Companion",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A Modpack makers best friend",
   "authors": [
-    "Me!"
+    "FTB Team"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://feed-the-beast.com",
+    "sources": "https://github.com/FTBTeam/FTB-Pack-Companion"
   },
-  "license": "Insert License Here",
+  "license": "ARR",
   "icon": "assets/ftbpc/icon.png",
   "environment": "*",
   "entrypoints": {
