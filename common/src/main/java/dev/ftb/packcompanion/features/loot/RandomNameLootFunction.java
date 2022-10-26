@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.LowerCaseEnumTypeAdapterFactory;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
@@ -20,13 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 public class RandomNameLootFunction extends LootItemConditionalFunction {
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomNameLootFunction.class);
-    private static final RandomSource RANDOM_SOURCE = RandomSource.create();
+    private static final Random RANDOM_SOURCE = new Random();
 
     // Stolen from minecraft!
     private static final Gson GSON = Util.make(() -> {
@@ -61,10 +63,12 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
         }
 
         // Load the file from the mods resources
-        Optional<Resource> namingSource = lootContext.getLevel().getServer().getResourceManager().getResource(new ResourceLocation(PackCompanion.MOD_ID, "sources/random-name-loot-source.json"));
+        Resource namingSource;
+        try {
+            namingSource = lootContext.getLevel().getServer().getResourceManager().getResource(new ResourceLocation(PackCompanion.MOD_ID, "sources/random-name-loot-source.json"));
+        } catch (IOException e) {
+            LOGGER.warn("Attempted RandomNameLootFunction with no random-name-loot-source.json file in the data/ftbpc/sources folder", e);
 
-        if (namingSource.isEmpty()) {
-            LOGGER.warn("Attempted RandomNameLootFunction with no random-name-loot-source.json file in the data/ftbpc/sources folder");
             return itemStack;
         }
 
@@ -77,8 +81,8 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
             hasAttemptedLoad = true;
 
             // Load the data... finally...
-            try {
-                namingData = GSON.fromJson(namingSource.get().openAsReader(), new TypeToken<Map<String, List<Component>>>() {}.getType());
+            try (var reader = new InputStreamReader(namingSource.getInputStream())) {
+                namingData = GSON.fromJson(reader, new TypeToken<Map<String, List<Component>>>() {}.getType());
             } catch (Exception e) {
                 LOGGER.error("Error trying to read", e);
             }
