@@ -1,7 +1,7 @@
 # Changelog
 
-## [2.0.0]
+## [1.0.0]
 
 ### Added
 
-- Released the mod for 1.19.2
+- Released the mod for 1.18.2
