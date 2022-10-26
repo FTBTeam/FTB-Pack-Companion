@@ -92,7 +92,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = rootProject.maven_group
-            artifactId = rootProject.archivesBaseName
+            artifactId = "${rootProject.archivesBaseName}-${project.name}"
             version = mavenVersion
 
             artifact(remapJar) {
