@@ -16,16 +16,50 @@ dependencies {
     modApi ("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive false }
 }
 
+def ENV = System.getenv()
+
+
+def ftbURL = "https://maven.ftb.dev/release"
+def sapsURL = "https://maven.saps.dev/minecraft"
+def mavenVersion = rootProject.version
+if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
+    ftbURL = "https://maven.ftb.dev/snapshot"
+    mavenVersion += "-SNAPSHOT"
+}
+
 publishing {
     publications {
-        mavenCommon(MavenPublication) {
-            artifactId = rootProject.archives_base_name
-            from components.java
+        mavenJava(MavenPublication) {
+            groupId = rootProject.maven_group
+            artifactId = project.archivesBaseName
+            version = mavenVersion
+
+            artifact(remapJar) {
+                builtBy remapJar
+            }
         }
     }
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
+        if (ENV.FTB_MAVEN_TOKEN) {
+            maven {
+                url ftbURL
+                credentials {
+                    username = "ftb"
+                    password = "${ENV.FTB_MAVEN_TOKEN}"
+                }
+            }
+        }
+
+        if (ENV.SAPS_TOKEN) {
+            maven {
+                url sapsURL
+                credentials {
+                    username = "ftb"
+                    password = "${ENV.SAPS_TOKEN}"
+                }
+            }
+        }
     }
 }
+

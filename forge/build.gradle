@@ -1,6 +1,9 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
+
+def ENV = System.getenv()
 
 architectury {
     platformSetupLoomIde()
@@ -76,16 +79,74 @@ components.java {
     }
 }
 
+// TODO: add to shared file
+def ftbURL = "https://maven.ftb.dev/release"
+def sapsURL = "https://maven.saps.dev/minecraft"
+def mavenVersion = rootProject.version
+if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
+    ftbURL = "https://maven.ftb.dev/snapshot"
+    mavenVersion += "-SNAPSHOT"
+}
+
 publishing {
     publications {
-        mavenForge(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            from components.java
+        mavenJava(MavenPublication) {
+            groupId = rootProject.maven_group
+            artifactId = rootProject.archivesBaseName
+            version = mavenVersion
+
+            artifact(remapJar) {
+                builtBy remapJar
+            }
         }
     }
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
+        if (ENV.FTB_MAVEN_TOKEN) {
+            maven {
+                url ftbURL
+                credentials {
+                    username = "ftb"
+                    password = "${ENV.FTB_MAVEN_TOKEN}"
+                }
+            }
+        }
+
+        if (ENV.SAPS_TOKEN) {
+            maven {
+                url sapsURL
+                credentials {
+                    username = "ftb"
+                    password = "${ENV.SAPS_TOKEN}"
+                }
+            }
+        }
+    }
+}
+
+
+def relType = "release"
+if (ENV.TAG != null) {
+    if (ENV.TAG.contains("alpha")) {
+        relType = "alpha"
+    } else if (ENV.TAG.contains("beta")) {
+        relType = "beta"
+    }
+}
+if (ENV.CURSEFORGE_KEY) {
+    curseforge {
+        apiKey = ENV.CURSEFORGE_KEY
+        project {
+            id = rootProject.curseforge_id
+            releaseType = relType
+            addGameVersion "Forge"
+            addGameVersion = rootProject.minecraft_version
+            mainArtifact(remapJar.archiveFile)
+            relations {
+                requiredDependency 'ftb-library-forge'
+            }
+            changelog = file("./CHANGELOG.md")
+            changelogType = 'markdown'
+        }
     }
 }

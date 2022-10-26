@@ -1,0 +1,37 @@
+name: Java CI - Build Release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 30 # Gets the last 30 commits so the changelog might work
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+      - name: Publish to Maven
+        uses: gradle/gradle-build-action@v2
+        env:
+          FTB_MAVEN_TOKEN: ${{ secrets.FTB_MAVEN_TOKEN}}
+          SAPS_TOKEN: ${{ secrets.SAPS_TOKEN }}
+        with:
+          arguments: publish
+      - name: Release to CurseForge
+        uses: gradle/gradle-build-action@v2
+        env:
+          GIT_COMMIT: ${{ github.event.after }}
+          GIT_PREVIOUS_COMMIT: ${{ github.event.before }}
+          CURSEFORGE_KEY: ${{ secrets.CURSEFORGE_KEY }}
+        with:
+          arguments: curseforge
