@@ -10,6 +10,7 @@ public class ConfigSpec {
     public int version;
 
     public FeatureConfig featureToast;
+    public FeatureConfig featureBeds;
 
     public static class FeatureConfig {
         public List<String> comments;

@@ -20,7 +20,7 @@
     ]
   },
   "mixins": [
-    "ftbpc.mixins.json",
+    "ftbpc-fabric.mixins.json",
     "ftbpc-common.mixins.json"
   ],
   "depends": {
