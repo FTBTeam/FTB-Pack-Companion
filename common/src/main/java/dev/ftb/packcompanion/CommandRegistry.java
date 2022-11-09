@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.ftb.packcompanion.commands.CommandEntry;
 import dev.ftb.packcompanion.commands.LootTableGeneratorCommand;
 import net.minecraft.commands.CommandSourceStack;
@@ -15,11 +16,11 @@ public class CommandRegistry {
 
     public static void setup(CommandDispatcher<CommandSourceStack> commandDispatcher, Commands.CommandSelection commandSelection) {
 //        LiteralArgumentBuilder<CommandSourceStack> companionRootCommand = Commands.literal(PackCompanion.MOD_ID);
-
+//
 //        for (CommandEntry command : COMMANDS) {
 //            companionRootCommand.then(command.register());
 //        }
-
+//
 //        commandDispatcher.register(companionRootCommand);
     }
 }

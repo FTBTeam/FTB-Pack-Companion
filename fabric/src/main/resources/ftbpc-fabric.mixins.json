@@ -1,11 +1,12 @@
 {
   "required": true,
-  "package": "dev.ftb.packcompanion.mixin.fabric",
+  "package": "dev.ftb.packcompanion.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
-  "minVersion": "0.8",
+  "minVersion": "0.1",
   "client": [
   ],
   "mixins": [
+    "features.bedtime.ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
