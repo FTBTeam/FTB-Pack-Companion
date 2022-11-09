@@ -6,17 +6,14 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.phys.AABB;
@@ -35,8 +32,8 @@ import java.util.Optional;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
-    public ServerPlayerMixin(Level arg, BlockPos arg2, float f, GameProfile gameProfile) {
-        super(arg, arg2, f, gameProfile);
+    public ServerPlayerMixin(Level arg, BlockPos arg2, float f, GameProfile gameProfile, @Nullable ProfilePublicKey arg3) {
+        super(arg, arg2, f, gameProfile, arg3);
     }
 
     @Shadow protected abstract boolean bedInRange(BlockPos blockPos, Direction direction);
@@ -76,7 +73,7 @@ public abstract class ServerPlayerMixin extends Player {
                 CriteriaTriggers.SLEPT_IN_BED.trigger((ServerPlayer) (Object)this);
             });
             if (!this.getLevel().canSleepThroughNights()) {
-                this.displayClientMessage(new TranslatableComponent("sleep.not_possible"), true);
+                this.displayClientMessage(Component.translatable("sleep.not_possible"), true);
             }
 
             this.getLevel().updateSleepingPlayerList();
