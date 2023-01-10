@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.3]
+
+### Fixed
+
+- Hopefully fixed the water logging issues in structure using our processor
+
 ## [2.0.1]
 
 ### Added
