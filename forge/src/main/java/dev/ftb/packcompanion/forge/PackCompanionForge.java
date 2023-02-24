@@ -11,5 +11,6 @@ public class PackCompanionForge {
     public PackCompanionForge() {
         EventBuses.registerModEventBus(PackCompanion.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
         PackCompanion.init();
+
     }
 }

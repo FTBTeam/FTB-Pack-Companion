@@ -2,7 +2,7 @@ package dev.ftb.packcompanion.fabric.mixin.features.bedtime;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
-import dev.ftb.packcompanion.config.Config;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +28,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
@@ -45,7 +44,7 @@ public abstract class ServerPlayerMixin extends Player {
 
     @Inject(method = "startSleepInBed", at = @At(value = "RETURN"), cancellable = true)
     public void startSleepInBed(BlockPos blockPos, CallbackInfoReturnable<Either<BedSleepingProblem, Unit>> callback) {
-        if (!Config.get().featureBeds.enabled) {
+        if (!PCCommonConfig.ALLOW_BEDS_IN_THE_NETHER.get()) {
             callback.setReturnValue(callback.getReturnValue());
             return;
         }

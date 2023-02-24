@@ -1,6 +1,8 @@
 package dev.ftb.packcompanion.mixin.features.notoast;
 
-import dev.ftb.packcompanion.config.Config;
+import dev.ftb.packcompanion.config.PCClientConfig;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.client.tutorial.TutorialStepInstance;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Environment(EnvType.CLIENT)
 @Mixin(Tutorial.class)
 public abstract class TutorialMixin {
     @Shadow @Nullable private TutorialStepInstance instance;
@@ -40,6 +43,6 @@ public abstract class TutorialMixin {
      * @return if the toast feature should be run
      */
     private static boolean enabled() {
-        return Config.isLoaded() && Config.get().featureToast.enabled;
+        return PCClientConfig.DISABLE_TUTORIAL_TOASTS.get();
     }
 }
