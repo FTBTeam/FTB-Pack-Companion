@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.3]
+
+### Added
+
+- Support for disabling Advancement Toasts 
+- Support for disabling Recipe Toasts
+
+### Changed 
+
+- Moved over to SNBT config files instead of json. Please be sure to update your config files if you use this mod in a non-ftb modpack.
+
 ## [2.0.2]
 
 ### Fixed
