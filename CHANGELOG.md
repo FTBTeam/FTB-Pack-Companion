@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.4]
+
+### Added
+
+- Support for having a static world seed in single player. Can be configured in the `client` config.
+
 ## [2.0.3]
 
 ### Added
