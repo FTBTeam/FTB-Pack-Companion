@@ -18,46 +18,15 @@ dependencies {
 
 def ENV = System.getenv()
 
-
-def ftbURL = "https://maven.ftb.dev/release"
-def sapsURL = "https://maven.saps.dev/minecraft"
-def mavenVersion = rootProject.version
-if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
-    ftbURL = "https://maven.ftb.dev/snapshot"
-    mavenVersion += "-SNAPSHOT"
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = rootProject.maven_group
             artifactId = project.archivesBaseName
-            version = mavenVersion
+            version = ftbPublishing.mavenVersion
 
             artifact(remapJar) {
                 builtBy remapJar
-            }
-        }
-    }
-
-    repositories {
-        if (ENV.FTB_MAVEN_TOKEN) {
-            maven {
-                url ftbURL
-                credentials {
-                    username = "ftb"
-                    password = "${ENV.FTB_MAVEN_TOKEN}"
-                }
-            }
-        }
-
-        if (ENV.SAPS_TOKEN) {
-            maven {
-                url sapsURL
-                credentials {
-                    username = "ftb"
-                    password = "${ENV.SAPS_TOKEN}"
-                }
             }
         }
     }

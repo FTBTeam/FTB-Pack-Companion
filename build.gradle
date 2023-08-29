@@ -9,6 +9,8 @@ architectury {
 
 subprojects {
     apply plugin: "dev.architectury.loom"
+    apply plugin: 'maven-publish'
+    apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/publishing.gradle'
 
     loom {
         silentMojangMappingsLicense()
@@ -20,6 +22,30 @@ subprojects {
         mappings loom.officialMojangMappings()
         // The following line declares the yarn mappings you may select this one as well.
         // mappings "net.fabricmc:yarn:1.19+build.4:v2"
+    }
+
+    publishing {
+        repositories {
+            if (providers.environmentVariable("FTB_MAVEN_TOKEN").isPresent()) {
+                maven {
+                    url ftbPublishing.ftbURL
+                    credentials {
+                        username = "ftb"
+                        password = providers.environmentVariable("FTB_MAVEN_TOKEN").getOrElse("")
+                    }
+                }
+            }
+
+            if (providers.environmentVariable("SAPS_TOKEN").isPresent()) {
+                maven {
+                    url ftbPublishing.sapsURL
+                    credentials {
+                        username = "ftb"
+                        password = providers.environmentVariable("SAPS_TOKEN").getOrElse("")
+                    }
+                }
+            }
+        }
     }
 }
 
