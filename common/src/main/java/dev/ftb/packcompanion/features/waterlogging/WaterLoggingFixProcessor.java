@@ -25,8 +25,6 @@ public class WaterLoggingFixProcessor extends StructureProcessor {
     @Nullable
     @Override
     public StructureTemplate.StructureBlockInfo processBlock(LevelReader levelReader, BlockPos blockPos, BlockPos blockPos2, StructureTemplate.StructureBlockInfo original, StructureTemplate.StructureBlockInfo after, StructurePlaceSettings structurePlaceSettings) {
-        // NOTE: process() method is a Forge extension. If we ever port this to Fabric, use processBlock() instead
-
         if (!after.state.isAir()) {
             getWriter(levelReader).ifPresent(writer -> {
                 // Is the block meant to be a fluid? No then lets make sure the world doesn't already have a fluid there

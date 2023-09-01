@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.5]
+
+### Fixed
+
+- Fix waterlogging fix processor crash for huge structure which could go outside the generated chunk region during worldgen
+- Make the waterlogging fix processor also work with `ServerLevel`, so it can be use with the `/place jigsaw ...` command
+
 ## [2.0.4]
 
 ### Added
