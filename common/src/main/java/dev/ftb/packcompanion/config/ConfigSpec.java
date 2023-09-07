@@ -11,6 +11,7 @@ public class ConfigSpec {
 
     public FeatureConfig featureToast;
     public FeatureConfig featureBeds;
+    public FeatureConfig featureJigsaw;
 
     public static class FeatureConfig {
         public List<String> comments;

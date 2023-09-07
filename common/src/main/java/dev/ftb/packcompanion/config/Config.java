@@ -76,10 +76,11 @@ public class Config {
         boolean updated = false;
 
         // Hacky but it works for now
-        if (configSpec.featureBeds == null || configSpec.featureToast == null) {
+        if (configSpec.featureBeds == null || configSpec.featureToast == null || configSpec.featureJigsaw == null) {
             ConfigSpec defaultConfig = createDefaultConfig();
             configSpec.featureBeds = configSpec.featureBeds == null ? defaultConfig.featureBeds : configSpec.featureBeds;
             configSpec.featureToast = configSpec.featureToast == null ? defaultConfig.featureToast : configSpec.featureToast;
+            configSpec.featureJigsaw = configSpec.featureJigsaw == null ? defaultConfig.featureJigsaw : configSpec.featureJigsaw;
 
             updated = true;
         }
@@ -112,6 +113,7 @@ public class Config {
         configSpec.version = 1;
         configSpec.featureToast = ConfigSpec.FeatureConfig.of(true, "Allows you to completely disable the Tutorial Toasts", "Enabled by default");
         configSpec.featureBeds = ConfigSpec.FeatureConfig.of(false, "Forces beds to allows all you to sleep regardless of dimension");
+        configSpec.featureJigsaw = ConfigSpec.FeatureConfig.of(true, "Expand jigsaw feature size limit from 80 to 256", "Enabled by default");
 
         return configSpec;
     }
