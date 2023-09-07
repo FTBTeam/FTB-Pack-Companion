@@ -72,56 +72,35 @@ components.java {
     }
 }
 
-def ftbURL = "https://maven.ftb.dev/releases"
-def sapsURL = "https://maven.saps.dev/releases"
-def mavenVersion = rootProject.version
-if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
-    ftbURL = "https://maven.ftb.dev/releases"
-    mavenVersion += "-SNAPSHOT"
-}
-
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            groupId = rootProject.maven_group
-            artifactId = "${rootProject.archivesBaseName}-${project.name}"
-            version = mavenVersion
-
-            artifact(remapJar) {
-                builtBy remapJar
-            }
+        mavenForge(MavenPublication) {
+            artifactId = "${rootProject.archives_base_name}-${project.name}"
+            version ftbPublishing.mavenVersion
+            from components.java
         }
     }
 
     repositories {
-        if (ENV.FTB_MAVEN_TOKEN) {
+        if (ftbPublishing.ftbToken) {
             maven {
-                url ftbURL
+                url ftbPublishing.ftbURL
                 credentials {
-                    username = "ftb"
-                    password = "${ENV.FTB_MAVEN_TOKEN}"
+                    username = ftbPublishing.ftbUser
+                    password = ftbPublishing.ftbToken
                 }
             }
         }
 
-        if (ENV.SAPS_TOKEN) {
+        if (ftbPublishing.sapsToken) {
             maven {
-                url sapsURL
+                url ftbPublishing.sapsURL
                 credentials {
-                    username = "ftb"
-                    password = "${ENV.SAPS_TOKEN}"
+                    username = ftbPublishing.sapsUser
+                    password = ftbPublishing.sapsToken
                 }
             }
         }
-    }
-}
-
-def relType = "release"
-if (ENV.TAG != null) {
-    if (ENV.TAG.contains("alpha")) {
-        relType = "alpha"
-    } else if (ENV.TAG.contains("beta")) {
-        relType = "beta"
     }
 }
 
@@ -130,14 +109,14 @@ if (ENV.CURSEFORGE_KEY) {
         apiKey = ENV.CURSEFORGE_KEY
         project {
             id = rootProject.curseforge_id
-            releaseType = relType
+            releaseType = ftbPublishing.relType
             addGameVersion "Fabric"
             addGameVersion rootProject.minecraft_version
             mainArtifact(remapJar.archiveFile)
             relations {
                 requiredDependency 'ftb-library-fabric'
             }
-            changelog = file("./../CHANGELOG.md")
+            changelog = ENV.CHANGELOG // expected to exist if ENV.CURSEFORGE_KEY does
             changelogType = 'markdown'
         }
     }
