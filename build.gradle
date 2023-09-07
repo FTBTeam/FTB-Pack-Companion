@@ -36,7 +36,7 @@ allprojects {
 
     repositories {
         maven {
-            url "https://maven.ftb.dev/"
+            url "https://maven.ftb.dev/releases"
         }
     }
 

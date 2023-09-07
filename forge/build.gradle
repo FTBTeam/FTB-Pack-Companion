@@ -80,11 +80,11 @@ components.java {
 }
 
 // TODO: add to shared file
-def ftbURL = "https://maven.ftb.dev/release"
-def sapsURL = "https://maven.saps.dev/minecraft"
+def ftbURL = "https://maven.ftb.dev/releases"
+def sapsURL = "https://maven.saps.dev/releases"
 def mavenVersion = rootProject.version
 if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
-    ftbURL = "https://maven.ftb.dev/snapshot"
+    ftbURL = "https://maven.ftb.dev/releases"
     mavenVersion += "-SNAPSHOT"
 }
 
