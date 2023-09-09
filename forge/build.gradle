@@ -35,7 +35,7 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
-    modApi("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive false }
+    modImplementation("dev.ftb.mods:ftb-library-forge:${rootProject.ftb_library_version}") { transitive false }
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
