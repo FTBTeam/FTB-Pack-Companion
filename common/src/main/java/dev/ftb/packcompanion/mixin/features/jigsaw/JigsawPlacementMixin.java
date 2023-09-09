@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class JigsawPlacementMixin {
     @ModifyVariable(method = "addPieces(Lnet/minecraft/world/level/levelgen/structure/Structure$GenerationContext;Lnet/minecraft/core/Holder;Ljava/util/Optional;ILnet/minecraft/core/BlockPos;ZLjava/util/Optional;I)Ljava/util/Optional;", at = @At("HEAD"), ordinal = 1, argsOnly = true)
     private static int modifyRange(int range) {
-        return PCCommonConfig.EXTENDED_JIGSAW_RANGE.get() ? 256 : range;
+        int r = PCCommonConfig.EXTENDED_JIGSAW_RANGE.get();
+        return r == 0 ? range : r;
     }
 }
