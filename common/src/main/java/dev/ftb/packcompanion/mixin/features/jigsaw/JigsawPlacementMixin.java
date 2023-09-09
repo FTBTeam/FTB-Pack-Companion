@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.mixin.features.jigsaw;
 
-import dev.ftb.packcompanion.config.Config;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.features.jigsaw.CustomJigsawPlacement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
@@ -20,8 +20,9 @@ public class JigsawPlacementMixin {
             at = @At("HEAD"),
             cancellable = true)
     private static void onAddPieces(PieceGeneratorSupplier.Context<JigsawConfiguration> ctx, JigsawPlacement.PieceFactory factory, BlockPos startPos, boolean expansionHack, boolean projectStartToHeightmap, CallbackInfoReturnable<Optional<PieceGenerator<JigsawConfiguration>>> cir) {
-        if (Config.get().featureJigsaw.enabled) {
-            cir.setReturnValue(CustomJigsawPlacement.addPieces(ctx, factory, startPos, expansionHack, projectStartToHeightmap));
+        int customRange = PCCommonConfig.EXTENDED_JIGSAW_RANGE.get();
+        if (customRange != 0) {
+            cir.setReturnValue(CustomJigsawPlacement.addPieces(ctx, factory, startPos, expansionHack, projectStartToHeightmap, customRange));
         }
     }
 }

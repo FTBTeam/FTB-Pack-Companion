@@ -34,14 +34,12 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
- * Pretty much a copy of JigsawPlacement, with the hardcoded 80 size replaced by MAX_SIZE (256)
+ * Pretty much a copy of JigsawPlacement, with the hardcoded 80 size replaced by customRange param
  */
 public class CustomJigsawPlacement {
     static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final int MAX_SIZE = 256;
-
-    public static Optional<PieceGenerator<JigsawConfiguration>> addPieces(PieceGeneratorSupplier.Context<JigsawConfiguration> context, JigsawPlacement.PieceFactory pieceFactory, BlockPos startPos, boolean expansionHack, boolean projectStartToHeightmap) {
+    public static Optional<PieceGenerator<JigsawConfiguration>> addPieces(PieceGeneratorSupplier.Context<JigsawConfiguration> context, JigsawPlacement.PieceFactory pieceFactory, BlockPos startPos, boolean expansionHack, boolean projectStartToHeightmap, int customRange) {
         WorldgenRandom rand = new WorldgenRandom(new LegacyRandomSource(0L));
         rand.setLargeFeatureSeed(context.seed(), context.chunkPos().x, context.chunkPos().z);
         RegistryAccess registryAccess = context.registryAccess();
@@ -80,7 +78,7 @@ public class CustomJigsawPlacement {
                     list.add(poolElementStructurePiece);
                     if (jigsawConfiguration.maxDepth() > 0) {
 
-                        AABB aabb = new AABB(startX - MAX_SIZE, startY - MAX_SIZE, startZ - MAX_SIZE, startX + MAX_SIZE + 1, startY + MAX_SIZE + 1, startZ + MAX_SIZE + 1);
+                        AABB aabb = new AABB(startX - customRange, startY - customRange, startZ - customRange, startX + customRange + 1, startY + customRange + 1, startZ + customRange + 1);
                         Placer placer = new Placer(registry, jigsawConfiguration.maxDepth(), pieceFactory, chunkGenerator, structureManager, list, rand);
                         placer.placing.addLast(new PieceState(poolElementStructurePiece, new MutableObject<>(Shapes.join(Shapes.create(aabb), Shapes.create(AABB.of(boundingbox)), BooleanOp.ONLY_FIRST)), 0));
 
