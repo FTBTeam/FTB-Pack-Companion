@@ -14,7 +14,7 @@ public class SpawnerManagerClearCommand implements CommandEntry {
     }
 
     private int clear(CommandContext<CommandSourceStack> context) {
-        SpawnerManager.DataStore dataStore = SpawnerManager.get().getDataStore(context.getSource().getServer());
+        SpawnerManager.DataStore dataStore = SpawnerManager.get().getDataStore();
         var spawners = dataStore.getBrokenSpawners();
         dataStore.getBrokenSpawners().clear();
         dataStore.setDirty();

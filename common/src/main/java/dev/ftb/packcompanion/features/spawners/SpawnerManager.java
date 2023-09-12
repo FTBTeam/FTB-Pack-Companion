@@ -41,6 +41,7 @@ public class SpawnerManager {
 
     private boolean initialized = false;
     private static final SpawnerManager INSTANCE = new SpawnerManager();
+    private DataStore dataStore;
 
     // Defer loading so the config and registry are initialized
     private final LazyValue<List<EntityType<?>>> randomEntities = new LazyValue<>(() -> {
@@ -67,6 +68,7 @@ public class SpawnerManager {
         }
 
         initialized = true;
+        dataStore = DataStore.create(server);
 
         BlockEvent.BREAK.register((level, pos, state, player, xp) -> {
             if (level == null || level.getServer() == null || level.isClientSide) {
@@ -84,7 +86,7 @@ public class SpawnerManager {
 
             // Spawn data
             var compound = spawnerBlockEntity.saveWithoutMetadata();
-            DataStore dataStore = DataStore.create(level.getServer());
+            DataStore dataStore = this.getDataStore();
             dataStore.brokenSpawners.add(new MobSpawnerData(pos, compound, level.dimension()));
             dataStore.setDirty();
 
@@ -100,7 +102,7 @@ public class SpawnerManager {
             return;
         }
 
-        DataStore dataStore = DataStore.create(serverLevel.getServer());
+        DataStore dataStore = this.getDataStore();
         if (dataStore.brokenSpawners.isEmpty()) {
             return;
         }
@@ -166,8 +168,8 @@ public class SpawnerManager {
         return INSTANCE;
     }
 
-    public DataStore getDataStore(MinecraftServer server) {
-        return DataStore.create(server);
+    public DataStore getDataStore() {
+        return dataStore;
     }
 
     public record MobSpawnerData(
