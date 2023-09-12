@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.2]
+## [1.1.0]
 
 ### Added
 - Ability to increase maximum jigsaw size from 80 to 256
