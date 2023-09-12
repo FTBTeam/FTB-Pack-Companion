@@ -52,12 +52,10 @@ public class PlaceJigsawCommand implements CommandEntry {
     }
 
     public static int placeJigsaw(CommandSourceStack source, Holder<StructureTemplatePool> pool, ResourceLocation target, int maxDepth, BlockPos position) throws CommandSyntaxException {
-        return placeJigsaw(source, pool.unwrapKey().orElseThrow().location(), target, maxDepth, position);
+        return placeJigsaw(source, source.getLevel(), pool.unwrapKey().orElseThrow().location(), target, maxDepth, position);
     }
 
-    public static int placeJigsaw(CommandSourceStack source, ResourceLocation pool, ResourceLocation target, int maxDepth, BlockPos position) throws CommandSyntaxException {
-        ServerLevel level = source.getLevel();
-
+    public static int placeJigsaw(CommandSourceStack source, ServerLevel level, ResourceLocation pool, ResourceLocation target, int maxDepth, BlockPos position) throws CommandSyntaxException {
         BlockState prevState = level.getBlockState(position);
         level.setBlock(position, Blocks.JIGSAW.defaultBlockState(), 0);
         if (level.getBlockEntity(position) instanceof JigsawBlockEntity jbe) {
