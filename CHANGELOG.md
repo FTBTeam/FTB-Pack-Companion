@@ -4,7 +4,9 @@
 
 ### Added
 - Ability to increase maximum jigsaw size from 80 to 256
-    - Controlled via `extended_jigsaw_range` config setting (default true)
+  - Controlled via `extended_jigsaw_range` config setting (default true)
+- Added `/ftbpc place_jigsaw` command, which uses the same syntax as the 1.19 `/place jigsaw` command
+  -  `/ftbpc place_jigsaw <template_pool> <target> <max_depth> [<blockpos>]`
 
 ## [1.0.1]
 
