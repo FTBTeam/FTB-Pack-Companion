@@ -7,6 +7,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
+import java.util.Objects;
+
 public class SpawnerManagerClearCommand implements CommandEntry {
     @Override
     public LiteralArgumentBuilder<CommandSourceStack> register() {
@@ -15,7 +17,7 @@ public class SpawnerManagerClearCommand implements CommandEntry {
 
     private int clear(CommandContext<CommandSourceStack> context) {
         SpawnerManager.DataStore dataStore = SpawnerManager.get().getDataStore();
-        var spawners = dataStore.getBrokenSpawners();
+        var spawners = Objects.requireNonNull(dataStore).getBrokenSpawners();
         dataStore.getBrokenSpawners().clear();
         dataStore.setDirty();
         context.getSource().sendSuccess(Component.literal(spawners.size() + " broken spawners cleared"), false);

@@ -7,6 +7,9 @@ import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.features.CommonFeature;
+import dev.ftb.packcompanion.features.Features;
+import dev.ftb.packcompanion.features.ServerFeature;
 import dev.ftb.packcompanion.features.spawners.SpawnerManager;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import dev.ftb.packcompanion.registry.ReloadResourceManager;
@@ -36,6 +39,7 @@ public class PackCompanion {
 
     private static void onSetup() {
         PCCommonConfig.load();
+        Features.INSTANCE.getCommonFeatures().forEach(CommonFeature::setup);
     }
 
     private static void serverBeforeStart(MinecraftServer server) {
@@ -43,8 +47,6 @@ public class PackCompanion {
     }
 
     private static void serverStarted(MinecraftServer server) {
-        if (PCServerConfig.SPAWNERS_ALLOW_RESPAWN.get()) {
-            SpawnerManager.get().init(server);
-        }
+        Features.INSTANCE.getServerFeatures().forEach(e -> e.setup(server));
     }
 }

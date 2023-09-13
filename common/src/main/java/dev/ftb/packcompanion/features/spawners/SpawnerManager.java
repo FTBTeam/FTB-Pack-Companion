@@ -2,12 +2,12 @@ package dev.ftb.packcompanion.features.spawners;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.BlockEvent;
 import dev.architectury.event.events.common.TickEvent;
 import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.features.ServerFeature;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +37,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class SpawnerManager {
+public class SpawnerManager extends ServerFeature {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpawnerManager.class);
 
-    private boolean initialized = false;
-    private static final SpawnerManager INSTANCE = new SpawnerManager();
+    private static SpawnerManager INSTANCE = new SpawnerManager();
     private DataStore dataStore;
 
     // Defer loading so the config and registry are initialized
@@ -58,20 +58,13 @@ public class SpawnerManager {
         return entities;
     });
 
-    private SpawnerManager() {
-
-    }
-
-    public void init(MinecraftServer server) {
-        if (initialized) {
-            return;
-        }
-
-        initialized = true;
-        dataStore = DataStore.create(server);
+    @Override
+    public void initialize() {
+        INSTANCE = this;
+        dataStore = DataStore.create(getServer());
 
         BlockEvent.BREAK.register((level, pos, state, player, xp) -> {
-            if (level == null || level.getServer() == null || level.isClientSide) {
+            if (level == null || level.getServer() == null || level.isClientSide || this.dataStore == null) {
                 return EventResult.pass();
             }
 
@@ -86,7 +79,7 @@ public class SpawnerManager {
 
             // Spawn data
             var compound = spawnerBlockEntity.saveWithoutMetadata();
-            DataStore dataStore = this.getDataStore();
+            DataStore dataStore = this.dataStore;
             dataStore.brokenSpawners.add(new MobSpawnerData(pos, compound, level.dimension()));
             dataStore.setDirty();
 
@@ -96,6 +89,13 @@ public class SpawnerManager {
         TickEvent.ServerLevelTick.SERVER_LEVEL_POST.register(this::onServerTick);
     }
 
+    public SpawnerManager() {}
+
+    @Override
+    public boolean isEnabled() {
+        return PCServerConfig.SPAWNERS_ALLOW_RESPAWN.get();
+    }
+
     private void onServerTick(ServerLevel serverLevel) {
         // Only run this method every 10 seconds
         if (serverLevel.getGameTime() % 200 != 0) {
@@ -103,7 +103,7 @@ public class SpawnerManager {
         }
 
         DataStore dataStore = this.getDataStore();
-        if (dataStore.brokenSpawners.isEmpty()) {
+        if (dataStore == null || dataStore.brokenSpawners.isEmpty()) {
             return;
         }
 
@@ -168,6 +168,7 @@ public class SpawnerManager {
         return INSTANCE;
     }
 
+    @Nullable
     public DataStore getDataStore() {
         return dataStore;
     }
