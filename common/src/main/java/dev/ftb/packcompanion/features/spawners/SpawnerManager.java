@@ -1,5 +1,6 @@
 package dev.ftb.packcompanion.features.spawners;
 
+import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -44,7 +45,7 @@ public class SpawnerManager extends ServerFeature {
     private DataStore dataStore;
 
     // Defer loading so the config and registry are initialized
-    private final LazyValue<List<EntityType<?>>> randomEntities = new LazyValue<>(() -> {
+    private final Supplier<List<EntityType<?>>> randomEntities = Suppliers.memoize(() -> {
         List<String> randomEntities = PCServerConfig.SPAWNERS_USE_RANDOM_ENTITY.get();
         List<EntityType<?>> entities = new ArrayList<>();
         for (String entity : randomEntities) {
@@ -92,8 +93,8 @@ public class SpawnerManager extends ServerFeature {
     public SpawnerManager() {}
 
     @Override
-    public boolean isEnabled() {
-        return PCServerConfig.SPAWNERS_ALLOW_RESPAWN.get();
+    public boolean isDisabled() {
+        return !PCServerConfig.SPAWNERS_ALLOW_RESPAWN.get();
     }
 
     private void onServerTick(ServerLevel serverLevel) {
@@ -220,30 +221,6 @@ public class SpawnerManager extends ServerFeature {
 
         public List<MobSpawnerData> getBrokenSpawners() {
             return brokenSpawners;
-        }
-    }
-
-    /**
-     * A lazy value that is only computed once
-     */
-    public static class LazyValue<T> implements Supplier<T> {
-        private volatile T value;
-        private final Supplier<T> supplier;
-
-        public LazyValue(Supplier<T> supplier) {
-            this.supplier = supplier;
-        }
-
-        @Override
-        public T get() {
-            if (value == null) {
-                synchronized (this) {
-                    if (value == null) {
-                        value = supplier.get();
-                    }
-                }
-            }
-            return value;
         }
     }
 }

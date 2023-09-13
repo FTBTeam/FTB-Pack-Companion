@@ -2,7 +2,7 @@ package dev.ftb.packcompanion.features;
 
 public abstract class CommonFeature {
     public void setup() {
-        if (!isEnabled()) {
+        if (isDisabled()) {
             return;
         }
 
@@ -11,7 +11,7 @@ public abstract class CommonFeature {
 
     public abstract void initialize();
 
-    public boolean isEnabled() {
-        return false;
+    public boolean isDisabled() {
+        return true;
     }
 }

@@ -8,7 +8,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.monster.Zombie;
 
 public class MobEntityBuff extends ServerFeature {
     @Override
@@ -19,7 +18,7 @@ public class MobEntityBuff extends ServerFeature {
                 AttributeInstance attribute = mob.getAttribute(Attributes.MAX_HEALTH);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() * PCServerConfig.MODIFY_MOB_BASE_HEALTH.get());
-                    ((Mob) entity).setHealth((float) attribute.getBaseValue());
+                    mob.setHealth((float) attribute.getBaseValue());
                 }
             }
 
@@ -28,7 +27,7 @@ public class MobEntityBuff extends ServerFeature {
     }
 
     @Override
-    public boolean isEnabled() {
-        return PCServerConfig.MODIFY_MOB_BASE_HEALTH.get() > 0;
+    public boolean isDisabled() {
+        return PCServerConfig.MODIFY_MOB_BASE_HEALTH.get() == 0.0D;
     }
 }
