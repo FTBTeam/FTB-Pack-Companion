@@ -10,6 +10,7 @@
   ],
   "mixins": [
     "features.bedtime.BedMixin",
+    "features.jigsaw.JigsawPlacementMixin"
   ],
   "injectors": {
     "defaultRequire": 1

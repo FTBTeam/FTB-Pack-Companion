@@ -1,11 +1,22 @@
 # Changelog
 
+## [2.0.6]
+
+### Added
+- Ability to increase maximum jigsaw size from 128 to 256
+  - Controlled via `extended_jigsaw_range` config setting (default true)
+- Added `Mob base health modifier` via the settings config `modify_mob_base_health` in the world/serverconfig/ file
+- Added `Spawner Respawn` feature
+  - When enabled, this allows broken spawners to be remembered and will respawn at a given interval.
+  - You can configure the interval in minutes at which spawners will respawn via the `respawn_interval`
+  - You can configure the list of entity types that will be used to replace broken spawners via the `random_entity` list
+
 ## [2.0.5]
 
 ### Fixed
 
 - Fix waterlogging fix processor crash for huge structure which could go outside the generated chunk region during worldgen
-- Make the waterlogging fix processor also work with `ServerLevel`, so it can be use with the `/place jigsaw ...` command
+- Make the waterlogging fix processor also work with `ServerLevel`, so it can be used with the `/place jigsaw ...` command
 
 ## [2.0.4]
 
