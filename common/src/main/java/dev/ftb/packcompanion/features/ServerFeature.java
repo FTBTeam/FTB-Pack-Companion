@@ -16,7 +16,6 @@ public abstract class ServerFeature {
         if (!initialized) {
             initialized = true;
             initialize();
-            System.out.println("Initialized " + this.getClass().getSimpleName());
         }
     }
 
