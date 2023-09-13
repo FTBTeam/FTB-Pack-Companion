@@ -15,7 +15,7 @@ public interface PCServerConfig {
             .comment("When enabled, broken spawner blocks will be remembered and will respawn at a given interval.");
 
     IntValue SPAWNERS_RESPAWN_INTERVAL = SPAWNERS.getInt("respawn_interval", 60, 0, 24 * 60)
-            .comment("The interval in minutes at which spawners will respawn. Set to 0 to disable.");
+            .comment("The interval in minutes at which spawners will respawn.");
 
     StringListValue SPAWNERS_USE_RANDOM_ENTITY = SPAWNERS.getStringList("random_entity", new ArrayList<>())
             .comment("A list of entity types that will be used to replace broken spawners. Set to an empty list to disable.");
