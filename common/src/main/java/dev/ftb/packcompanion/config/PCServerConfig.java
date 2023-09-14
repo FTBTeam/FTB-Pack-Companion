@@ -20,6 +20,8 @@ public interface PCServerConfig {
     StringListValue SPAWNERS_USE_RANDOM_ENTITY = SPAWNERS.getStringList("random_entity", new ArrayList<>())
             .comment("A list of entity types that will be used to replace broken spawners. Set to an empty list to disable.");
 
+    BooleanValue PUNISH_BREAKING_SPAWNER = SPAWNERS.getBoolean("punish_for_breaking_spawners", false);
+
     DoubleValue MODIFY_MOB_BASE_HEALTH = CONFIG.getDouble("modify_mob_base_health", 0D, 0D, 1000D)
             .comment("If non-zero, set the base health of all mobs to be multiplied by this value. Set to 0 to disable.");
 
