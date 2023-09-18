@@ -14,10 +14,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,7 +30,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -84,10 +91,93 @@ public class SpawnerManager extends ServerFeature {
             dataStore.brokenSpawners.add(new MobSpawnerData(pos, compound, level.dimension()));
             dataStore.setDirty();
 
+            if (PCServerConfig.PUNISH_BREAKING_SPAWNER.get()) {
+                this.spawnPunishment(player, level, pos, compound);
+            }
+
             return EventResult.pass();
         });
 
         TickEvent.ServerLevelTick.SERVER_LEVEL_POST.register(this::onServerTick);
+    }
+
+    private void spawnPunishment(ServerPlayer player, Level level, BlockPos spawnerPos, CompoundTag compound) {
+        // EWW
+        if (!compound.contains("SpawnData")) {
+            return;
+        }
+
+        CompoundTag spawnData = compound.getCompound("SpawnData");
+        if (!spawnData.contains("entity")) {
+            return;
+        }
+
+        CompoundTag entity = spawnData.getCompound("entity");
+        if (!entity.contains("id")) {
+            return;
+        }
+
+        String id = entity.getString("id");
+        EntityType<?> entityType = Registry.ENTITY_TYPE.get(new ResourceLocation(id));
+        if (entityType.equals(EntityType.PIG) && !id.endsWith("pig")) {
+            return; // Failed as the registry default is pig
+        }
+
+        BoundingBox box = new BoundingBox(spawnerPos)
+                .inflatedBy(3);
+
+        box = box.moved(0, spawnerPos.getY() - box.minY(), 0);
+
+        // Flood fill the area to find connected air blocks to the spawnerPos that also have an air block above them
+        List<BlockPos> airBlocks = new ArrayList<>();
+
+        // Flood fill algorithm starting at the the spawnerPos and working outwards
+        List<BlockPos> toCheck = new ArrayList<>();
+        toCheck.add(spawnerPos);
+
+        while(!toCheck.isEmpty()) {
+            BlockPos currentPos = toCheck.remove(0);
+            BlockState currentState = level.getBlockState(currentPos);
+            if (currentState.isAir() || currentState.getMaterial().isReplaceable() || currentState.getBlock() == Blocks.SPAWNER) {
+                airBlocks.add(currentPos);
+
+                // Add adjacent blocks to check
+                var nextLocations = List.of(currentPos.north(), currentPos.south(), currentPos.east(), currentPos.west(), currentPos.below(), currentPos.above());
+                for (BlockPos nextLocation : nextLocations) {
+                    if (!toCheck.contains(nextLocation) && !airBlocks.contains(nextLocation) && box.isInside(nextLocation)) {
+                        toCheck.add(nextLocation);
+                    }
+                }
+            }
+        }
+
+        var validBlocks = airBlocks.stream().filter(e -> e.getY() < spawnerPos.getY() + 2).toList();
+        if (validBlocks.isEmpty()) {
+            return;
+        }
+
+        List<BlockPos> alreadyTaken = new ArrayList<>();
+        int mobsToSpawn = level.random.nextInt(2, 8); // 2-8 mobs
+        int tries = 0;
+        while (++tries < 15 && alreadyTaken.size() < mobsToSpawn) {
+            BlockPos randomPos = validBlocks.get(level.random.nextInt(validBlocks.size()));
+            if (alreadyTaken.contains(randomPos)) {
+                continue;
+            }
+
+            alreadyTaken.add(randomPos);
+            // Spawn entity
+            Entity entity1 = entityType.create(level);
+            if (entity1 == null) {
+                LOGGER.warn("Failed to spawn entity {} at {}", entityType, randomPos);
+                continue;
+            }
+
+            entity1.setPos(randomPos.getX() + 0.5, randomPos.getY(), randomPos.getZ() + 0.5);
+            level.addFreshEntity(entity1);
+            player.connection.send(new ClientboundCustomSoundPacket(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR.getLocation(), SoundSource.AMBIENT, new Vec3(randomPos.getX(), randomPos.getY(), randomPos.getZ()), .3f, .4f, level.random.nextInt()));
+        }
+
     }
 
     public SpawnerManager() {}
