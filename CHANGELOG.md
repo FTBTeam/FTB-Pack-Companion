@@ -2,6 +2,10 @@
 
 ## [2.0.7]
 
+### Added
+
+- Added configurable "punishment" when a Mob spawner is broken. This will spawn more of the entity that is contained within the spawner around the player. This can be anything from 2 - 8 mobs spawned around the spawner using a flood fill algorithm. This is only active when spawner respawn is running.
+
 ### Fixed
 
 - Fixed an issue causing entities health to be buffed on each world load instead of just once. This has been fixed by moving to a attribute modifier instead of a flat health increase. The `uuid` for this attribute modifier is `a07a9434-d6c2-44f1-b5eb-394da41c9f9f`.
