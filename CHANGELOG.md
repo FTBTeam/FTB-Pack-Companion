@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.7]
+
+### Fixed
+
+- Fixed an issue causing entities health to be buffed on each world load instead of just once. This has been fixed by moving to a attribute modifier instead of a flat health increase. The `uuid` for this attribute modifier is `a07a9434-d6c2-44f1-b5eb-394da41c9f9f`.
+
 ## [2.0.6]
 
 ### Added
