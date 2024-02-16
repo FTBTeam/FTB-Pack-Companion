@@ -2,6 +2,7 @@ package dev.ftb.packcompanion;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.ftb.packcompanion.api.PackCompanionAPI;
 import dev.ftb.packcompanion.commands.CommandEntry;
 import dev.ftb.packcompanion.commands.SpawnerManagerClearCommand;
 import net.minecraft.commands.CommandBuildContext;
@@ -17,7 +18,7 @@ public class CommandRegistry {
     );
 
     public static void setup(CommandDispatcher<CommandSourceStack> commandDispatcher, CommandBuildContext commandBuildContext, Commands.CommandSelection commandSelection) {
-        LiteralArgumentBuilder<CommandSourceStack> companionRootCommand = Commands.literal(PackCompanion.MOD_ID);
+        LiteralArgumentBuilder<CommandSourceStack> companionRootCommand = Commands.literal(PackCompanionAPI.MOD_ID);
 
         for (CommandEntry command : COMMANDS) {
             companionRootCommand.then(command.register());

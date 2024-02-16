@@ -6,7 +6,8 @@
   "client": [
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
-    "features.singleplayerseed.WorldGenSettingsComponentMixin"
+    "features.singleplayerseed.WorldGenSettingsComponentMixin",
+    "features.pausescreen.PauseMenuMixin"
   ],
   "mixins": [
     "features.bedtime.BedMixin",

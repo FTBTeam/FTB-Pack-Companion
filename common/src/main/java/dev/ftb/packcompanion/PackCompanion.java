@@ -9,8 +9,8 @@ import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.features.CommonFeature;
 import dev.ftb.packcompanion.features.Features;
-import dev.ftb.packcompanion.features.ServerFeature;
-import dev.ftb.packcompanion.features.spawners.SpawnerManager;
+import dev.ftb.packcompanion.integrations.IntegrationsCommon;
+import dev.ftb.packcompanion.integrations.IntegrationsEntrypoint;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import dev.ftb.packcompanion.registry.ReloadResourceManager;
 import dev.ftb.packcompanion.registry.StructureProcessorRegistry;
@@ -18,7 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 
 public class PackCompanion {
-    public static final String MOD_ID = "ftbpc";
+    public static IntegrationsEntrypoint commonIntegrationsEntry = new IntegrationsCommon();
 
     public static void init() {
         // Registry
@@ -40,9 +40,13 @@ public class PackCompanion {
     private static void onSetup() {
         PCCommonConfig.load();
         Features.INSTANCE.getCommonFeatures().forEach(CommonFeature::setup);
+        PackCompanion.commonIntegrationsEntry.onCommonInit();
+        PackCompanionExpectPlatform.getIntegrationEntry().onCommonInit();
     }
 
     private static void serverBeforeStart(MinecraftServer server) {
+        PackCompanion.commonIntegrationsEntry.onServerInit();
+        PackCompanionExpectPlatform.getIntegrationEntry().onServerInit();
         PCServerConfig.load(server);
     }
 
