@@ -24,25 +24,26 @@ public class MineTogetherPauseProvider implements AdditionalPauseProvider {
     @Override
     public ScreenWidgetCollection init(AdditionalPauseTarget target, ScreenHolder screen, int x, int y) {
         IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
-        if (integratedServer == null) return null;
+        var collection = ScreenWidgetCollection.create();
 
-        boolean isConnectPublished = ConnectHandler.isPublished();
-        Component buttonText = isConnectPublished ? Component.translatable("minetogether.connect.close") : Component.translatable("minetogether.connect.open");
-        Button.OnPress action = button -> {
-            if (isConnectPublished) {
-                ConnectHandler.unPublish();
-                Minecraft.getInstance().setScreen(new PauseScreen(true));
-            } else {
-                Minecraft.getInstance().setScreen(new GuiShareToFriends(screen.unsafeScreenAccess()));
-            }
-        };
+        int xOffset = 4;
+        if (integratedServer != null) {
+            boolean isConnectPublished = ConnectHandler.isPublished();
+            Component buttonText = isConnectPublished ? Component.translatable("minetogether.connect.close") : Component.translatable("minetogether.connect.open");
+            Button.OnPress action = button -> {
+                if (isConnectPublished) {
+                    ConnectHandler.unPublish();
+                    Minecraft.getInstance().setScreen(new PauseScreen(true));
+                } else {
+                    Minecraft.getInstance().setScreen(new GuiShareToFriends(screen.unsafeScreenAccess()));
+                }
+            };
+
+            xOffset += 98;
+            collection.addRenderableWidget(new Button(x - xOffset, y + 4, 98, 20, buttonText, action));
+        }
 
         TooltipContainer tooltips = new TooltipContainer(screen.unsafeScreenAccess());
-
-        var collection = ScreenWidgetCollection.create();
-        int xOffset = 98 + 4;
-        collection.addRenderableWidget(new Button(x - xOffset, y + 4, 98, 20, buttonText, action));
-
         xOffset += 22;
         IconButton settings = new IconButton(x - xOffset, y + 4, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen.unsafeScreenAccess())));
         tooltips.addTooltip(settings, Component.translatable("minetogether:gui.button.settings.info"));
