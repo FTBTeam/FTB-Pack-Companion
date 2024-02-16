@@ -2,7 +2,7 @@ package dev.ftb.packcompanion.features.loot;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.api.PackCompanionAPI;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
@@ -61,7 +61,7 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
         }
 
         // Load the file from the mods resources
-        Optional<Resource> namingSource = lootContext.getLevel().getServer().getResourceManager().getResource(new ResourceLocation(PackCompanion.MOD_ID, "sources/random-name-loot-source.json"));
+        Optional<Resource> namingSource = lootContext.getLevel().getServer().getResourceManager().getResource(new ResourceLocation(PackCompanionAPI.MOD_ID, "sources/random-name-loot-source.json"));
 
         if (namingSource.isEmpty()) {
             LOGGER.warn("Attempted RandomNameLootFunction with no random-name-loot-source.json file in the data/ftbpc/sources folder");

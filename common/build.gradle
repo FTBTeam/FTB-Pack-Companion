@@ -6,6 +6,14 @@ loom {
     accessWidenerPath = file("src/main/resources/ftbpc.accesswidener")
 }
 
+sourceSets.main.resources.srcDirs += "src/main/generated/resources"
+
+repositories {
+    maven {
+        url "https://cursemaven.com"
+    }
+}
+
 dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
@@ -14,6 +22,10 @@ dependencies {
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
     modImplementation ("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive false }
+    modCompileOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
+
+    modCompileOnly("curse.maven:creeperhost-minetogether-267172:5075805")
+    modCompileOnly("curse.maven:poly-576589:4895986")
 }
 
 def ENV = System.getenv()

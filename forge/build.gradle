@@ -30,12 +30,33 @@ configurations {
     developmentForge.extendsFrom common
 }
 
+repositories {
+    maven {
+        url "https://cursemaven.com"
+    }
+
+    repositories {
+        maven {
+            name = 'tterrag maven'
+            url = 'https://maven.tterrag.com/'
+        }
+    }
+}
+
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
     modImplementation("dev.ftb.mods:ftb-library-forge:${rootProject.ftb_library_version}") { transitive false }
+
+    modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+//    modRuntimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+//    modRuntimeOnly("com.jozufozu.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
+//    modRuntimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+
+//    modRuntimeOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
+//    modRuntimeOnly("net.darkhax.bookshelf:Bookshelf-Forge-${minecraft_version}:${bs_version}")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }

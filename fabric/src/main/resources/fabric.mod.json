@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "dev.ftb.packcompanion.fabric.PackCompanionFabric"
+    ],
+    "fabric-datagen": [
+      "dev.ftb.packcompanion.fabric.data.PackCompanionDataGen"
     ]
   },
   "mixins": [

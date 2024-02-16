@@ -1,14 +1,13 @@
 package dev.ftb.packcompanion.config;
 
 import dev.ftb.mods.ftblibrary.snbt.config.*;
-import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.api.PackCompanionAPI;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public interface PCServerConfig {
-    SNBTConfig CONFIG = SNBTConfig.create(PackCompanion.MOD_ID + "-server");
+    SNBTConfig CONFIG = SNBTConfig.create(PackCompanionAPI.MOD_ID + "-server");
 
     SNBTConfig SPAWNERS = CONFIG.getGroup("spawners");
     BooleanValue SPAWNERS_ALLOW_RESPAWN = SPAWNERS.getBoolean("allow_respawn", false)
@@ -26,6 +25,6 @@ public interface PCServerConfig {
             .comment("If non-zero, set the base health of all mobs to be multiplied by this value. Set to 0 to disable.");
 
     static void load(MinecraftServer server) {
-        ConfigUtil.loadDefaulted(CONFIG, server.getWorldPath(ConfigUtil.SERVER_CONFIG_DIR), PackCompanion.MOD_ID);
+        ConfigUtil.loadDefaulted(CONFIG, server.getWorldPath(ConfigUtil.SERVER_CONFIG_DIR), PackCompanionAPI.MOD_ID);
     }
 }

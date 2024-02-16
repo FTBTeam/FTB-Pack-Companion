@@ -22,6 +22,15 @@ allprojects {
         maven {
             url "https://maven.ftb.dev/releases"
         }
+        maven {
+            url "https://maven.creeperhost.net"
+        }
+        maven {
+            url 'https://maven.blamejared.com'
+            content {
+                includeGroup "net.darkhax"
+            }
+        }
     }
 
     tasks.withType(JavaCompile) {
