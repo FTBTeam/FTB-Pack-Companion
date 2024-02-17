@@ -26,7 +26,7 @@ public class MineTogetherPauseProvider implements AdditionalPauseProvider {
         IntegratedServer integratedServer = Minecraft.getInstance().getSingleplayerServer();
         var collection = ScreenWidgetCollection.create();
 
-        int xOffset = 4;
+        int xOffset = 0;
         if (integratedServer != null) {
             boolean isConnectPublished = ConnectHandler.isPublished();
             Component buttonText = isConnectPublished ? Component.translatable("minetogether.connect.close") : Component.translatable("minetogether.connect.open");
@@ -40,23 +40,23 @@ public class MineTogetherPauseProvider implements AdditionalPauseProvider {
             };
 
             xOffset += 98;
-            collection.addRenderableWidget(new Button(x - xOffset, y + 4, 98, 20, buttonText, action));
+            collection.addRenderableWidget(new Button(x - xOffset, y, 98, 20, buttonText, action));
         }
 
         TooltipContainer tooltips = new TooltipContainer(screen.unsafeScreenAccess());
         xOffset += 22;
-        IconButton settings = new IconButton(x - xOffset, y + 4, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen.unsafeScreenAccess())));
+        IconButton settings = new IconButton(x - xOffset, y, 3, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen.unsafeScreenAccess())));
         tooltips.addTooltip(settings, Component.translatable("minetogether:gui.button.settings.info"));
         collection.addRenderableWidget(settings);
 
         xOffset += 22;
-        IconButton friendChat = new IconButton(x - xOffset, y + 4, 7, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new FriendChatGui(), screen.unsafeScreenAccess())));
+        IconButton friendChat = new IconButton(x - xOffset, y, 7, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new FriendChatGui(), screen.unsafeScreenAccess())));
         tooltips.addTooltip(friendChat, Component.translatable("minetogether:gui.button.friends.info"));
         collection.addRenderableWidget(friendChat);
 
         if (Config.instance().chatEnabled) {
             xOffset += 22;
-            IconButton publicChat = new IconButton(x - xOffset, y + 4, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen.unsafeScreenAccess())));
+            IconButton publicChat = new IconButton(x - xOffset, y, 1, Constants.WIDGETS_SHEET, e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen.unsafeScreenAccess())));
             tooltips.addTooltip(publicChat, Component.translatable("minetogether:gui.button.global_chat.info"));
             collection.addRenderableWidget(publicChat);
         }

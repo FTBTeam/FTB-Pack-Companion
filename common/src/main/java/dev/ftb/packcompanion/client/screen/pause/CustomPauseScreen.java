@@ -46,7 +46,7 @@ public class CustomPauseScreen extends Screen {
         }));
 
         if (PackCompanionExpectPlatform.hasModlistScreen()) {
-            this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 72 + -16, 204, 20, Component.translatable("ftbpackcompanion.pause.mods", Platform.getMods().size()), (buttonx) -> {
+            this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 56, 204, 20, Component.translatable("ftbpackcompanion.pause.mods", Platform.getMods().size()), (buttonx) -> {
                 this.minecraft.setScreen(PackCompanionExpectPlatform.getModListScreen().apply(this));
             }));
         }
@@ -98,11 +98,13 @@ public class CustomPauseScreen extends Screen {
     }
 
     private void initAdditionalPauseProviders() {
-        PackCompanionClientAPI.get().additionalPauseProviders.forEach((target, provider) -> {
+        PackCompanionClientAPI.get().getAdditionalPauseProviders().forEach((target, providers) -> {
             var location = calculatePosition(target);
-            var widgetCollection = provider.init(target, holder, location[0], location[1]);
-            if (widgetCollection != null) {
-                widgetCollection.commitToScreen(this);
+            for (var provider : providers) {
+                var widgetCollection = provider.init(target, holder, location[0], location[1]);
+                if (widgetCollection != null) {
+                    widgetCollection.commitToScreen(this);
+                }
             }
         });
     }
@@ -119,23 +121,25 @@ public class CustomPauseScreen extends Screen {
         drawCenteredString(poseStack, this.font, this.title, this.width / 2, 40, 16777215);
 
         // TODO: position correctly based on the target
-        PackCompanionClientAPI.get().additionalPauseProviders.forEach((target, provider) -> {
+        PackCompanionClientAPI.get().getAdditionalPauseProviders().forEach((target, providers) -> {
             int[] position = calculatePosition(target);
 
-            provider.render(target, holder, poseStack, position[0], position[1], mouseX, mouseY, f);
+            for (var provider : providers) {
+                provider.render(target, holder, poseStack, position[0], position[1], mouseX, mouseY, f);
+            }
         });
     }
 
     private int[] calculatePosition(AdditionalPauseTarget target) {
         return switch (target) {
-            case TOP_LEFT -> new int[]{0, 0};
-            case TOP_RIGHT -> new int[]{this.width, 0};
-            case TOP_CENTER -> new int[]{this.width / 2, 0};
-            case BOTTOM_LEFT -> new int[]{0, this.height};
-            case BOTTOM_RIGHT -> new int[]{this.width, this.height};
-            case BOTTOM_CENTER -> new int[]{this.width / 2, this.height};
-            case MENU_LEFT -> new int[]{this.width / 2 - 102, this.height / 2};
-            case MENU_RIGHT -> new int[]{this.width / 2 + 102, this.height / 2};
+            case TOP_LEFT -> new int[]{4, 4};
+            case TOP_RIGHT -> new int[]{this.width - 4, 4};
+            case TOP_CENTER -> new int[]{this.width / 2, 4};
+            case BOTTOM_LEFT -> new int[]{4, this.height - 4};
+            case BOTTOM_RIGHT -> new int[]{this.width - 4, this.height - 4};
+            case BOTTOM_CENTER -> new int[]{this.width / 2, this.height - 4};
+            case MENU_LEFT -> new int[]{this.width / 2 - 102 - 4, this.height / 4 + 56};
+            case MENU_RIGHT -> new int[]{this.width / 2 + 102 + 4, this.height / 4 + 56};
         };
     }
 }

@@ -3,15 +3,13 @@ package dev.ftb.packcompanion.api.client;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseProvider;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseTarget;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PackCompanionClientAPI {
     private static boolean initialized = false;
     public static PackCompanionClientAPI INSTANCE = new PackCompanionClientAPI();
 
-    public Map<AdditionalPauseTarget, AdditionalPauseProvider> additionalPauseProviders = new HashMap<>();
+    private EnumMap<AdditionalPauseTarget, Set<AdditionalPauseProvider>> additionalPauseProviders = new EnumMap<>(AdditionalPauseTarget.class);
 
     private PackCompanionClientAPI() {
         if (initialized) {
@@ -26,6 +24,17 @@ public class PackCompanionClientAPI {
     }
 
     public void registerAdditionalPauseProvider(AdditionalPauseTarget target, AdditionalPauseProvider provider) {
-        additionalPauseProviders.put(target, provider);
+        if (!additionalPauseProviders.containsKey(target)) {
+            additionalPauseProviders.put(target, new HashSet<>());
+        }
+
+        var providers = additionalPauseProviders.get(target);
+        providers.add(provider);
+
+        additionalPauseProviders.put(target, providers);
+    }
+
+    public EnumMap<AdditionalPauseTarget, Set<AdditionalPauseProvider>> getAdditionalPauseProviders() {
+        return additionalPauseProviders;
     }
 }

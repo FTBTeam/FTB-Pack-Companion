@@ -10,6 +10,6 @@ public class CreatePauseProvider implements AdditionalPauseProvider {
     @Override
     public ScreenWidgetCollection init(AdditionalPauseTarget target, ScreenHolder screen, int x, int y) {
         return ScreenWidgetCollection.create()
-                .addRenderableWidget(new OpenCreateMenuButton(x - 22, y - 21));
+                .addRenderableWidget(new OpenCreateMenuButton(x - 20, y));
     }
 }

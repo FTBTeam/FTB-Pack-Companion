@@ -51,9 +51,13 @@ dependencies {
     modImplementation("dev.ftb.mods:ftb-library-forge:${rootProject.ftb_library_version}") { transitive false }
 
     modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
-//    modRuntimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
-//    modRuntimeOnly("com.jozufozu.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
-//    modRuntimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+
+    modRuntimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    modRuntimeOnly("com.jozufozu.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
+    modRuntimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+
+    modRuntimeOnly("curse.maven:creeperhost-minetogether-267172:5075807")
+    modRuntimeOnly("curse.maven:poly-576589:4895988")
 
 //    modRuntimeOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
 //    modRuntimeOnly("net.darkhax.bookshelf:Bookshelf-Forge-${minecraft_version}:${bs_version}")

@@ -25,6 +25,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -43,6 +44,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SpawnerManager extends ServerFeature {
@@ -107,21 +109,12 @@ public class SpawnerManager extends ServerFeature {
             return;
         }
 
-        CompoundTag spawnData = compound.getCompound("SpawnData");
-        if (!spawnData.contains("entity")) {
-            return;
-        }
+        SpawnData spawnData = SpawnData.CODEC.parse(NbtOps.INSTANCE, compound.getCompound("SpawnData")).resultOrPartial((string) -> {
+            LOGGER.warn("Invalid SpawnData: {}", string);
+        }).orElseGet(SpawnData::new);
 
-        CompoundTag entity = spawnData.getCompound("entity");
-        if (!entity.contains("id")) {
-            return;
-        }
 
-        String id = entity.getString("id");
-        EntityType<?> entityType = Registry.ENTITY_TYPE.get(new ResourceLocation(id));
-        if (entityType.equals(EntityType.PIG) && !id.endsWith("pig")) {
-            return; // Failed as the registry default is pig
-        }
+        CompoundTag entityCompound = spawnData.getEntityToSpawn();
 
         BoundingBox box = new BoundingBox(spawnerPos)
                 .inflatedBy(3);
@@ -166,15 +159,14 @@ public class SpawnerManager extends ServerFeature {
             }
 
             alreadyTaken.add(randomPos);
-            // Spawn entity
-            Entity entity1 = entityType.create(level);
-            if (entity1 == null) {
-                LOGGER.warn("Failed to spawn entity {} at {}", entityType, randomPos);
+
+            Entity entity = EntityType.loadEntityRecursive(entityCompound, level, Function.identity());
+            if (entity == null) {
                 continue;
             }
 
-            entity1.setPos(randomPos.getX() + 0.5, randomPos.getY(), randomPos.getZ() + 0.5);
-            level.addFreshEntity(entity1);
+            entity.setPos(randomPos.getX() + 0.5, randomPos.getY(), randomPos.getZ() + 0.5);
+            level.addFreshEntity(entity);
             player.connection.send(new ClientboundCustomSoundPacket(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR.getLocation(), SoundSource.AMBIENT, new Vec3(randomPos.getX(), randomPos.getY(), randomPos.getZ()), .3f, .4f, level.random.nextInt()));
         }
 
