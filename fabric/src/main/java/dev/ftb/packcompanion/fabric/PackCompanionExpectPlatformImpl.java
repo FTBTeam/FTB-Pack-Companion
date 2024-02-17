@@ -1,5 +1,7 @@
 package dev.ftb.packcompanion.fabric;
 
+import dev.architectury.platform.Platform;
+import dev.ftb.packcompanion.fabric.integrations.ModMenuIntegration;
 import dev.ftb.packcompanion.integrations.IntegrationsEntrypoint;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,11 +15,11 @@ public class PackCompanionExpectPlatformImpl {
     }
 
     public static Function<Screen, Screen> getModListScreen() {
-        return null;
+        return ModMenuIntegration::createModListScreen;
     }
 
     public static boolean hasModlistScreen() {
-        return false;
+        return Platform.isModLoaded("modmenu");
     }
 
     public static IntegrationsEntrypoint getIntegrationEntry() {

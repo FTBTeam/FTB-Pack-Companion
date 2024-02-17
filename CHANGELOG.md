@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0]
+
+### Added
+
+- Support for modmenu on the custom pause screen (on fabric)
+
+### Fixed
+
+- Create's options button placement
+- Spawner punishment mobs not spawning with the correct nbt data
+- Api contract now supports a list of providers per target
+
+
 ## [2.0.7]
 
 ### Added

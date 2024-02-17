@@ -28,6 +28,12 @@ public class ScreenHolder {
         return new ScreenHolder(screen);
     }
 
+    /**
+     * Please do not use this method unless you absolutely have to. This is only provided for screens that require it
+     * to return back to the previous screen.
+     *
+     * @return the wrapped screen
+     */
     public final Screen unsafeScreenAccess() {
         return this.screen;
     }

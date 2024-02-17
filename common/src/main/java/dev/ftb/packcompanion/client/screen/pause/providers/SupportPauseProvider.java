@@ -6,6 +6,7 @@ import dev.ftb.packcompanion.api.client.pause.AdditionalPauseProvider;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseTarget;
 import dev.ftb.packcompanion.api.client.pause.ScreenHolder;
 import dev.ftb.packcompanion.api.client.pause.ScreenWidgetCollection;
+import dev.ftb.packcompanion.config.PCClientConfig;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,13 +20,31 @@ public class SupportPauseProvider implements AdditionalPauseProvider {
 
     @Override
     public @Nullable ScreenWidgetCollection init(AdditionalPauseTarget target, ScreenHolder screen, int x, int y) {
-        return ScreenWidgetCollection.create()
-                .addRenderableWidget(new IconButton(screen.unsafeScreenAccess(), x + 4, y + 4, 20, 20, DISCORD_ICON, "ftbpackcompanion.tooltip.support_discord", button -> {
-                    Util.getPlatform().openUri("https://go.ftb.team/discord");
-                }))
-                .addRenderableWidget(new IconButton(screen.unsafeScreenAccess(), x + 4 + 24, y + 4, 20, 20, GITHUB_ICON, "ftbpackcompanion.tooltip.support_github", button -> {
-                    Util.getPlatform().openUri("https://go.ftb.team/support-modpack");
-                }));
+        if (!PCClientConfig.ENABLE_SUPPORT_PROVIDER.get()) {
+            return null;
+        }
+
+        ScreenWidgetCollection screenWidgetCollection = ScreenWidgetCollection.create();
+
+        String githubUrl = PCClientConfig.SUPPORT_GITHUB_URL.get();
+        String discordUrl = PCClientConfig.SUPPORT_DISCORD_URL.get();
+
+        int xOffset = x;
+        if (!discordUrl.isEmpty()) {
+            screenWidgetCollection.addRenderableWidget(new IconButton(screen.unsafeScreenAccess(), xOffset, y, 20, 20, DISCORD_ICON, "ftbpackcompanion.tooltip.support_discord", button -> {
+                Util.getPlatform().openUri(discordUrl);
+            }));
+
+            xOffset += 24;
+        }
+
+        if (!githubUrl.isEmpty()) {
+            screenWidgetCollection.addRenderableWidget(new IconButton(screen.unsafeScreenAccess(), xOffset, y, 20, 20, GITHUB_ICON, "ftbpackcompanion.tooltip.support_github", button -> {
+                Util.getPlatform().openUri(githubUrl);
+            }));
+        }
+
+        return screenWidgetCollection;
     }
 
     private static class IconButton extends Button {

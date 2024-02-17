@@ -28,6 +28,17 @@ public interface PCClientConfig {
     BooleanValue REMOVE_ADVANCEMENTS_FROM_PAUSE = CONFIG.getBoolean("remove_advancements_from_pause", false)
             .comment("When enabled, the advancements button will be removed from the pause menu.");
 
+    SNBTConfig PAUSE_SCREEN = CONFIG.getGroup("pause_screen");
+
+    BooleanValue ENABLE_SUPPORT_PROVIDER = PAUSE_SCREEN.getBoolean("enable_support_provider", true)
+            .comment("When enabled, the support provider will be enabled in the top left of the pause screen. This is used for modpacks to provide support information.");
+
+    StringValue SUPPORT_GITHUB_URL = PAUSE_SCREEN.getString("support_github_url", "https://go.ftb.team/support-modpack")
+            .comment("The URL to open when the support provider's GitHub icon is clicked. If this is empty, the GitHub icon will not be shown.");
+
+    StringValue SUPPORT_DISCORD_URL = PAUSE_SCREEN.getString("support_discord_url", "https://go.ftb.team/discord")
+            .comment("The URL to open when the support provider's Discord icon is clicked. If this is empty, the Discord icon will not be shown.");
+
     static void load() {
         ConfigUtil.loadDefaulted(CONFIG, PackCompanionExpectPlatform.getConfigDirectory(), PackCompanionAPI.MOD_ID);
     }
