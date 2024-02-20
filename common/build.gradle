@@ -26,6 +26,9 @@ dependencies {
 
     modCompileOnly("curse.maven:creeperhost-minetogether-267172:5075805")
     modCompileOnly("curse.maven:poly-576589:4895986")
+
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-gui:${jei_version}")
 }
 
 def ENV = System.getenv()

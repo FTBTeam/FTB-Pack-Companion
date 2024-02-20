@@ -59,6 +59,10 @@ dependencies {
     modRuntimeOnly("curse.maven:creeperhost-minetogether-267172:5075807")
     modRuntimeOnly("curse.maven:poly-576589:4895988")
 
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    modRuntimeOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+
 //    modRuntimeOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
 //    modRuntimeOnly("net.darkhax.bookshelf:Bookshelf-Forge-${minecraft_version}:${bs_version}")
 

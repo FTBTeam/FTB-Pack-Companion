@@ -62,10 +62,22 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}")
+    modRuntimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
+
     // Include modmenu
     modImplementation("com.terraformersmc:modmenu:${modmenu_version}")
 
     modRuntimeOnly "curse.maven:jade-324717:4328558"
+
+    // Testing mods
+    modRuntimeOnly("curse.maven:cloth-config-348521:4973443")
+    modRuntimeOnly("curse.maven:powah-633483:4729360")
+    modRuntimeOnly("curse.maven:ae2-223794:5014666")
+    modRuntimeOnly('teamreborn:energy:2.2.0') {
+        transitive = false
+    }
 }
 
 processResources {

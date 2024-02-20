@@ -39,6 +39,15 @@ public interface PCClientConfig {
     StringValue SUPPORT_DISCORD_URL = PAUSE_SCREEN.getString("support_discord_url", "https://go.ftb.team/discord")
             .comment("The URL to open when the support provider's Discord icon is clicked. If this is empty, the Discord icon will not be shown.");
 
+    SNBTConfig INTEGRATIONS = CONFIG.getGroup("integrations");
+    SNBTConfig JEI = INTEGRATIONS.getGroup("jei");
+
+    BooleanValue JEI_SORT_RECIPES = JEI.getBoolean("sort_recipes", false)
+            .comment("When enabled, the recipe tabs in JEI will be sorted based on the order specified in the JEI integration.");
+
+    BooleanValue JEI_RECIPE_NAMES_DEBUG = JEI.getBoolean("recipe_names_debug", false)
+            .comment("When enabled, the recipe names will be printed to the log when the JEI integration is loaded.");
+
     static void load() {
         ConfigUtil.loadDefaulted(CONFIG, PackCompanionExpectPlatform.getConfigDirectory(), PackCompanionAPI.MOD_ID);
     }
