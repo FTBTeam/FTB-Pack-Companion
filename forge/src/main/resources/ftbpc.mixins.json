@@ -6,7 +6,8 @@
   "client": [
   ],
   "mixins": [
-    "features.bedtime.ServerPlayerMixin"
+    "features.bedtime.ServerPlayerMixin",
+    "patches.jer.JERPluginLoadFixMixin"
   ],
   "injectors": {
     "defaultRequire": 1

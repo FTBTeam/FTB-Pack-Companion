@@ -61,10 +61,15 @@ dependencies {
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
-    modRuntimeOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-core:${jei_version}") // Required for JER
+//    modRuntimeOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+
+    modRuntimeOnly("curse.maven:jei-238222:5106178")
 
 //    modRuntimeOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
 //    modRuntimeOnly("net.darkhax.bookshelf:Bookshelf-Forge-${minecraft_version}:${bs_version}")
+
+    modImplementation("curse.maven:jer-240630:4862430")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
