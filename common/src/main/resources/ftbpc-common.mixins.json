@@ -8,7 +8,9 @@
     "features.notoast.TutorialMixin",
     "features.singleplayerseed.WorldGenSettingsComponentMixin",
     "features.pausescreen.PauseMenuMixin",
-    "features.jei.RecipeGuiTabsMixin"
+    "features.jei.RecipeGuiTabsMixin",
+    "features.spawners.SpawnerMixin",
+    "features.spawners.SpawnDataMixin"
   ],
   "mixins": [
     "features.bedtime.BedMixin",

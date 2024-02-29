@@ -39,7 +39,6 @@ public class JERIntegration implements IJERPlugin {
         }
 
         try {
-            ResourceLocation
             String s = Files.readString(extendedLootJsonPath);
             JsonElement jsonElement = JsonParser.parseString(s);
             List<Tables> tables = Tables.LIST_CODEC.decode(JsonOps.INSTANCE, jsonElement)
