@@ -17,7 +17,6 @@ import java.util.List;
  * as a PR but right now, I needed something quick and this seemed like the most harmless way to do it.
  */
 @Pseudo // Don't bitch about it missing if the mod is not present
-@Debug(export = true)
 @Mixin(value = RecipeGuiTabs.class, remap = false)
 public class RecipeGuiTabsMixin {
     /**

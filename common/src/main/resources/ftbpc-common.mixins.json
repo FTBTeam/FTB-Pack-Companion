@@ -7,14 +7,14 @@
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
     "features.singleplayerseed.WorldGenSettingsComponentMixin",
-    "features.pausescreen.PauseMenuMixin",
-    "features.jei.RecipeGuiTabsMixin",
-    "features.spawners.SpawnerMixin",
-    "features.spawners.SpawnDataMixin"
+    "features.pausescreen.PauseMenuMixin"
   ],
   "mixins": [
     "features.bedtime.BedMixin",
-    "features.jigsaw.JigsawPlacementMixin"
+    "features.jigsaw.JigsawPlacementMixin",
+    "features.jei.RecipeGuiTabsMixin",
+    "features.spawners.SpawnerMixin",
+    "features.spawners.SpawnDataMixin"
   ],
   "injectors": {
     "defaultRequire": 1

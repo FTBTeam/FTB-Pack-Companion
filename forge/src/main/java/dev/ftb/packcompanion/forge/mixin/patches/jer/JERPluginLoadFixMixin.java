@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Debug(export = true)
 @Pseudo
 @Mixin(value = ForgePlatformHelper.class, remap = false)
 public class JERPluginLoadFixMixin {
