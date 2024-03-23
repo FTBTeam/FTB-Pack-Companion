@@ -10,6 +10,12 @@ import java.util.function.Supplier;
 
 public class PackCompanionExpectPlatform {
     @ExpectPlatform
+    public static Path getGameDirectory() {
+        // Just throw an error, the content should get replaced at runtime.
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
     public static Path getConfigDirectory() {
         // Just throw an error, the content should get replaced at runtime.
         throw new AssertionError();

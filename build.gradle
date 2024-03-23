@@ -60,6 +60,16 @@ subprojects {
         // mappings "net.fabricmc:yarn:1.19+build.4:v2"
     }
 
+    repositories {
+        maven {
+            name = "Jared's maven"
+            url = "https://maven.blamejared.com/"
+            content {
+                includeGroup "mezz.jei"
+            }
+        }
+    }
+
     publishing {
         repositories {
             if (providers.environmentVariable("FTB_MAVEN_TOKEN").isPresent()) {

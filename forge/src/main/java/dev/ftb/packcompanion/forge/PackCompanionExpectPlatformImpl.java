@@ -13,6 +13,10 @@ public class PackCompanionExpectPlatformImpl {
         return FMLPaths.CONFIGDIR.get();
     }
 
+    public static Path getGameDirectory() {
+        return FMLPaths.GAMEDIR.get();
+    }
+
     public static Function<Screen, Screen> getModListScreen() {
         return ModListScreen::new;
     }

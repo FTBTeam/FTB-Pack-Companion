@@ -11,7 +11,10 @@
   ],
   "mixins": [
     "features.bedtime.BedMixin",
-    "features.jigsaw.JigsawPlacementMixin"
+    "features.jigsaw.JigsawPlacementMixin",
+    "features.jei.RecipeGuiTabsMixin",
+    "features.spawners.SpawnerMixin",
+    "features.spawners.SpawnDataMixin"
   ],
   "injectors": {
     "defaultRequire": 1

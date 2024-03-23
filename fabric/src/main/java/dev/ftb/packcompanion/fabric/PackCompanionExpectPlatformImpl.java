@@ -14,6 +14,10 @@ public class PackCompanionExpectPlatformImpl {
         return FabricLoader.getInstance().getConfigDir();
     }
 
+    public static Path getGameDirectory() {
+        return FabricLoader.getInstance().getGameDir();
+    }
+
     public static Function<Screen, Screen> getModListScreen() {
         return ModMenuIntegration::createModListScreen;
     }

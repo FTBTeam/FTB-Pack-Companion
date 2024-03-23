@@ -20,6 +20,9 @@
     ],
     "fabric-datagen": [
       "dev.ftb.packcompanion.fabric.data.PackCompanionDataGen"
+    ],
+    "jei_mod_plugin": [
+      "dev.ftb.packcompanion.integrations.jei.JeiPluginPC"
     ]
   },
   "mixins": [
