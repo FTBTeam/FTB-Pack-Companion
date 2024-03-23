@@ -11,10 +11,11 @@ import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.features.ServerFeature;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -33,7 +34,6 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class SpawnerManager extends ServerFeature {
         List<String> randomEntities = PCServerConfig.SPAWNERS_USE_RANDOM_ENTITY.get();
         List<EntityType<?>> entities = new ArrayList<>();
         for (String entity : randomEntities) {
-            EntityType<?> entityType = Registry.ENTITY_TYPE.get(new ResourceLocation(entity));
+            EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(entity));
             if (entityType == EntityType.PIG && !entity.endsWith("pig")) {
                 continue; // Failed as the registry default is pig
             }
@@ -131,7 +131,7 @@ public class SpawnerManager extends ServerFeature {
         while(!toCheck.isEmpty()) {
             BlockPos currentPos = toCheck.remove(0);
             BlockState currentState = level.getBlockState(currentPos);
-            if (currentState.isAir() || currentState.getMaterial().isReplaceable() || currentState.getBlock() == Blocks.SPAWNER) {
+            if (currentState.isAir() || currentState.canBeReplaced() || currentState.getBlock() == Blocks.SPAWNER) {
                 airBlocks.add(currentPos);
 
                 // Add adjacent blocks to check
@@ -167,7 +167,8 @@ public class SpawnerManager extends ServerFeature {
 
             entity.setPos(randomPos.getX() + 0.5, randomPos.getY(), randomPos.getZ() + 0.5);
             level.addFreshEntity(entity);
-            player.connection.send(new ClientboundCustomSoundPacket(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR.getLocation(), SoundSource.AMBIENT, new Vec3(randomPos.getX(), randomPos.getY(), randomPos.getZ()), .3f, .4f, level.random.nextInt()));
+            var sound = BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR);
+            player.connection.send(new ClientboundSoundPacket(sound, SoundSource.AMBIENT, randomPos.getX(), randomPos.getY(), randomPos.getZ(), .3f, .4f, level.random.nextInt()));
         }
 
     }
@@ -208,7 +209,7 @@ public class SpawnerManager extends ServerFeature {
             }
 
             BlockState state = serverLevel.getBlockState(spawnerData.pos);
-            if (!state.isAir() || !state.getMaterial().isReplaceable()) {
+            if (!state.isAir() || !state.canBeReplaced()) {
                 // Can't respawn spawner
                 dataStore.brokenSpawners.remove(spawnerData);
                 dataStore.setDirty();
@@ -262,7 +263,7 @@ public class SpawnerManager extends ServerFeature {
        Instant breakTime,
        ResourceKey<Level> dimension
     ) {
-        private static final Codec<ResourceKey<Level>> DIMENSION_CODEC = ResourceKey.codec(Registry.DIMENSION_REGISTRY);
+        private static final Codec<ResourceKey<Level>> DIMENSION_CODEC = ResourceKey.codec(Registries.DIMENSION);
         private static final Codec<Instant> INSTANT_CODEC = Codec.LONG.xmap(Instant::ofEpochMilli, Instant::toEpochMilli);
         public static final Codec<MobSpawnerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BlockPos.CODEC.fieldOf("pos").forGetter(MobSpawnerData::pos),

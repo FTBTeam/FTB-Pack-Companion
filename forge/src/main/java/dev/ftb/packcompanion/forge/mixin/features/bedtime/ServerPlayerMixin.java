@@ -13,7 +13,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.phys.AABB;
@@ -32,54 +31,56 @@ import java.util.Optional;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
-    public ServerPlayerMixin(Level arg, BlockPos arg2, float f, GameProfile gameProfile, @Nullable ProfilePublicKey arg3) {
-        super(arg, arg2, f, gameProfile, arg3);
+    public ServerPlayerMixin(Level arg, BlockPos arg2, float f, GameProfile gameProfile) {
+        super(arg, arg2, f, gameProfile);
     }
 
     @Shadow protected abstract boolean bedInRange(BlockPos blockPos, Direction direction);
-    @Shadow public abstract @NotNull ServerLevel getLevel();
+
     @Shadow protected abstract boolean bedBlocked(BlockPos blockPos, Direction direction);
     @Shadow public abstract void setRespawnPosition(ResourceKey<Level> resourceKey, @Nullable BlockPos blockPos, float f, boolean bl, boolean bl2);
     @Shadow public abstract boolean isCreative();
     @Shadow public abstract void displayClientMessage(Component component, boolean bl);
 
+    @Shadow public abstract ServerLevel serverLevel();
+
     @Inject(method = "startSleepInBed", at = @At(value = "RETURN"))
-    public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos blockPos, CallbackInfoReturnable<Either<Player.BedSleepingProblem, Unit>> callback) {
+    public void startSleepInBed(BlockPos blockPos, CallbackInfoReturnable<Either<BedSleepingProblem, Unit>> callback) {
         Either<Player.BedSleepingProblem, Unit> returnValue = callback.getReturnValue();
         Optional<BlockPos> optAt = Optional.of(blockPos);
 
-        Direction direction = this.getLevel().getBlockState(blockPos).getValue(HorizontalDirectionalBlock.FACING);
+        Direction direction = this.serverLevel().getBlockState(blockPos).getValue(HorizontalDirectionalBlock.FACING);
         if (returnValue.left().isPresent() && returnValue.left().get() == Player.BedSleepingProblem.NOT_POSSIBLE_HERE) {
             if (!this.bedInRange(blockPos, direction)) {
-                return Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
+                callback.setReturnValue(Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY));
             }
             if (this.bedBlocked(blockPos, direction)) {
-                return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
+                callback.setReturnValue(Either.left(Player.BedSleepingProblem.OBSTRUCTED));
             }
 
-            this.setRespawnPosition(this.getLevel().dimension(), blockPos, this.getYRot(), false, true);
+            this.setRespawnPosition(this.serverLevel().dimension(), blockPos, this.getYRot(), false, true);
             if (!ForgeEventFactory.fireSleepingTimeCheck((ServerPlayer) (Object) this, optAt)) {
-                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
+                callback.setReturnValue(Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW));
             }
             if (!this.isCreative()) {
                 Vec3 vec3 = Vec3.atBottomCenterOf(blockPos);
-                List<Monster> list = this.getLevel().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), arg -> arg.isPreventingPlayerRest(this));
+                List<Monster> list = this.serverLevel().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), arg -> arg.isPreventingPlayerRest(this));
                 if (!list.isEmpty()) {
-                    return Either.left(Player.BedSleepingProblem.NOT_SAFE);
+                    callback.setReturnValue(Either.left(Player.BedSleepingProblem.NOT_SAFE));
                 }
             }
             Either<Player.BedSleepingProblem, Unit> either = super.startSleepInBed(blockPos).ifRight(arg -> {
                 this.awardStat(Stats.SLEEP_IN_BED);
                 CriteriaTriggers.SLEPT_IN_BED.trigger((ServerPlayer) (Object)this);
             });
-            if (!this.getLevel().canSleepThroughNights()) {
+            if (!this.serverLevel().canSleepThroughNights()) {
                 this.displayClientMessage(Component.translatable("sleep.not_possible"), true);
             }
 
-            this.getLevel().updateSleepingPlayerList();
-            return either;
+            this.serverLevel().updateSleepingPlayerList();
+            callback.setReturnValue(either);
         }
 
-        return returnValue;
+        callback.setReturnValue(callback.getReturnValue());
     }
 }

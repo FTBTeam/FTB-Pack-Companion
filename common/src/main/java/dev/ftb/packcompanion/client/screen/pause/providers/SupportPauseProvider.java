@@ -1,14 +1,15 @@
 package dev.ftb.packcompanion.client.screen.pause.providers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseProvider;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseTarget;
 import dev.ftb.packcompanion.api.client.pause.ScreenHolder;
 import dev.ftb.packcompanion.api.client.pause.ScreenWidgetCollection;
 import dev.ftb.packcompanion.config.PCClientConfig;
 import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -49,31 +50,26 @@ public class SupportPauseProvider implements AdditionalPauseProvider {
 
     private static class IconButton extends Button {
         private final ResourceLocation icon;
-        private final OnTooltip customTooltip;
 
         public IconButton(Screen screen, int i, int j, int k, int l, ResourceLocation icon, String langKey, OnPress onPress) {
-            super(i, j, k, l, Component.empty(), onPress);
+            super(i, j, k, l, Component.empty(), onPress, (c) -> Component.translatable(langKey));
             this.icon = icon;
-            this.customTooltip = (button, poseStack, i1, j1) -> {
-                screen.renderTooltip(poseStack, Component.translatable(langKey), i1, j1);
-            };
+
+            this.setTooltip(Tooltip.create(Component.translatable(langKey)));
         }
 
         @Override
-        public void renderButton(PoseStack poseStack, int i, int j, float f) {
-            super.renderButton(poseStack, i, j, f);
+        public void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
+            super.renderWidget(guiGraphics, i, j, f);
 
             RenderSystem.setShaderTexture(0, icon);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            var poseStack = guiGraphics.pose();
             poseStack.pushPose();
-            poseStack.translate(x + 3, y + 3, 0);
+            poseStack.translate(this.getX() + 3, this.getY() + 3, 0);
             poseStack.scale(.85f, .85f, 0);
-            blit(poseStack, 0, 0, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(icon, 0, 0, 0, 0, 16, 16, 16, 16);
             poseStack.popPose();
-
-            if (this.isHovered) {
-                this.customTooltip.onTooltip(this, poseStack, i - 2, j + 12);
-            }
         }
     }
 }

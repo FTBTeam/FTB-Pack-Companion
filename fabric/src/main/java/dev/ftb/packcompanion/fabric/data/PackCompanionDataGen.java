@@ -2,17 +2,19 @@ package dev.ftb.packcompanion.fabric.data;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 
 public class PackCompanionDataGen implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator dataGen) {
-        dataGen.addProvider(new Lang(dataGen));
+        FabricDataGenerator.Pack pack = dataGen.createPack();
+        pack.addProvider(Lang::new);
     }
 
     private static class Lang extends FabricLanguageProvider {
 
-        protected Lang(FabricDataGenerator dataGenerator) {
+        protected Lang(FabricDataOutput dataGenerator) {
             super(dataGenerator);
         }
 

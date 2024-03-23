@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion.api.client.pause;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -24,12 +25,12 @@ public interface AdditionalPauseProvider {
      *
      * @param target the target this provider is being rendered for
      * @param screen the read-only screen
-     * @param stack the pose stack
+     * @param guiGraphics the gui graphics
      * @param x the x position relative to the position this provider has been added to
      * @param y the y position relative to the position this provider has been added to
      * @param partialTicks the partial ticks
      */
-    default void render(AdditionalPauseTarget target, ScreenHolder screen, PoseStack stack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    default void render(AdditionalPauseTarget target, ScreenHolder screen, GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
         // NO-OP
     }
 }

@@ -21,7 +21,7 @@ public class SpawnerManagerClearCommand implements CommandEntry {
         int cleared = spawners.size();
         dataStore.getBrokenSpawners().clear();
         dataStore.setDirty();
-        context.getSource().sendSuccess(Component.literal(cleared + " broken spawners cleared"), false);
+        context.getSource().sendSuccess(() -> Component.literal(cleared + " broken spawners cleared"), false);
         return 0;
     }
 }

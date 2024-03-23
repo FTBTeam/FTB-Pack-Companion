@@ -63,18 +63,26 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
-    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}")
-    modRuntimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
-
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}") {
+        transitive = false
+    }
+//    modRuntimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
+//
     // Include modmenu
-    modImplementation("com.terraformersmc:modmenu:${modmenu_version}")
+    modImplementation("com.terraformersmc:modmenu:${modmenu_version}") {
+        transitive = false
+    }
 
-    modRuntimeOnly "curse.maven:jade-324717:4328558"
+    modRuntimeOnly "curse.maven:jade-324717:5072729"
 
     // Testing mods
-    modRuntimeOnly("curse.maven:cloth-config-348521:4973443")
-    modRuntimeOnly("curse.maven:powah-633483:4729360")
-    modRuntimeOnly("curse.maven:ae2-223794:5014666")
+    modRuntimeOnly("curse.maven:cloth-config-348521:4973441") {
+        transitive = false
+    }
+
+    modRuntimeOnly("curse.maven:ae2-223794:5169355") {
+        transitive = false
+    }
     modRuntimeOnly('teamreborn:energy:2.2.0') {
         transitive = false
     }
@@ -92,18 +100,18 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    setArchiveClassifier "dev-shadow"
 }
 
 remapJar {
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    setArchiveClassifier null
 }
 
 jar {
-    classifier "dev"
+    setArchiveClassifier "dev"
 }
 
 sourcesJar {

@@ -31,16 +31,16 @@ import java.util.List;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
-    public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile, @Nullable ProfilePublicKey profilePublicKey) {
-        super(level, blockPos, f, gameProfile, profilePublicKey);
+    public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
+        super(level, blockPos, f, gameProfile);
     }
 
     @Shadow protected abstract boolean bedInRange(BlockPos blockPos, Direction direction);
-    @Shadow public abstract @NotNull ServerLevel getLevel();
     @Shadow protected abstract boolean bedBlocked(BlockPos blockPos, Direction direction);
     @Shadow public abstract void setRespawnPosition(ResourceKey<Level> resourceKey, @Nullable BlockPos blockPos, float f, boolean bl, boolean bl2);
     @Shadow public abstract boolean isCreative();
     @Shadow public abstract void displayClientMessage(Component component, boolean bl);
+    @Shadow public abstract ServerLevel serverLevel();
 
     @Inject(method = "startSleepInBed", at = @At(value = "RETURN"), cancellable = true)
     public void startSleepInBed(BlockPos blockPos, CallbackInfoReturnable<Either<BedSleepingProblem, Unit>> callback) {
@@ -51,20 +51,21 @@ public abstract class ServerPlayerMixin extends Player {
 
         var returnValue = callback.getReturnValue();
 
-        Direction direction = this.getLevel().getBlockState(blockPos).getValue(HorizontalDirectionalBlock.FACING);
+        ServerLevel level = this.serverLevel();
+        Direction direction = level.getBlockState(blockPos).getValue(HorizontalDirectionalBlock.FACING);
         if (returnValue.left().isPresent() && returnValue.left().get() == BedSleepingProblem.NOT_POSSIBLE_HERE) {
             if (!this.bedInRange(blockPos, direction)) {
                 callback.setReturnValue(Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY));
             } else if (this.bedBlocked(blockPos, direction)) {
                 callback.setReturnValue(Either.left(Player.BedSleepingProblem.OBSTRUCTED));
             } else {
-                this.setRespawnPosition(this.level.dimension(), blockPos, this.getYRot(), false, true);
-                if (this.level.isDay()) {
+                this.setRespawnPosition(level.dimension(), blockPos, this.getYRot(), false, true);
+                if (level.isDay()) {
                     callback.setReturnValue(Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW));
                 } else {
                     if (!this.isCreative()) {
                         Vec3 vec3 = Vec3.atBottomCenterOf(blockPos);
-                        List<Monster> list = this.level.getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), (monster) -> monster.isPreventingPlayerRest(this));
+                        List<Monster> list = level.getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), (monster) -> monster.isPreventingPlayerRest(this));
                         if (!list.isEmpty()) {
                             callback.setReturnValue(Either.left(Player.BedSleepingProblem.NOT_SAFE));
                             return;
@@ -75,11 +76,11 @@ public abstract class ServerPlayerMixin extends Player {
                         this.awardStat(Stats.SLEEP_IN_BED);
                         CriteriaTriggers.SLEPT_IN_BED.trigger((ServerPlayer) (Object)this);
                     });
-                    if (!this.getLevel().canSleepThroughNights()) {
+                    if (!level.canSleepThroughNights()) {
                         this.displayClientMessage(Component.translatable("sleep.not_possible"), true);
                     }
 
-                    ((ServerLevel)this.level).updateSleepingPlayerList();
+                    level.updateSleepingPlayerList();
                     callback.setReturnValue(either);
                 }
             }

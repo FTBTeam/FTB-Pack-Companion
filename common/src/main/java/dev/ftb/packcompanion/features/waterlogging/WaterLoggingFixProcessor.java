@@ -25,13 +25,13 @@ public class WaterLoggingFixProcessor extends StructureProcessor {
     @Nullable
     @Override
     public StructureTemplate.StructureBlockInfo processBlock(LevelReader levelReader, BlockPos blockPos, BlockPos blockPos2, StructureTemplate.StructureBlockInfo original, StructureTemplate.StructureBlockInfo after, StructurePlaceSettings structurePlaceSettings) {
-        if (!after.state.isAir()) {
+        if (!after.state().isAir()) {
             getWriter(levelReader).ifPresent(writer -> {
                 // Is the block meant to be a fluid? No then lets make sure the world doesn't already have a fluid there
-                if (after.state.getFluidState().isEmpty()) {
+                if (after.state().getFluidState().isEmpty()) {
                     // Is the block water? No, is the current block in the world water? Yes, Cool, remove it before placement
-                    if (after.state.getBlock() != Blocks.WATER && levelReader.hasChunkAt(after.pos) && levelReader.getBlockState(after.pos).getFluidState().is(Fluids.WATER)) {
-                        writer.setBlock(after.pos, after.state, Block.UPDATE_ALL);
+                    if (after.state().getBlock() != Blocks.WATER && levelReader.hasChunkAt(after.pos()) && levelReader.getBlockState(after.pos()).getFluidState().is(Fluids.WATER)) {
+                        writer.setBlock(after.pos(), after.state(), Block.UPDATE_ALL);
                     }
                 }
             });
