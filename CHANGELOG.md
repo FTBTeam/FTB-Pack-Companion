@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.1]
+
+### Added
+
+- JEI Recipe category sorting via config
+
 ## [2.2.0]
 
 ### Added
