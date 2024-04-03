@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.2]
+
+### Fixed
+
+- Mixin issues
+
 ## [2.2.1]
 
 ### Added
