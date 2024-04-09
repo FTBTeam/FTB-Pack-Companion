@@ -55,7 +55,7 @@ dependencies {
     modRuntimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
 
     modRuntimeOnly("curse.maven:creeperhost-minetogether-267172:5075809")
-    modRuntimeOnly("curse.maven:poly-576589:5199137")
+    modRuntimeOnly("curse.maven:poly-576589:5218944")
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
