@@ -109,9 +109,8 @@ publishMods {
     changelog = providers.environmentVariable("CHANGELOG").getOrElse("No changelog provided")
     version = "${mod_version}"
 
-    // TODO: Migrate to something else
     def tag = providers.environmentVariable("TAG").getOrElse("release")
-    type = tag == "release" ? STABLE : (tag == "beta" ? BETA : ALPHA)
+    type = (!tag.contains("beta") && !tag.contains("alpha")) ? STABLE : (tag.contains("beta") ? BETA : ALPHA)
 
     def createOptions = (String projectName) -> {
         publishOptions {
