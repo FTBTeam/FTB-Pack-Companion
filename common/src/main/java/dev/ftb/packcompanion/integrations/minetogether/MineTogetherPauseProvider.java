@@ -9,6 +9,7 @@ import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.PublicChatGui;
 import net.creeperhost.minetogether.config.Config;
+import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.gui.GuiShareToFriends;
 import net.creeperhost.minetogether.gui.SettingGui;
@@ -50,7 +51,7 @@ public class MineTogetherPauseProvider implements AdditionalPauseProvider {
         collection.addRenderableWidget(newSettingsBtn);
         collection.addRenderableWidget(newFriendChatBtn);
 
-        if (Config.instance().chatEnabled) {
+        if (LocalConfig.instance().chatEnabled) {
             var newPublicChatBtn = new SupportPauseProvider.IconButton(x - xOffset - 44, y, 20, 20, Constants.WIDGETS_SHEET, "minetogether:gui.button.global_chat.info", e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(PublicChatGui.createGui(), screen.unsafeScreenAccess())), 20, 0, 256, 256, 20, 20, 20, false);
             collection.addRenderableWidget(newPublicChatBtn);
         }

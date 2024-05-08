@@ -57,8 +57,8 @@ dependencies {
 //    modRuntimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}") { transitive = false }
 //    modRuntimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
 
-//    modRuntimeOnly("curse.maven:creeperhost-minetogether-267172:5300689")
-//    modRuntimeOnly("curse.maven:poly-576589:5308722")
+    modRuntimeOnly("curse.maven:creeperhost-minetogether-267172:5300690")
+    modRuntimeOnly("curse.maven:poly-576589:5308723")
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
