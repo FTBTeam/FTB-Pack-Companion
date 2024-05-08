@@ -1,4 +1,4 @@
-package dev.ftb.packcompanion.forge.mixin.features.bedtime;
+package dev.ftb.packcompanion.neoforge.mixin.features.bedtime;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
@@ -17,8 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -58,27 +57,36 @@ public abstract class ServerPlayerMixin extends Player {
                 callback.setReturnValue(Either.left(Player.BedSleepingProblem.OBSTRUCTED));
             }
 
-            this.setRespawnPosition(this.serverLevel().dimension(), blockPos, this.getYRot(), false, true);
-            if (!ForgeEventFactory.fireSleepingTimeCheck((ServerPlayer) (Object) this, optAt)) {
-                callback.setReturnValue(Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW));
-            }
-            if (!this.isCreative()) {
-                Vec3 vec3 = Vec3.atBottomCenterOf(blockPos);
-                List<Monster> list = this.serverLevel().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), arg -> arg.isPreventingPlayerRest(this));
-                if (!list.isEmpty()) {
-                    callback.setReturnValue(Either.left(Player.BedSleepingProblem.NOT_SAFE));
+            this.setRespawnPosition(this.level().dimension(), blockPos, this.getYRot(), false, true);
+            if (!EventHooks.fireSleepingTimeCheck(this, optAt)) {
+                callback.setReturnValue(Either.left(BedSleepingProblem.NOT_POSSIBLE_NOW));
+                return;
+            } else {
+                if (!this.isCreative()) {
+                    double d0 = 8.0;
+                    double d1 = 5.0;
+                    Vec3 vec3 = Vec3.atBottomCenterOf(blockPos);
+                    List<Monster> list = this.level().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), (arg) -> {
+                        return arg.isPreventingPlayerRest(this);
+                    });
+                    if (!list.isEmpty()) {
+                        callback.setReturnValue(Either.left(BedSleepingProblem.NOT_SAFE));
+                        return;
+                    }
                 }
-            }
-            Either<Player.BedSleepingProblem, Unit> either = super.startSleepInBed(blockPos).ifRight(arg -> {
-                this.awardStat(Stats.SLEEP_IN_BED);
-                CriteriaTriggers.SLEPT_IN_BED.trigger((ServerPlayer) (Object)this);
-            });
-            if (!this.serverLevel().canSleepThroughNights()) {
-                this.displayClientMessage(Component.translatable("sleep.not_possible"), true);
-            }
 
-            this.serverLevel().updateSleepingPlayerList();
-            callback.setReturnValue(either);
+                Either<Player.BedSleepingProblem, Unit> either = super.startSleepInBed(blockPos).ifRight((arg) -> {
+                    this.awardStat(Stats.SLEEP_IN_BED);
+                    CriteriaTriggers.SLEPT_IN_BED.trigger(((ServerPlayer) (Object) this));
+                });
+                if (!this.serverLevel().canSleepThroughNights()) {
+                    this.displayClientMessage(Component.translatable("sleep.not_possible"), true);
+                }
+
+                ((ServerLevel)this.level()).updateSleepingPlayerList();
+                callback.setReturnValue(either);
+                return;
+            }
         }
 
         callback.setReturnValue(callback.getReturnValue());

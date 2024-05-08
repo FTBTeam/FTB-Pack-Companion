@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -282,17 +283,19 @@ public class SpawnerManager extends ServerFeature {
 
         private DataStore() {}
 
-        private DataStore(CompoundTag tag) {
+        private static DataStore load(CompoundTag tag) {
             if (!tag.contains("broken_spawners")) {
-                return;
+                return new DataStore();
             }
 
-            brokenSpawners.addAll(MobSpawnerData.CODEC.listOf().parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("broken_spawners"))).result().orElse(new ArrayList<>()));
+            var ds = new DataStore();
+            ds.brokenSpawners.addAll(MobSpawnerData.CODEC.listOf().parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("broken_spawners"))).result().orElse(new ArrayList<>()));
+            return ds;
         }
 
         public static DataStore create(MinecraftServer server) {
             return server.getLevel(Level.OVERWORLD).getDataStorage()
-                    .computeIfAbsent(DataStore::new, DataStore::new, "ftbpc-spawner-manager");
+                    .computeIfAbsent(new SavedData.Factory<>(DataStore::new, DataStore::load, DataFixTypes.SAVED_DATA_COMMAND_STORAGE), "ftbpc-spawner-manager");
         }
 
         @Override

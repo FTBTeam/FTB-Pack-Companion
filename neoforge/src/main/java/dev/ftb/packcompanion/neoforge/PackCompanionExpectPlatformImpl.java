@@ -1,9 +1,9 @@
-package dev.ftb.packcompanion.forge;
+package dev.ftb.packcompanion.neoforge;
 
 import dev.ftb.packcompanion.integrations.IntegrationsEntrypoint;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.client.gui.ModListScreen;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.gui.ModListScreen;
 
 import java.nio.file.Path;
 import java.util.function.Function;

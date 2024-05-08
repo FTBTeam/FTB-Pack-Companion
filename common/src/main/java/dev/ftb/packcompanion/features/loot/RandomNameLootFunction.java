@@ -2,10 +2,14 @@ package dev.ftb.packcompanion.features.loot;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.packcompanion.api.PackCompanionAPI;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -16,10 +20,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,8 +36,7 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
     private static final Gson GSON = Util.make(() -> {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.disableHtmlEscaping();
-        gsonBuilder.registerTypeHierarchyAdapter(Component.class, new Component.Serializer());
-        gsonBuilder.registerTypeHierarchyAdapter(Style.class, new Style.Serializer());
+        gsonBuilder.registerTypeHierarchyAdapter(Component.class, new Component.SerializerAdapter());
         gsonBuilder.registerTypeAdapterFactory(new LowerCaseEnumTypeAdapterFactory());
         return gsonBuilder.create();
     });
@@ -43,9 +46,15 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
 
     final String nameSetKey;
 
-    RandomNameLootFunction(LootItemCondition[] lootItemConditions, @Nullable String arg) {
+    public static final MapCodec<RandomNameLootFunction> CODEC = RecordCodecBuilder.mapCodec(
+            instance -> commonFields(instance)
+                    .and(Codec.STRING.optionalFieldOf("nameSetKey").forGetter(x -> Optional.ofNullable(x.nameSetKey)))
+                    .apply(instance, RandomNameLootFunction::new)
+    );
+
+    public RandomNameLootFunction(List<LootItemCondition> lootItemConditions, Optional<String> arg) {
         super(lootItemConditions);
-        this.nameSetKey = arg;
+        this.nameSetKey = arg.orElse("");
     }
 
     public static void clearCache() {
@@ -99,20 +108,5 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
     @Override
     public LootItemFunctionType getType() {
         return LootTableRegistries.RANDOM_NAME_LOOT_FUNCTION.get();
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<RandomNameLootFunction> {
-        @Override
-        public void serialize(JsonObject jsonObject, RandomNameLootFunction arg, JsonSerializationContext jsonSerializationContext) {
-            super.serialize(jsonObject, arg, jsonSerializationContext);
-            if (arg.nameSetKey != null) {
-                jsonObject.addProperty("nameSetKey", arg.nameSetKey);
-            }
-        }
-
-        @Override
-        public RandomNameLootFunction deserialize(JsonObject jsonObject, JsonDeserializationContext jsonDeserializationContext, LootItemCondition[] args) {
-            return new RandomNameLootFunction(args, jsonObject.get("nameSetKey").getAsString());
-        }
     }
 }

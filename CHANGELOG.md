@@ -1,5 +1,11 @@
 # Changelog
 
+## [20.4.0]
+
+### Changed
+
+- Ported to 1.20.4
+
 ## [2.2.1]
 
 ### Added
