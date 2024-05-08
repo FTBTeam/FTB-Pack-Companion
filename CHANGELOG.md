@@ -1,5 +1,11 @@
 # Changelog
 
+## [20.4.1]
+
+### Fixed
+
+- MineTogether compatibility
+
 ## [20.4.0]
 
 ### Changed
