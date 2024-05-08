@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.social.SocialInteractionsScreen;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 
 public class CustomPauseScreen extends Screen {
@@ -69,24 +70,25 @@ public class CustomPauseScreen extends Screen {
 
         Component component = this.minecraft.isLocalServer() ? Component.translatable("menu.returnToMenu") : Component.translatable("menu.disconnect");
         this.addRenderableWidget(Button.builder(component, (buttonx) -> {
-            boolean bl = this.minecraft.isLocalServer();
-            boolean bl2 = this.minecraft.isConnectedToRealms();
-            buttonx.active = false;
-            this.minecraft.level.disconnect();
-            if (bl) {
-                this.minecraft.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
-            } else {
-                this.minecraft.clearLevel();
-            }
+            this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, () -> {
+                boolean bl = this.minecraft.isLocalServer();
+                ServerData serverData = this.minecraft.getCurrentServer();
+                this.minecraft.level.disconnect();
+                if (bl) {
+                    this.minecraft.disconnect(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
+                } else {
+                    this.minecraft.disconnect();
+                }
 
-            TitleScreen titleScreen = new TitleScreen();
-            if (bl) {
-                this.minecraft.setScreen(titleScreen);
-            } else if (bl2) {
-                this.minecraft.setScreen(new RealmsMainScreen(titleScreen));
-            } else {
-                this.minecraft.setScreen(new JoinMultiplayerScreen(titleScreen));
-            }
+                TitleScreen titleScreen = new TitleScreen();
+                if (bl) {
+                    this.minecraft.setScreen(titleScreen);
+                } else if (serverData != null && serverData.isRealm()) {
+                    this.minecraft.setScreen(new RealmsMainScreen(titleScreen));
+                } else {
+                    this.minecraft.setScreen(new JoinMultiplayerScreen(titleScreen));
+                }
+            }, true);
         }).bounds(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20).build());
 
         // NOTE: Only needed for testing
@@ -117,7 +119,7 @@ public class CustomPauseScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float f) {
-        renderBackground(guiGraphics);
+        renderBackground(guiGraphics, mouseX, mouseY, f);
         super.render(guiGraphics, mouseX, mouseY, f);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 40, 16777215);
 

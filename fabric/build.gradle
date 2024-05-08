@@ -1,6 +1,5 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 def ENV = System.getenv()
@@ -136,24 +135,6 @@ publishing {
             artifact(remapJar) {
                 builtBy remapJar
             }
-        }
-    }
-}
-
-if (ENV.CURSEFORGE_KEY) {
-    curseforge {
-        apiKey = ENV.CURSEFORGE_KEY
-        project {
-            id = rootProject.curseforge_id
-            releaseType = ftbPublishing.relType
-            addGameVersion "Fabric"
-            addGameVersion rootProject.minecraft_version
-            mainArtifact(remapJar.archiveFile)
-            relations {
-                requiredDependency 'ftb-library-fabric'
-            }
-            changelog = ENV.CHANGELOG  // expected to exist if ENV.CURSEFORGE_KEY does
-            changelogType = 'markdown'
         }
     }
 }

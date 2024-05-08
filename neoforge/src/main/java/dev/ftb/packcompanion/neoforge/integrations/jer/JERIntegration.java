@@ -1,4 +1,4 @@
-package dev.ftb.packcompanion.forge.integrations.jer;
+package dev.ftb.packcompanion.neoforge.integrations.jer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -12,8 +12,8 @@ import jeresources.api.IJERPlugin;
 import jeresources.api.JERPlugin;
 import jeresources.util.LogHelper;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.ModFileScanData;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,14 @@ public class JERIntegration implements IJERPlugin {
             for (var table : tables) {
                 ijerapi.getDungeonRegistry().registerCategory(table.name(), table.displayName());
                 for (String chest : table.chests()) {
-                    ijerapi.getDungeonRegistry().registerChest(table.name(), new ResourceLocation(chest));
+                    //ijerapi.getDungeonRegistry().registerChest(table.name(), new ResourceLocation(chest));
+                    // Use reflection to call registerChest
+                    try {
+                        ijerapi.getDungeonRegistry().getClass().getMethod("registerChest", String.class, ResourceLocation.class)
+                                .invoke(ijerapi.getDungeonRegistry(), table.name(), new ResourceLocation(chest));
+                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                        LOGGER.error("Failed to register chest: " + chest, e);
+                    }
                 }
             }
         } catch (IOException e) {

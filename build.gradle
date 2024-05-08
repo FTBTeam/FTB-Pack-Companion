@@ -1,6 +1,7 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.5-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
+    id "me.modmuss50.mod-publish-plugin" version "0.4.5"
 }
 
 architectury {
@@ -100,5 +101,43 @@ subprojects {
                 }
             }
         }
+    }
+}
+
+publishMods {
+    dryRun = providers.environmentVariable("CURSEFORGE_KEY").getOrNull() == null
+    changelog = providers.environmentVariable("CHANGELOG").getOrElse("No changelog provided")
+    version = "${mod_version}"
+
+    // TODO: Migrate to something else
+    def tag = providers.environmentVariable("TAG").getOrElse("release")
+    type = tag == "release" ? STABLE : (tag == "beta" ? BETA : ALPHA)
+
+    def createOptions = (String projectName) -> {
+        publishOptions {
+            file = project.provider { project(":$projectName").tasks.remapJar }.flatMap { it.archiveFile }
+            displayName = "[${projectName.toUpperCase()}][${minecraft_version}] ${readable_name} ${mod_version}"
+            modLoaders.add(projectName.toLowerCase())
+        }
+    }
+
+    def curseForgeOptions = curseforgeOptions {
+        accessToken = providers.environmentVariable("CURSEFORGE_KEY")
+        minecraftVersions.add("${minecraft_version}")
+    }
+
+    curseforge("curseforgeFabric") {
+        from(curseForgeOptions, createOptions("fabric"))
+        projectId = curseforge_id
+        requires {slug = "fabric-api" }
+        requires {slug = "architectury-api" }
+        requires {slug = 'ftb-library-fabric' }
+    }
+
+    curseforge("curseforgeNeoForge") {
+        from(curseForgeOptions, createOptions("neoforge"))
+        projectId = curseforge_id
+        requires { slug = "architectury-api" }
+        requires { slug = 'ftb-library-forge' }
     }
 }

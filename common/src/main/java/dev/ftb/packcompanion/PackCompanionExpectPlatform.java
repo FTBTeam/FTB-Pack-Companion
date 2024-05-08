@@ -11,31 +11,26 @@ import java.util.function.Supplier;
 public class PackCompanionExpectPlatform {
     @ExpectPlatform
     public static Path getGameDirectory() {
-        // Just throw an error, the content should get replaced at runtime.
-        throw new AssertionError();
+        return null;
     }
 
     @ExpectPlatform
     public static Path getConfigDirectory() {
-        // Just throw an error, the content should get replaced at runtime.
-        throw new AssertionError();
+        return null;
     }
 
     @ExpectPlatform
     public static Function<Screen, Screen> getModListScreen() {
-        // Just throw an error, the content should get replaced at runtime.
-        throw new AssertionError();
+        return (screen) -> screen;
     }
 
     @ExpectPlatform
     public static boolean hasModlistScreen() {
-        // Just throw an error, the content should get replaced at runtime.
-        throw new AssertionError();
+        return false;
     }
 
     @ExpectPlatform
     public static IntegrationsEntrypoint getIntegrationEntry() {
-        // Just throw an error, the content should get replaced at runtime.
-        throw new AssertionError();
+        return null;
     }
 }

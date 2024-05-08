@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[41,)"
+loaderVersion = "[2,)"
 #issueTrackerURL = ""
 license = "ARR"
 
@@ -14,22 +14,28 @@ A Modpack developers best friend
 #logoFile = ""
 
 [[dependencies.ftbpc]]
-modId = "forge"
-mandatory = true
-versionRange = "[41,)"
+modId = "neoforge"
+required = true
+versionRange = "[20.4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ftbpc]]
 modId = "minecraft"
-mandatory = true
-versionRange = "[1.19,)"
+required = true
+versionRange = "[1.20.4,1.20.5)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ftbpc]]
 modId = "architectury"
-mandatory = true
-versionRange = "[5.12.42,)"
+required = true
+versionRange = "[11.1.17,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[mixins]]
+config = "ftbpc-common.mixins.json"
+
+[[mixins]]
+config = "ftbpc.mixins.json"

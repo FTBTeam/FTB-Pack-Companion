@@ -1,7 +1,6 @@
-package dev.ftb.packcompanion.forge.integrations;
+package dev.ftb.packcompanion.neoforge.integrations;
 
-import dev.ftb.packcompanion.forge.integrations.create.CreateIntegration;
-import dev.ftb.packcompanion.integrations.minetogether.MineTogetherIntegration;
+import dev.ftb.packcompanion.neoforge.integrations.create.CreateIntegration;
 import dev.ftb.packcompanion.integrations.IntegrationsCommon;
 import dev.ftb.packcompanion.integrations.IntegrationsEntrypoint;
 
