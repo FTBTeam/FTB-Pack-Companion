@@ -69,6 +69,9 @@ dependencies {
     // Include modmenu
     modImplementation("com.terraformersmc:modmenu:${modmenu_version}")
 
+    modImplementation "curse.maven:creeperhost-minetogether-267172:5300680"
+    modImplementation "curse.maven:polylib-576589:5406378"
+
     modRuntimeOnly "curse.maven:jade-324717:4328558"
 
     // Testing mods

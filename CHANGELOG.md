@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.3]
+
+### Fixed
+
+- Fixed an issue causing crashes with newer versions of MineTogether
+
 ## [2.2.2]
 
 ### Fixed

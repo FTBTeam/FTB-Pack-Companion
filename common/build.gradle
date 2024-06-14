@@ -24,8 +24,8 @@ dependencies {
     modImplementation ("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive false }
     modCompileOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
 
-    modCompileOnly("curse.maven:creeperhost-minetogether-267172:5075805")
-    modCompileOnly("curse.maven:poly-576589:4895986")
+    modCompileOnly "curse.maven:creeperhost-minetogether-267172:5300680"
+    modCompileOnly "curse.maven:polylib-576589:5406378"
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-gui:${jei_version}")
