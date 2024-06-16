@@ -43,7 +43,7 @@ public abstract class ServerPlayerMixin extends Player {
 
     @Shadow public abstract ServerLevel serverLevel();
 
-    @Inject(method = "startSleepInBed", at = @At(value = "RETURN"))
+    @Inject(method = "startSleepInBed", at = @At(value = "RETURN"), cancellable = true)
     public void startSleepInBed(BlockPos blockPos, CallbackInfoReturnable<Either<BedSleepingProblem, Unit>> callback) {
         Either<Player.BedSleepingProblem, Unit> returnValue = callback.getReturnValue();
         Optional<BlockPos> optAt = Optional.of(blockPos);

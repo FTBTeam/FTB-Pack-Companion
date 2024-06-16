@@ -1,5 +1,12 @@
 # Changelog
 
+## [20.4.2]
+
+### Fixed
+
+- Neoforge version having issues with sleeping in beds due to a bad mixin config
+- Fabric version not wanting to load due to version restrictions
+
 ## [20.4.1]
 
 ### Fixed
