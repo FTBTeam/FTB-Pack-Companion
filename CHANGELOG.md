@@ -1,5 +1,10 @@
 # Changelog
 
+## [20.4.3]
+
+### Fixed
+- MineTogether integration
+
 ## [20.4.2]
 
 ### Fixed

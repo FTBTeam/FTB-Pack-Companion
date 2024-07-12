@@ -21,11 +21,11 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
-    modImplementation ("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive false }
+    modImplementation("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive false }
     modCompileOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
 
-    modCompileOnly("curse.maven:creeperhost-minetogether-267172:5300688")
-    modCompileOnly "net.creeperhost:polylib-fabric:2004.0.3-build.140"
+    modCompileOnly("curse.maven:creeperhost-minetogether-267172:5522846")
+    modCompileOnly "net.creeperhost:polylib-fabric:2004.0.3-build.155"
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-gui:${jei_version}")

@@ -8,7 +8,6 @@ import dev.ftb.packcompanion.client.screen.pause.providers.SupportPauseProvider;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.PublicChatGui;
-import net.creeperhost.minetogether.config.Config;
 import net.creeperhost.minetogether.config.LocalConfig;
 import net.creeperhost.minetogether.connect.ConnectHandler;
 import net.creeperhost.minetogether.connect.gui.GuiShareToFriends;
@@ -46,8 +45,7 @@ public class MineTogetherPauseProvider implements AdditionalPauseProvider {
         xOffset += 22;
 
         var newSettingsBtn = new SupportPauseProvider.IconButton(x - xOffset, y, 20, 20, Constants.WIDGETS_SHEET, "minetogether:gui.button.settings.info", e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new SettingGui(), screen.unsafeScreenAccess())), 60, 0, 256, 256, 20, 20, 20, false);
-        var newFriendChatBtn = new SupportPauseProvider.IconButton(x - xOffset - 22, y, 20, 20, Constants.WIDGETS_SHEET, "minetogether:gui.button.friends.info", e -> Minecraft.getInstance().setScreen(new ModularGuiScreen(new FriendChatGui(), screen.unsafeScreenAccess())), 140, 0, 256, 256, 20, 20, 20, false);
-
+        var newFriendChatBtn = new SupportPauseProvider.IconButton(x - xOffset - 22, y, 20, 20, Constants.WIDGETS_SHEET, "minetogether:gui.button.friends.info", e -> Minecraft.getInstance().setScreen(new FriendChatGui.Screen(screen.unsafeScreenAccess())), 140, 0, 256, 256, 20, 20, 20, false);
         collection.addRenderableWidget(newSettingsBtn);
         collection.addRenderableWidget(newFriendChatBtn);
 
