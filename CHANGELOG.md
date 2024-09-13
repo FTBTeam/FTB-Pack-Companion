@@ -1,5 +1,12 @@
 # Changelog
 
+## [21.1.0-beta.1]
+
+### Added
+
+- Initial port to 1.21.1
+- A relatively simple re-implementation of (https://github.com/MCTeamPotato/SparseStructuresReforged/) for 1.21.1 to bridge the gap until they port. This is allowed per their MIT license.
+
 ## [20.4.2]
 
 ### Fixed
