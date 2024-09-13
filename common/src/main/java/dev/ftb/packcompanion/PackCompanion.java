@@ -5,6 +5,7 @@ import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
+import dev.ftb.packcompanion.api.PackCompanionAPI;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.features.CommonFeature;
@@ -14,6 +15,7 @@ import dev.ftb.packcompanion.integrations.IntegrationsEntrypoint;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import dev.ftb.packcompanion.registry.ReloadResourceManager;
 import dev.ftb.packcompanion.registry.StructureProcessorRegistry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 
@@ -52,5 +54,9 @@ public class PackCompanion {
 
     private static void serverStarted(MinecraftServer server) {
         Features.INSTANCE.getServerFeatures().forEach(e -> e.setup(server));
+    }
+
+    public static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(PackCompanionAPI.MOD_ID, path);
     }
 }

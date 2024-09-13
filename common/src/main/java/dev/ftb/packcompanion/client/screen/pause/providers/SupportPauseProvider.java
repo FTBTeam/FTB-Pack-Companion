@@ -1,5 +1,6 @@
 package dev.ftb.packcompanion.client.screen.pause.providers;
 
+import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseProvider;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseTarget;
 import dev.ftb.packcompanion.api.client.pause.ScreenHolder;
@@ -14,8 +15,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public class SupportPauseProvider implements AdditionalPauseProvider {
-    private static final ResourceLocation DISCORD_ICON = new ResourceLocation("ftbpc:textures/gui/discord.png");
-    private static final ResourceLocation GITHUB_ICON = new ResourceLocation("ftbpc:textures/gui/github.png");
+    private static final ResourceLocation DISCORD_ICON = PackCompanion.id("textures/gui/discord.png");
+    private static final ResourceLocation GITHUB_ICON = PackCompanion.id("textures/gui/github.png");
 
     @Override
     public @Nullable ScreenWidgetCollection init(AdditionalPauseTarget target, ScreenHolder screen, int x, int y) {

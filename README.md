@@ -4,9 +4,16 @@ Your best friend when developing a Modpack. With an ever growing list of feature
 
 ## Features so far
 
+- Reimplementation of the pause menu with a fully featured API for modders to properly add more buttons and features to the pause menu. This is a work in progress and will be expanded upon in the future. 
 - Structure Processor to resolve issues with WaterLogging blocks that should not be water logged
-- Command to help you generate loot tables in game!
+- Removal of toasts that are annoying
+- Custom spawners behaviour
+  - Punish the player on break
+  - Prevent breaking of spawners
+  - Break torches / light sources near a spawner
+  - Modify the difficulty of the spawners mobs via a custom attribute
 - A new `RandomNameLootFunction` that lets you set a list of names for an item and have the function select one at random
+- A relatively simple re-implementation of (https://github.com/MCTeamPotato/SparseStructuresReforged/) for 1.21.1 to bridge the gap until they port. This is allowed per their MIT license.
 
 ## Using the features
 
@@ -24,14 +31,6 @@ It should look like this
     }
   ]
 }
-```
-
-### `create_loot_table` command
-
-This one is super helpful, it'll allow you to create a loot table based on in-game items with their current data. 
-
-```java
-// TODO, show how this works
 ```
 
 ### RandomNameLootFunction

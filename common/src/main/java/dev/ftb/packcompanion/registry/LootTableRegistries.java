@@ -8,7 +8,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 
 public interface LootTableRegistries {
-    DeferredRegister<LootItemFunctionType> REGISTRY = DeferredRegister.create(PackCompanionAPI.MOD_ID, Registries.LOOT_FUNCTION_TYPE);
+    DeferredRegister<LootItemFunctionType<?>> REGISTRY = DeferredRegister.create(PackCompanionAPI.MOD_ID, Registries.LOOT_FUNCTION_TYPE);
 
-    RegistrySupplier<LootItemFunctionType> RANDOM_NAME_LOOT_FUNCTION = REGISTRY.register("random_loot_item_function", () -> new LootItemFunctionType(RandomNameLootFunction.CODEC.codec()));
+    RegistrySupplier<LootItemFunctionType> RANDOM_NAME_LOOT_FUNCTION = REGISTRY.register("random_loot_item_function",
+            () -> new LootItemFunctionType<>(RandomNameLootFunction.CODEC));
 }

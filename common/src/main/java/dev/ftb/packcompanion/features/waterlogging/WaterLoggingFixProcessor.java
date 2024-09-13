@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.features.waterlogging;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dev.ftb.packcompanion.registry.StructureProcessorRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class WaterLoggingFixProcessor extends StructureProcessor {
     private static final WaterLoggingFixProcessor INSTANCE = new WaterLoggingFixProcessor();
-    public static final Codec<WaterLoggingFixProcessor> CODEC = Codec.unit(() -> INSTANCE);
+    public static final MapCodec<WaterLoggingFixProcessor> CODEC = MapCodec.unit(() -> INSTANCE);
 
     @Nullable
     @Override
