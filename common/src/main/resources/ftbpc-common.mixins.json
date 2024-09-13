@@ -6,15 +6,13 @@
   "client": [
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
-    "features.singleplayerseed.WorldGenSettingsComponentMixin",
-    "features.pausescreen.PauseMenuMixin"
+    "features.pausescreen.PauseMenuMixin",
+    "features.singleplayerseed.WorldGenSettingsComponentMixin"
   ],
   "mixins": [
-    "features.bedtime.BedMixin",
-    "features.jigsaw.JigsawPlacementMixin",
-    "features.jei.RecipeGuiTabsMixin",
-    "features.spawners.SpawnerMixin",
-    "features.spawners.SpawnDataMixin"
+    "features.sparsestructures.RegistryDataLoaderMixin",
+    "features.spawners.SpawnDataMixin",
+    "features.spawners.SpawnerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

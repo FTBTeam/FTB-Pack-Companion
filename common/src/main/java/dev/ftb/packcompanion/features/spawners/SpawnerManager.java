@@ -11,6 +11,7 @@ import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.features.ServerFeature;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -59,7 +60,12 @@ public class SpawnerManager extends ServerFeature {
         List<String> randomEntities = PCServerConfig.SPAWNERS_USE_RANDOM_ENTITY.get();
         List<EntityType<?>> entities = new ArrayList<>();
         for (String entity : randomEntities) {
-            EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(entity));
+            ResourceLocation resourceLocation = ResourceLocation.tryParse(entity);
+            if (resourceLocation == null) {
+                continue;
+            }
+
+            EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(resourceLocation);
             if (entityType == EntityType.PIG && !entity.endsWith("pig")) {
                 continue; // Failed as the registry default is pig
             }
@@ -89,7 +95,7 @@ public class SpawnerManager extends ServerFeature {
             }
 
             // Spawn data
-            var compound = spawnerBlockEntity.saveWithoutMetadata();
+            var compound = spawnerBlockEntity.saveWithoutMetadata(level.registryAccess());
             DataStore dataStore = this.dataStore;
             dataStore.brokenSpawners.add(new MobSpawnerData(pos, compound, level.dimension()));
             dataStore.setDirty();
@@ -242,7 +248,7 @@ public class SpawnerManager extends ServerFeature {
                 compound.put("SpawnData", entityCompound);
             }
 
-            spawnerBlockEntity.load(compound);
+            spawnerBlockEntity.loadWithComponents(compound, serverLevel.registryAccess());
             spawnerBlockEntity.setChanged();
             dataStore.brokenSpawners.remove(spawnerData);
             dataStore.setDirty();
@@ -283,7 +289,7 @@ public class SpawnerManager extends ServerFeature {
 
         private DataStore() {}
 
-        private static DataStore load(CompoundTag tag) {
+        private static DataStore load(CompoundTag tag, HolderLookup.Provider provider) {
             if (!tag.contains("broken_spawners")) {
                 return new DataStore();
             }
@@ -300,7 +306,7 @@ public class SpawnerManager extends ServerFeature {
 
         @Override
         @NotNull
-        public CompoundTag save(CompoundTag compoundTag) {
+        public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
             compoundTag.put("broken_spawners", MobSpawnerData.CODEC.listOf().encodeStart(NbtOps.INSTANCE, brokenSpawners).result().orElse(new CompoundTag()));
             return compoundTag;
         }

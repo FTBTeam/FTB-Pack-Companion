@@ -5,9 +5,12 @@ import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.api.PackCompanionAPI;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import net.minecraft.Util;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -31,15 +34,6 @@ import java.util.Optional;
 public class RandomNameLootFunction extends LootItemConditionalFunction {
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomNameLootFunction.class);
     private static final RandomSource RANDOM_SOURCE = RandomSource.create();
-
-    // Stolen from minecraft!
-    private static final Gson GSON = Util.make(() -> {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.disableHtmlEscaping();
-        gsonBuilder.registerTypeHierarchyAdapter(Component.class, new Component.SerializerAdapter());
-        gsonBuilder.registerTypeAdapterFactory(new LowerCaseEnumTypeAdapterFactory());
-        return gsonBuilder.create();
-    });
 
     private static Map<String, List<Component>> namingData = null;
     private static boolean hasAttemptedLoad = false;
@@ -70,7 +64,7 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
         }
 
         // Load the file from the mods resources
-        Optional<Resource> namingSource = lootContext.getLevel().getServer().getResourceManager().getResource(new ResourceLocation(PackCompanionAPI.MOD_ID, "sources/random-name-loot-source.json"));
+        Optional<Resource> namingSource = lootContext.getLevel().getServer().getResourceManager().getResource(PackCompanion.id("sources/random-name-loot-source.json"));
 
         if (namingSource.isEmpty()) {
             LOGGER.warn("Attempted RandomNameLootFunction with no random-name-loot-source.json file in the data/ftbpc/sources folder");
@@ -87,7 +81,8 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
 
             // Load the data... finally...
             try {
-                namingData = GSON.fromJson(namingSource.get().openAsReader(), new TypeToken<Map<String, List<Component>>>() {}.getType());
+                namingData = createGson(lootContext.getLevel().registryAccess())
+                        .fromJson(namingSource.get().openAsReader(), new TypeToken<Map<String, List<Component>>>() {}.getType());
             } catch (Exception e) {
                 LOGGER.error("Error trying to read", e);
             }
@@ -101,12 +96,20 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
         List<Component> names = namingData.get(this.nameSetKey);
         Component nameToUse = names.get(RANDOM_SOURCE.nextInt(names.size()));
 
-        itemStack.setHoverName(nameToUse);
+        itemStack.set(DataComponents.CUSTOM_NAME, nameToUse);
         return itemStack;
     }
 
     @Override
     public LootItemFunctionType getType() {
         return LootTableRegistries.RANDOM_NAME_LOOT_FUNCTION.get();
+    }
+
+    private static Gson createGson(RegistryAccess registryAccess) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.disableHtmlEscaping();
+        gsonBuilder.registerTypeHierarchyAdapter(Component.class, new Component.SerializerAdapter(registryAccess));
+        gsonBuilder.registerTypeAdapterFactory(new LowerCaseEnumTypeAdapterFactory());
+        return gsonBuilder.create();
     }
 }

@@ -31,8 +31,6 @@ public class SpawnerBehaviourModifier {
     }
 
     private void attemptTorchDestroy(ServerLevel serverLevel, BlockPos blockPos) {
-        LOGGER.info("Attempting to destroy torches around spawner at " + blockPos);
-
         // Create a 5x5x4 area around the spawner
         AABB aabb = new AABB(blockPos).inflate(2.5, 3, 2.5);
         Stream<BlockPos> blockPosStream = BlockPos.betweenClosedStream(aabb);

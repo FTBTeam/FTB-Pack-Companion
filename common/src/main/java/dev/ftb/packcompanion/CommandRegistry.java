@@ -13,7 +13,6 @@ import java.util.Set;
 
 public class CommandRegistry {
     private static final Set<CommandEntry> COMMANDS = Set.of(
-//        new LootTableGeneratorCommand()
         new SpawnerManagerClearCommand()
     );
 
