@@ -17,14 +17,6 @@ public class PackCompanionExpectPlatformImpl {
         return FMLPaths.GAMEDIR.get();
     }
 
-    public static Function<Screen, Screen> getModListScreen() {
-        return ModListScreen::new;
-    }
-
-    public static boolean hasModlistScreen() {
-        return true;
-    }
-
     public static IntegrationsEntrypoint getIntegrationEntry() {
         return PackCompanionForge.integrationsEntry;
     }

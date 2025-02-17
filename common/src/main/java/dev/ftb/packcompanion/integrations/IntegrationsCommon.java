@@ -22,6 +22,5 @@ public class IntegrationsCommon implements IntegrationsEntrypoint {
 
     @Override
     public void onClientInit() {
-//        loadIfPresent("tipsmod", () -> TipsIntegration::init);
     }
 }
