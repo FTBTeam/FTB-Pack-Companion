@@ -16,13 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GridStructurePlacement extends StructurePlacement {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GridStructurePlacement.class);
+
+    //Valid ints range to 2^24, so you can have singleton placements by setting spacing really high.
     public static final Codec<GridStructurePlacement> CODEC = ExtraCodecs.validate(RecordCodecBuilder.mapCodec(instance ->
             placementCodec(instance).and(instance.group(
                 Codec.intRange(0, 16777216).fieldOf("spacing").forGetter(GridStructurePlacement::spacing),
                 Codec.intRange(0, 16777216).fieldOf("x_offset").forGetter(GridStructurePlacement::xOffset),
                 Codec.intRange(0, 16777216).fieldOf("z_offset").forGetter(GridStructurePlacement::zOffset))
             ).apply(instance, GridStructurePlacement::new)), GridStructurePlacement::validate).codec();
+
     private final int spacing;
     private final int xOffset;
     private final int zOffset;
@@ -35,12 +37,12 @@ public class GridStructurePlacement extends StructurePlacement {
 
     public GridStructurePlacement(Vec3i locateOffset, StructurePlacement.FrequencyReductionMethod frequencyReductionMethod, float frequency, int salt, Optional<StructurePlacement.ExclusionZone> exclusionZone, int spacing, int xOffset, int zOffset) {
         super(locateOffset, frequencyReductionMethod, frequency, salt, exclusionZone);
-        LOGGER.error("It worked!");
         this.spacing = spacing;
         this.xOffset = xOffset;
         this.zOffset = zOffset;
     }
 
+    //Don't know what this does, but it's in Vanilla and some random mod probably needs it
     public GridStructurePlacement(int spacing, int xOffset, int zOffset, int salt) {
         this(Vec3i.ZERO, FrequencyReductionMethod.DEFAULT, 1.0F, salt, Optional.empty(), spacing, xOffset, zOffset);
     }
@@ -57,6 +59,7 @@ public class GridStructurePlacement extends StructurePlacement {
         return this.zOffset;
     }
 
+    //Remember -1 = 9 mod 10 when placing near the origin.
     protected boolean isPlacementChunk(ChunkGeneratorStructureState structureState, int x, int z) {
         return Math.floorMod(x, this.spacing) == this.xOffset && Math.floorMod(z, this.spacing) == this.zOffset;
     }
