@@ -13,6 +13,7 @@ import dev.ftb.packcompanion.integrations.IntegrationsCommon;
 import dev.ftb.packcompanion.integrations.IntegrationsEntrypoint;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import dev.ftb.packcompanion.registry.ReloadResourceManager;
+import dev.ftb.packcompanion.registry.StructurePlacementRegistry;
 import dev.ftb.packcompanion.registry.StructureProcessorRegistry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
@@ -24,6 +25,7 @@ public class PackCompanion {
         // Registry
         LootTableRegistries.REGISTRY.register();
         StructureProcessorRegistry.REGISTRY.register();
+        StructurePlacementRegistry.REGISTRY.register();
 
         // Reload listener
         ReloadListenerRegistry.register(PackType.SERVER_DATA, ReloadResourceManager.INSTANCE);

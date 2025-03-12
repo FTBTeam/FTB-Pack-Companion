@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.3.0]
+
+### Added
+
+- Grid Placement for structures, useful for repeating or statically placed structures in a world.
+
 ## [2.2.1]
 
 ### Added
