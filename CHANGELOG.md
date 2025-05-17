@@ -1,5 +1,10 @@
 # Changelog
 
+## [21.1.2]
+
+- Added Chinese translations
+- Added Brazilian translations
+
 ## [21.1.1]
 
 ### Removed
