@@ -20,16 +20,6 @@ public class PackCompanionExpectPlatform {
     }
 
     @ExpectPlatform
-    public static Function<Screen, Screen> getModListScreen() {
-        return (screen) -> screen;
-    }
-
-    @ExpectPlatform
-    public static boolean hasModlistScreen() {
-        return false;
-    }
-
-    @ExpectPlatform
     public static IntegrationsEntrypoint getIntegrationEntry() {
         return null;
     }

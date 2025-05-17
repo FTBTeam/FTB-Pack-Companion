@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.1]
+
+### Removed
+
+- Pause menu mixins and API. This has moved to FTB Pause Menu API which can be found on CurseForge
+
 ## [21.1.0-beta.1]
 
 ### Added
