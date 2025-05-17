@@ -90,16 +90,6 @@ subprojects {
                     }
                 }
             }
-
-            if (providers.environmentVariable("SAPS_TOKEN").isPresent()) {
-                maven {
-                    url ftbPublishing.sapsURL
-                    credentials {
-                        username = "ftb"
-                        password = providers.environmentVariable("SAPS_TOKEN").getOrElse("")
-                    }
-                }
-            }
         }
     }
 }
