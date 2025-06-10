@@ -14,5 +14,4 @@ jobs:
       java-version: 21
     secrets:
       ftb-maven-token: ${{ secrets.FTB_MAVEN_TOKEN }}
-      saps-token: ${{ secrets.SAPS_TOKEN }}
       curse-token: ${{ secrets.CURSEFORGE_KEY }}

@@ -1,5 +1,12 @@
 # Changelog
 
+## [21.1.3]
+
+### Added
+
+- Performance improvements around the `/reload` command
+  - These are both configurable via the `performance.skip_block_cache_rebuild` config on both the client and server
+
 ## [21.1.2]
 
 - Added Chinese translations
