@@ -6,12 +6,14 @@
   "client": [
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
-    "features.singleplayerseed.WorldGenSettingsComponentMixin"
+    "features.singleplayerseed.WorldGenSettingsComponentMixin",
+    "features.performance.TagCollectorMixin"
   ],
   "mixins": [
     "features.sparsestructures.RegistryDataLoaderMixin",
     "features.spawners.SpawnDataMixin",
-    "features.spawners.SpawnerMixin"
+    "features.spawners.SpawnerMixin",
+    "features.performance.ReloadableServerResourcesMixin"
   ],
   "injectors": {
     "defaultRequire": 1
