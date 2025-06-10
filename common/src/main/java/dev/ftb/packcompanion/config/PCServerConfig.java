@@ -24,6 +24,11 @@ public interface PCServerConfig {
     DoubleValue MODIFY_MOB_BASE_HEALTH = CONFIG.addDouble("modify_mob_base_health", 0D, 0D, 1000D)
             .comment("If non-zero, set the base health of all mobs to be multiplied by this value. Set to 0 to disable.");
 
+    SNBTConfig PERFORMANCE = CONFIG.addGroup("performance");
+
+    BooleanValue RELOAD_PERFORMANCE = PERFORMANCE.addBoolean("reload_performance", true)
+            .comment("Enable reloading performance by disabling rebuilding block cache");
+
     static void load(MinecraftServer server) {
         ConfigUtil.loadDefaulted(CONFIG, server.getWorldPath(ConfigUtil.SERVER_CONFIG_DIR), PackCompanionAPI.MOD_ID);
     }

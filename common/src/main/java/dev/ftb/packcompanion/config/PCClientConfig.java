@@ -39,6 +39,12 @@ public interface PCClientConfig {
     StringValue SUPPORT_DISCORD_URL = PAUSE_SCREEN.addString("support_discord_url", "https://go.ftb.team/discord")
             .comment("The URL to open when the support provider's Discord icon is clicked. If this is empty, the Discord icon will not be shown.");
 
+
+    SNBTConfig PERFORMANCE = CONFIG.addGroup("performance");
+
+    BooleanValue RELOAD_PERFORMANCE = PERFORMANCE.addBoolean("reload_performance", true)
+            .comment("Enable reloading performance by disabling rebuilding block cache");
+
     static void load() {
         ConfigUtil.loadDefaulted(CONFIG, PackCompanionExpectPlatform.getConfigDirectory(), PackCompanionAPI.MOD_ID);
     }
