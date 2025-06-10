@@ -26,8 +26,8 @@ public interface PCServerConfig {
 
     SNBTConfig PERFORMANCE = CONFIG.addGroup("performance");
 
-    BooleanValue RELOAD_PERFORMANCE = PERFORMANCE.addBoolean("reload_performance", true)
-            .comment("Enable reloading performance by disabling rebuilding block cache");
+    BooleanValue RELOAD_PERFORMANCE = PERFORMANCE.addBoolean("skip_block_cache_rebuild", true)
+            .comment("Improve reloading performance by disabling block cache rebuild on client tag data reload");
 
     static void load(MinecraftServer server) {
         ConfigUtil.loadDefaulted(CONFIG, server.getWorldPath(ConfigUtil.SERVER_CONFIG_DIR), PackCompanionAPI.MOD_ID);

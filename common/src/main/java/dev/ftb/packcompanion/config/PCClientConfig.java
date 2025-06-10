@@ -42,8 +42,8 @@ public interface PCClientConfig {
 
     SNBTConfig PERFORMANCE = CONFIG.addGroup("performance");
 
-    BooleanValue RELOAD_PERFORMANCE = PERFORMANCE.addBoolean("reload_performance", true)
-            .comment("Enable reloading performance by disabling rebuilding block cache");
+    BooleanValue RELOAD_PERFORMANCE = PERFORMANCE.addBoolean("skip_block_cache_rebuild", true)
+            .comment("Improve reloading performance by disabling block cache rebuild on server resource reload");
 
     static void load() {
         ConfigUtil.loadDefaulted(CONFIG, PackCompanionExpectPlatform.getConfigDirectory(), PackCompanionAPI.MOD_ID);
