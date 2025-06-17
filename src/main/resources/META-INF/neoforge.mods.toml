@@ -1,0 +1,30 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${version}"
+displayName = "${mod_name}"
+#logoFile = "logo.png"
+authors = "FTB Team"
+description = '''
+A Modpack developers best friend
+'''
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+mandatory = true
+versionRange = "${mod_loader_range}"
+ordering = "NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "ftblibrary"
+required = true
+versionRange = "[${ftblibraryversion},)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[mixins]]
+config = "ftbpc.mixins.json"
