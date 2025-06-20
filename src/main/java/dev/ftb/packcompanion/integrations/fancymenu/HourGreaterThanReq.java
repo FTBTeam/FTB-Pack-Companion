@@ -11,7 +11,7 @@ import java.util.List;
 
 public class HourGreaterThanReq extends LoadingRequirement {
     public HourGreaterThanReq() {
-        super(PackCompanion.id("hour_greater_than").toString());
+        super(PackCompanion.id("hour_greater_than").toString().replace(":", "_"));
     }
 
     @Override
