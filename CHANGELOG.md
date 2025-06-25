@@ -1,5 +1,13 @@
 # Changelog
 
+## [21.1.4]
+
+### Added
+* Added `fancy menu` integrations for checking if the users time is above or below a configurable value
+
+### Changed
+* Refactored the codebase and cleaned up the code 
+
 ## [21.1.3]
 
 ### Added

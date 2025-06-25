@@ -2,7 +2,7 @@ name: Java CI - Build on Push
 
 on:
   push:
-    branches: [ main, dev, "1.*" ]
+    branches: [ main, dev, "1.**" ]
   workflow_dispatch:
     inputs:
       skip_maven_publish:
@@ -21,4 +21,3 @@ jobs:
       java-version: 21
     secrets:
       ftb-maven-token: ${{ secrets.FTB_MAVEN_TOKEN }}
-      saps-token: ${{ secrets.SAPS_TOKEN }}
