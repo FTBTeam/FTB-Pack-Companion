@@ -20,6 +20,9 @@ public interface PCCommonConfig {
     BooleanValue IGNORE_LIGHT_LEVEL_FOR_SPAWNERS = CONFIG.addBoolean("ignore_light_level_for_spawners", false)
             .comment("When enabled, the light level around spawners will be ignored for mob spawning.");
 
+    BooleanValue REMOVE_CONCENTRIC_RING_PLACEMENT_BIAS = CONFIG.addBoolean("remove_concentric_ring_placement_bias", false)
+            .comment("When enabled, the random bias applied to concentric ring distances is removed");
+
     SparseStructuresValue SPARSE_STRUCTURES = CONFIG.add(new SparseStructuresValue(CONFIG, "sparse_structures", SparseStructuresConfig.DEFAULT));
 
     static void load() {
