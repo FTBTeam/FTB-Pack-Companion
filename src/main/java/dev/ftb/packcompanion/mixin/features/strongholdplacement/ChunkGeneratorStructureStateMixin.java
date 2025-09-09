@@ -24,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Debug(export = true)
 @Mixin(ChunkGeneratorStructureState.class)
 public class ChunkGeneratorStructureStateMixin {
     @Inject(method = "generateRingPositions", at = @At(value = "INVOKE", target = "Ljava/lang/Math;cos(D)D", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT)
