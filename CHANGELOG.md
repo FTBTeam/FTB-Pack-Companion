@@ -5,6 +5,8 @@
 ### Added
 * Added bias removal option for concentric ring worldgen placement type
   * Controlled by `remove_concentric_ring_placement_bias` config setting (false by default)
+* Configurable `Shader Notice` screen that will be presented to players on login. This notice will allow users to pick from shaders being enabled or shaders being disabled. This is useful for modpacks that want to enforce shaders being on or off.
+  * Off by default via the common config
 
 ## [21.1.4]
 
