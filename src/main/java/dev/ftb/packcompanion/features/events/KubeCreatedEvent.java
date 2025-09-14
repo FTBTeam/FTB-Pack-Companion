@@ -4,9 +4,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 
-/**
- * TODO: Provide simpler wrapper
- */
 public class KubeCreatedEvent extends Event {
     private final double chance;
     private final Consumer<EventContext> action;
