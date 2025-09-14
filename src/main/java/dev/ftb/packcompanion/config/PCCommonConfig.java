@@ -30,7 +30,7 @@ public interface PCCommonConfig {
     StringValue SHADER_PACK_TO_USE = SHADERS_NOTICE.addString("shader_pack_to_use", "")
             .comment("The shader pack to use when enabling shaders. Leave empty to use the default shader pack / first available shader pack in the list");
 
-    BooleanValue SHOW_ON_START = SHADERS_NOTICE.addBoolean("show_on_start", true)
+    BooleanValue SHOW_ON_START = SHADERS_NOTICE.addBoolean("show_on_start", false)
             .comment("When enabled, the shaders notice will be shown on world start if shaders are included in the pack.");
 
     static void load() {

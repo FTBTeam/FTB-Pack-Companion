@@ -1,5 +1,6 @@
 package dev.ftb.packcompanion.features.onboarding.shadernotice;
 
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.network.OpenShaderNoticePacket;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.network.SaveHasOnboardedPacket;
@@ -30,6 +31,11 @@ public class ShaderNotice extends Feature.Common {
     public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         Player entity = event.getEntity();
         if (entity instanceof ServerPlayer serverPlayer) {
+            if (!PCCommonConfig.SHOW_ON_START.get()) {
+                // Don't show the notice if the option is disabled.
+                return;
+            }
+
             var persistentData = entity.getPersistentData();
             if (persistentData.getBoolean(SHADER_NOTICE_TAG)) {
                 return;
