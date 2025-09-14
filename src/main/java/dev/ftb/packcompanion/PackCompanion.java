@@ -51,7 +51,7 @@ public class PackCompanion {
             MobEntityBuffFeature::new,
             SpawnerFeature::new,
             StructuresFeature::new,
-            ShaderNotice::new,
+            ShaderNotice::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
