@@ -1,0 +1,1 @@
+dev.ftb.packcompanion.integrations.kubejs.KubeJsPlugin

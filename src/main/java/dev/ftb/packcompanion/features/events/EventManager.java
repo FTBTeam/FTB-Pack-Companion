@@ -14,7 +14,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public enum EventManager {
     INSTANCE;
@@ -45,22 +44,6 @@ public enum EventManager {
         }
 
         events.computeIfAbsent(cat, c -> new ArrayList<>()).add(event);
-    }
-
-    /**
-     * Helper method to register an abstract event created via magic from KubeJS.
-     *
-     * @param categoryId the id of the category to register the event under
-     * @param id the id of the event
-     * @param name the name of the event
-     * @param description the description of the event
-     * @param chance the chance of the event occurring (0.0 - 1.0)
-     * @param config the configuration for the event
-     * @param action the action to perform when the event is triggered
-     */
-    @SuppressWarnings("unused")
-    public void registerEventViaKube(ResourceLocation categoryId, ResourceLocation id, String name, String description, double chance, EventConfig config, Consumer<EventContext> action) {
-        registerEvent(categoryId, new KubeCreatedEvent(id, name, description, chance, config, action));
     }
 
     public void runEventLoop(MinecraftServer server) {
