@@ -13,7 +13,8 @@
     "features.sparsestructures.RegistryDataLoaderMixin",
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
-    "features.performance.ReloadableServerResourcesMixin"
+    "features.performance.ReloadableServerResourcesMixin",
+    "features.strongholdplacement.ChunkGeneratorStructureStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

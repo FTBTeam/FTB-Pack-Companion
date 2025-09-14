@@ -20,7 +20,18 @@ public interface PCCommonConfig {
     BooleanValue IGNORE_LIGHT_LEVEL_FOR_SPAWNERS = CONFIG.addBoolean("ignore_light_level_for_spawners", false)
             .comment("When enabled, the light level around spawners will be ignored for mob spawning.");
 
+    BooleanValue REMOVE_CONCENTRIC_RING_PLACEMENT_BIAS = CONFIG.addBoolean("remove_concentric_ring_placement_bias", false)
+            .comment("When enabled, the random bias applied to concentric ring distances is removed");
+
     SparseStructuresValue SPARSE_STRUCTURES = CONFIG.add(new SparseStructuresValue(CONFIG, "sparse_structures", SparseStructuresConfig.DEFAULT));
+
+    SNBTConfig SHADERS_NOTICE = CONFIG.addGroup("shaders_notice");
+
+    StringValue SHADER_PACK_TO_USE = SHADERS_NOTICE.addString("shader_pack_to_use", "")
+            .comment("The shader pack to use when enabling shaders. Leave empty to use the default shader pack / first available shader pack in the list");
+
+    BooleanValue SHOW_ON_START = SHADERS_NOTICE.addBoolean("show_on_start", false)
+            .comment("When enabled, the shaders notice will be shown on world start if shaders are included in the pack.");
 
     static void load() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);

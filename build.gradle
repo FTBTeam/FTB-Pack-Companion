@@ -88,30 +88,48 @@ repositories {
     }
 
     maven {
-        url = "https://maven.architectury.dev"
+        url = "https://cursemaven.com"
+        content {
+            includeGroup("curse.maven")
+        }
+    }
+
+    maven {
+        url = "https://maven.architectury.dev/"
         content {
             includeGroup("dev.architectury")
         }
     }
 
     maven {
-        url = "https://cursemaven.com"
+        url "https://maven.latvian.dev/releases"
         content {
-            includeGroup("curse.maven")
+            includeGroup "dev.latvian.mods"
+            includeGroup "dev.latvian.apps"
+        }
+    }
+
+
+    maven {
+        url 'https://jitpack.io'
+        content {
+            includeGroup "com.github.rtyley"
         }
     }
 }
 
 dependencies {
-    implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}") {
-        exclude group: "dev.architectury"
-    }
-
-    runtimeOnly "dev.architectury:architectury-neoforge:13.0.6"
+    implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}")
 
     implementation "curse.maven:fancymenu-367706:6408877"
     runtimeOnly "curse.maven:konkrete-410295:5453385"
     runtimeOnly "curse.maven:melody-938643:5453382"
+
+    implementation "curse.maven:irisshaders-455508:6661598"
+    implementation "curse.maven:embeddium-908741:6118392"
+
+    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
+    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 }
 
 tasks.register("sourcesJar", Jar) {

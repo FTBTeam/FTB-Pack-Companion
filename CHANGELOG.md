@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.5]
+
+### Added
+* Added bias removal option for concentric ring worldgen placement type
+  * Controlled by `remove_concentric_ring_placement_bias` config setting (false by default)
+
 ## [21.1.4]
 
 ### Added
