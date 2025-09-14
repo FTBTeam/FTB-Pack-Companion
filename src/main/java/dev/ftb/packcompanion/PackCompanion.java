@@ -6,6 +6,7 @@ import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.buffs.MobEntityBuffFeature;
 import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
+import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
 import dev.ftb.packcompanion.integrations.Integrations;
@@ -27,6 +28,8 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
@@ -47,7 +50,8 @@ public class PackCompanion {
             RandomNameLootFeature::new,
             MobEntityBuffFeature::new,
             SpawnerFeature::new,
-            StructuresFeature::new
+            StructuresFeature::new,
+            ShaderNotice::new,
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
@@ -61,6 +65,7 @@ public class PackCompanion {
 
         modEventBus.addListener(this::onSetup);
         modEventBus.addListener(this::onClientInit);
+        modEventBus.addListener(this::registerNetwork);
 
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::serverBeforeStart);
@@ -103,6 +108,14 @@ public class PackCompanion {
         );
 
         event.getDispatcher().register(companionRootCommand);
+    }
+
+    public void registerNetwork(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar("1");
+        runForFeatures(
+                feature -> feature instanceof Feature.Common,
+                feature -> ((Feature.Common) feature).registerPackets(registrar)
+        );
     }
 
     @SubscribeEvent
