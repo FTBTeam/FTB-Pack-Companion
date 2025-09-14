@@ -5,6 +5,7 @@ import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.buffs.MobEntityBuffFeature;
+import dev.ftb.packcompanion.features.events.EventSystem;
 import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
@@ -52,6 +53,7 @@ public class PackCompanion {
             SpawnerFeature::new,
             StructuresFeature::new,
             ShaderNotice::new,
+            EventSystem::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
