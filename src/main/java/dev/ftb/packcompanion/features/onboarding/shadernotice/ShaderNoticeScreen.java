@@ -5,17 +5,19 @@ import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.ui.*;
 import dev.ftb.packcompanion.config.PCCommonConfig;
-import dev.ftb.packcompanion.features.onboarding.shadernotice.network.SaveHasOnboardedPacket;
 import dev.ftb.packcompanion.integrations.iris.ShadersIntegration;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ShaderNoticeScreen extends BaseScreen {
-    public ShaderNoticeScreen() {
+    private final ShaderNotice shaderNotice;
+
+    public ShaderNoticeScreen(ShaderNotice shaderNotice) {
+        this.shaderNotice = shaderNotice;
+
         this.setWidth(300);
         this.setHeight(190);
 
@@ -34,7 +36,9 @@ public class ShaderNoticeScreen extends BaseScreen {
             if (isAvailable) {
                 ShadersIntegration.get().provider().disabledShaders();
             }
-            PacketDistributor.sendToServer(new SaveHasOnboardedPacket());
+
+            this.shaderNotice.hasOnboarded.set(true);
+            this.shaderNotice.shaderData.save();
             this.closeGui();
         }));
 
@@ -43,7 +47,8 @@ public class ShaderNoticeScreen extends BaseScreen {
             if (isAvailable) {
                 ShadersIntegration.get().provider().applyShaderPack(PCCommonConfig.SHADER_PACK_TO_USE.get());
             }
-            PacketDistributor.sendToServer(new SaveHasOnboardedPacket());
+            this.shaderNotice.hasOnboarded.set(true);
+            this.shaderNotice.shaderData.save();
             this.closeGui();
         }).withAlt(true));
     }
