@@ -1,5 +1,10 @@
 # Changelog
 
+## [21.1.6]
+
+### Changed
+* Shader onboarding is now per instance, not per world.
+
 ## [21.1.5]
 
 ### Added
