@@ -128,8 +128,8 @@ dependencies {
     implementation "curse.maven:irisshaders-455508:6661598"
     implementation "curse.maven:embeddium-908741:6118392"
 
-    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
-    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
+//    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
+//    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 }
 
 tasks.register("sourcesJar", Jar) {
