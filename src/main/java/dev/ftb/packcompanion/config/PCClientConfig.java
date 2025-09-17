@@ -29,7 +29,7 @@ public interface PCClientConfig {
     BooleanValue RELOAD_PERFORMANCE = PERFORMANCE.addBoolean("skip_block_cache_rebuild", true)
             .comment("Improve reloading performance by disabling block cache rebuild on server resource reload");
 
-    static void load() {
+    static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".client", false);
     }
 }

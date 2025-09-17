@@ -8,7 +8,7 @@ import java.util.List;
 
 public class PackCompanionClient {
     public static void init(List<Feature.Client> clientFeatures) {
-        PCClientConfig.load();
+        PCClientConfig.init();
 
         for (Feature.Client feature : clientFeatures) {
             feature.onClientInit();

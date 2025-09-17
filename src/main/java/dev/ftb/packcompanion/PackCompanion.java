@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.ftb.packcompanion.config.PCClientConfig;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
@@ -63,6 +64,10 @@ public class PackCompanion {
             createdFeatures.add(feature);
         });
 
+        PCCommonConfig.init();
+        PCServerConfig.init();
+        PCClientConfig.init();
+
         modEventBus.addListener(this::onSetup);
         modEventBus.addListener(this::onClientInit);
         modEventBus.addListener(this::registerNetwork);
@@ -78,14 +83,12 @@ public class PackCompanion {
     }
 
     private void onSetup(FMLCommonSetupEvent event) {
-        PCCommonConfig.load();
         Integrations.commonInit();
 
         runForFeatures(feature -> feature instanceof Feature.Common, feature -> ((Feature.Common) feature).onCommonInit());
     }
 
     private void serverBeforeStart(ServerAboutToStartEvent event) {
-        PCServerConfig.load();
         Integrations.serverInit();
     }
 
