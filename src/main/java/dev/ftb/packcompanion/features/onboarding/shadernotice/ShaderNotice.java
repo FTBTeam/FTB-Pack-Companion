@@ -21,11 +21,14 @@ public class ShaderNotice extends Feature.Client {
     }
 
     public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!event.getEntity().level().isClientSide()) {
+            // Only on the client!
+            return;
+        }
         if (!PCCommonConfig.SHOW_ON_START.get()) {
             // Don't show the notice if the option is disabled.
             return;
         }
-
         if (hasOnboarded.get()) {
             // Don't show the notice if the player has already onboarded.
             return;
