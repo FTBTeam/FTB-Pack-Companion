@@ -1,5 +1,16 @@
 # Changelog
 
+## [21.1.7]
+
+### Added
+* Added mixin to force rotation on specific template pools for jigsaw structures (instead of default random rotation)
+  * Control via `structure_rotation_override` in `config/ftbpc-server.snbt`
+  * This setting is a map of template_pool_id -> rotation ("none", "clockwise_90", "180" or "counterclockwise_90")
+
+### Fixed
+* Fixed shader onboarding causing crash on dedicated server
+* Fixed mod config setup (was being registered too late)
+
 ## [21.1.6]
 
 ### Changed
