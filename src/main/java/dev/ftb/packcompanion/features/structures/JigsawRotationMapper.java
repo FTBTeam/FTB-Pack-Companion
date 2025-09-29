@@ -1,6 +1,5 @@
 package dev.ftb.packcompanion.features.structures;
 
-import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.Util;
@@ -18,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class JigsawRotationMapper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JigsawRotationMapper.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(JigsawRotationMapper.class);
 
     private static final Map<String,Rotation> rotByName = Util.make(new HashMap<>(), map -> {
         for (var r : Rotation.values()) {
@@ -34,7 +33,11 @@ public class JigsawRotationMapper {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(rotationMap.get().get(startPoolKey.location()));
+        Rotation rot = rotationMap.get().get(startPoolKey.location());
+        if (rot != null) {
+            LOGGER.debug("forced rotation for structure template pool {} to {}", startPoolKey.location(), rot);
+        }
+        return Optional.ofNullable(rot);
     }
 
     private static Map<ResourceLocation, Rotation> loadRotationMap() {
