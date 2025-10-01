@@ -10,6 +10,7 @@ import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
+import dev.ftb.packcompanion.features.villager.NoWanderingTraderInvisPotions;
 import dev.ftb.packcompanion.integrations.Integrations;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -52,7 +53,8 @@ public class PackCompanion {
             MobEntityBuffFeature::new,
             SpawnerFeature::new,
             StructuresFeature::new,
-            ShaderNotice::new
+            ShaderNotice::new,
+            NoWanderingTraderInvisPotions::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();

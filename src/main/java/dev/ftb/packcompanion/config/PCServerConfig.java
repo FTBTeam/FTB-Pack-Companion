@@ -3,6 +3,7 @@ package dev.ftb.packcompanion.config;
 import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftblibrary.snbt.config.*;
 import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.integrations.iris.ShadersIntegration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,11 @@ public interface PCServerConfig {
     StringMapValue STRUCTURE_ROTATION_OVERRIDE = WORLDGEN.add(new StringMapValue(WORLDGEN, "structure_rotation_override", new HashMap<>()))
             .comment("Applies to structures of type 'minecraft:jigsaw' only",
                     "Maps template pool ID's to a forced rotation for that pool: one of 'none', 'clockwise_90', '180', 'counterclockwise_90'");
+
+    SNBTConfig VILLAGERS = CONFIG.addGroup("villagers");
+    BooleanValue NO_WANDERING_TRADER_INVIS_POTIONS = VILLAGERS.addBoolean("no_wandering_trader_invis_potions", false)
+            .comment("If true, Wandering Traders will no longer drink invisibility potions at night",
+                    "(or milk buckets to remove their invisibility when it's day)");
 
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".server", false);
