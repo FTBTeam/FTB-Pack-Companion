@@ -22,6 +22,10 @@ public abstract class Feature {
 
     public void onReload(ResourceManager resourceManager) {}
 
+    public void onDataGather(DataGatherCollector collector) {
+
+    }
+
     public static abstract class Client extends Feature {
         public Client(IEventBus modEventBus, ModContainer container) {
             super(modEventBus, container);
