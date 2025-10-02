@@ -46,6 +46,12 @@ public enum TriggerBlockController {
 
         playersInTriggers.put(key, Instant.now());
 
+        if (triggerBlockEntity.ignorePlayersWithTag() != null) {
+            if (player.getTags().contains(triggerBlockEntity.ignorePlayersWithTag())) {
+                return;
+            }
+        }
+
         // Trigger an event.
         NeoForge.EVENT_BUS.post(new TriggerBlockEvent(player, pos, triggerBlockEntity.name()));
     }
