@@ -13,7 +13,7 @@ import java.util.UUID;
 public enum TriggerBlockController {
     INSTANCE;
 
-    private final Map<PosWithPlayer, Instant> playersInTriggers = Collections.synchronizedMap(new HashMap<>());
+    private final Map<TriggerId, Instant> playersInTriggers = Collections.synchronizedMap(new HashMap<>());
     private short tickTracker = 0; // Overflowing is intential. We only care about the first X numbers
 
     void onTick() {
@@ -32,20 +32,21 @@ public enum TriggerBlockController {
     }
 
     public void onPlayerIn(Player player, BlockPos pos) {
-        var key = new PosWithPlayer(pos, player);
-        if (playersInTriggers.containsKey(key)) {
-            // Already recorded.
-            return;
-        }
-
         var entity = player.level().getBlockEntity(pos);
         if (!(entity instanceof TriggerBlockEntity triggerBlockEntity)) {
             // Not a trigger block entity?
             return;
         }
 
-        playersInTriggers.put(key, Instant.now());
+        String name = triggerBlockEntity.name();
 
+        var key = new TriggerId(player, name);
+        if (playersInTriggers.containsKey(key)) {
+            // Already recorded.
+            return;
+        }
+
+        playersInTriggers.put(key, Instant.now());
         if (triggerBlockEntity.ignorePlayersWithTag() != null) {
             if (player.getTags().contains(triggerBlockEntity.ignorePlayersWithTag())) {
                 return;
@@ -53,12 +54,12 @@ public enum TriggerBlockController {
         }
 
         // Trigger an event.
-        NeoForge.EVENT_BUS.post(new TriggerBlockEvent(player, pos, triggerBlockEntity.name()));
+        NeoForge.EVENT_BUS.post(new TriggerBlockEvent(player, pos, name));
     }
 
-    record PosWithPlayer(BlockPos pos, UUID playerId) {
-        PosWithPlayer(BlockPos pos, Player player) {
-            this(pos.immutable(), player.getUUID());
+    record TriggerId(UUID playerId, String id) {
+        TriggerId(Player player, String id) {
+            this(player.getUUID(), id);
         }
     }
 }
