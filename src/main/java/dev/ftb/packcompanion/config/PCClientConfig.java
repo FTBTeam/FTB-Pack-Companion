@@ -30,6 +30,6 @@ public interface PCClientConfig {
             .comment("Improve reloading performance by disabling block cache rebuild on server resource reload");
 
     static void init() {
-        ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".client", false);
+        ConfigManager.getInstance().registerClientConfig(CONFIG, PackCompanion.MOD_ID + ".client");
     }
 }
