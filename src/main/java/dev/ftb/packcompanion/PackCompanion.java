@@ -10,6 +10,7 @@ import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
+import dev.ftb.packcompanion.features.triggerblock.TriggerBlockFeature;
 import dev.ftb.packcompanion.features.villager.NoWanderingTraderInvisPotions;
 import dev.ftb.packcompanion.integrations.Integrations;
 import net.minecraft.commands.CommandSourceStack;
@@ -54,10 +55,12 @@ public class PackCompanion {
             SpawnerFeature::new,
             StructuresFeature::new,
             ShaderNotice::new,
-            NoWanderingTraderInvisPotions::new
+            NoWanderingTraderInvisPotions::new,
+            TriggerBlockFeature::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
+    private final PackCompanionDataGen dataGen;
 
     public PackCompanion(IEventBus modEventBus, ModContainer container) {
         // Set up the features
@@ -70,6 +73,9 @@ public class PackCompanion {
         PCServerConfig.init();
         PCClientConfig.init();
 
+        this.dataGen = new PackCompanionDataGen(this);
+        modEventBus.addListener(this.dataGen::onInitializeDataGenerator);
+
         modEventBus.addListener(this::onSetup);
         modEventBus.addListener(this::onClientInit);
         modEventBus.addListener(this::registerNetwork);
@@ -78,6 +84,8 @@ public class PackCompanion {
         NeoForge.EVENT_BUS.addListener(this::serverBeforeStart);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
         NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
+
+        REGISTRIES.forEach((k, e) -> e.register(modEventBus));
     }
 
     private void onClientInit(FMLClientSetupEvent event) {
@@ -150,5 +158,9 @@ public class PackCompanion {
 
             action.accept(feature);
         }
+    }
+
+    public List<Feature> features() {
+        return createdFeatures;
     }
 }

@@ -6,6 +6,9 @@
 * Added mixin to force rotation on specific template pools for jigsaw structures (instead of default random rotation)
   * Control via `structure_rotation_override` in `config/ftbpc-server.snbt`
   * This setting is a map of template_pool_id -> rotation ("none", "clockwise_90", "180" or "counterclockwise_90")
+* Added trigger block that will call an event when the player steps in the block. You can set a unique ID for this block via the blocks nbt data. This can be used to trigger custom events via other mods or datapacks.
+  * Used via NativeEvents in kube `NativeEvents.onEvent('dev.ftb.packcompanion.features.triggerblock.TriggerBlockEvent', event => {`
+  * Player, blockpos and uniqueId are available in the event object
 
 ### Fixed
 * Fixed shader onboarding causing crash on dedicated server
