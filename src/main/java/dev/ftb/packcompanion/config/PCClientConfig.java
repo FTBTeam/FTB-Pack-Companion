@@ -18,6 +18,9 @@ public interface PCClientConfig {
     BooleanValue DISABLE_RECIPE_TOASTS = CONFIG.addBoolean("disable_recipe_toasts", false)
             .comment("When enabled, toasts regarding the recipe unlocks will be disabled.");
 
+    BooleanValue DISABLE_SOCIALINTERACTION_TOASTS = CONFIG.addBoolean("disable_socialinteraction_toasts", false)
+            .comment("When enabled, toasts regarding social interaction will be disabled.");
+
     BooleanValue WORLD_USES_STATIC_SEED = CONFIG.addBoolean("world_uses_static_seed", false)
             .comment("When enabled, the world will always use the same seed, regardless of the world name.");
 
