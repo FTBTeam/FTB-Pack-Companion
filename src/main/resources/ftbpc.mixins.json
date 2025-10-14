@@ -6,7 +6,6 @@
   "client": [
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
-    "features.notoast.SocialInteractionMixin",
     "features.singleplayerseed.WorldGenSettingsComponentMixin",
     "features.performance.TagCollectorMixin"
   ],
