@@ -41,7 +41,7 @@ public class TriggerBlockFeature extends Feature.Common {
     @Override
     public void onDataGather(DataGatherCollector collector) {
         DataGatherCollector.TranslationCollector translations = collector.translationCollector();
-        translations.addBlock(TRIGGER_BLOCK::get, "Player Trigger");
+        translations.addBlock(TRIGGER_BLOCK, "Player Trigger");
 
         collector.addBlockStateProvider(provider -> {
             provider.simpleBlock(TRIGGER_BLOCK.get());

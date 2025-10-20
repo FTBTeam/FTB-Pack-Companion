@@ -1,5 +1,6 @@
 package dev.ftb.packcompanion.integrations;
 
+import dev.ftb.packcompanion.integrations.curios.CuriosIntegration;
 import dev.ftb.packcompanion.integrations.fancymenu.FancyMenuIntegration;
 import net.neoforged.fml.ModList;
 
@@ -14,6 +15,7 @@ public class Integrations {
     }
 
     public static void commonInit() {
+        loadIfModPresent("curios", () -> CuriosIntegration::init);
     }
 
     private static void loadIfModPresent(String modId, Supplier<Runnable> runnable) {

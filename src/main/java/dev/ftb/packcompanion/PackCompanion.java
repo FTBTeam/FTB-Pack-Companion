@@ -10,6 +10,7 @@ import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
+import dev.ftb.packcompanion.features.teleporter.TeleporterFeature;
 import dev.ftb.packcompanion.features.triggerblock.TriggerBlockFeature;
 import dev.ftb.packcompanion.features.villager.NoWanderingTraderInvisPotions;
 import dev.ftb.packcompanion.integrations.Integrations;
@@ -56,7 +57,8 @@ public class PackCompanion {
             StructuresFeature::new,
             ShaderNotice::new,
             NoWanderingTraderInvisPotions::new,
-            TriggerBlockFeature::new
+            TriggerBlockFeature::new,
+            TeleporterFeature::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
