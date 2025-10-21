@@ -18,7 +18,7 @@ public class TeleporterItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide()) {
-            PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenTeleporterPacket(TeleporterDestinations.get().getDestinations()));
+            PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenTeleporterPacket(TeleporterDestinations.get().getUnlockedDestinations(player)));
         }
 
         return super.use(level, player, usedHand);

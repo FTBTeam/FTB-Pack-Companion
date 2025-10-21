@@ -40,6 +40,6 @@ public record TryOpenTeleporterFromItemPacket() implements CustomPacketPayload {
     }
 
     private static void sendOpenPacket(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenTeleporterPacket(TeleporterDestinations.get().getDestinations()));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenTeleporterPacket(TeleporterDestinations.get().getUnlockedDestinations(player)));
     }
 }

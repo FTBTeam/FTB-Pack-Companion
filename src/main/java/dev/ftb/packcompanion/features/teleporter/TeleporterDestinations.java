@@ -1,11 +1,13 @@
 package dev.ftb.packcompanion.features.teleporter;
 
 import dev.ftb.mods.ftblibrary.icon.Icons;
+import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +79,21 @@ public class TeleporterDestinations {
         } catch (Exception error) {
             LOGGER.error("Failed to write default teleporter destinations", error);
         }
+    }
+
+    public List<TeleporterAction> getUnlockedDestinations(Player player) {
+        List<TeleporterAction> unlocked = new ArrayList<>();
+        for (TeleporterAction action : destinations) {
+            if (action.unlockedAt().isEmpty()) {
+                unlocked.add(action);
+                continue;
+            }
+
+            if (StageHelper.getInstance().getProvider().has(player, action.unlockedAt().get())) {
+                unlocked.add(action);
+            }
+        }
+        return unlocked;
     }
 
     public List<TeleporterAction> getDestinations() {
