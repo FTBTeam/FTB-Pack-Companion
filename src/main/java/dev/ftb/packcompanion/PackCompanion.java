@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.ftb.packcompanion.config.PCClientConfig;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
@@ -9,6 +10,9 @@ import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
+import dev.ftb.packcompanion.features.teleporter.TeleporterFeature;
+import dev.ftb.packcompanion.features.triggerblock.TriggerBlockFeature;
+import dev.ftb.packcompanion.features.villager.NoWanderingTraderInvisPotions;
 import dev.ftb.packcompanion.integrations.Integrations;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -51,10 +55,14 @@ public class PackCompanion {
             MobEntityBuffFeature::new,
             SpawnerFeature::new,
             StructuresFeature::new,
-            ShaderNotice::new
+            ShaderNotice::new,
+            NoWanderingTraderInvisPotions::new,
+            TriggerBlockFeature::new,
+            TeleporterFeature::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
+    private final PackCompanionDataGen dataGen;
 
     public PackCompanion(IEventBus modEventBus, ModContainer container) {
         // Set up the features
@@ -62,6 +70,13 @@ public class PackCompanion {
             Feature feature = featureConstructor.apply(modEventBus, container);
             createdFeatures.add(feature);
         });
+
+        PCCommonConfig.init();
+        PCServerConfig.init();
+        PCClientConfig.init();
+
+        this.dataGen = new PackCompanionDataGen(this);
+        modEventBus.addListener(this.dataGen::onInitializeDataGenerator);
 
         modEventBus.addListener(this::onSetup);
         modEventBus.addListener(this::onClientInit);
@@ -71,6 +86,8 @@ public class PackCompanion {
         NeoForge.EVENT_BUS.addListener(this::serverBeforeStart);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
         NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
+
+        REGISTRIES.forEach((k, e) -> e.register(modEventBus));
     }
 
     private void onClientInit(FMLClientSetupEvent event) {
@@ -78,14 +95,12 @@ public class PackCompanion {
     }
 
     private void onSetup(FMLCommonSetupEvent event) {
-        PCCommonConfig.load();
         Integrations.commonInit();
 
         runForFeatures(feature -> feature instanceof Feature.Common, feature -> ((Feature.Common) feature).onCommonInit());
     }
 
     private void serverBeforeStart(ServerAboutToStartEvent event) {
-        PCServerConfig.load();
         Integrations.serverInit();
     }
 
@@ -145,5 +160,9 @@ public class PackCompanion {
 
             action.accept(feature);
         }
+    }
+
+    public List<Feature> features() {
+        return createdFeatures;
     }
 }

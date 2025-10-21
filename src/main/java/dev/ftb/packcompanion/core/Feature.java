@@ -17,10 +17,27 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.List;
 
 public abstract class Feature {
+    private final IEventBus modEventBus;
+    private final ModContainer container;
+
     public Feature(IEventBus modEventBus, ModContainer container) {
+        this.modEventBus = modEventBus;
+        this.container = container;
     }
 
     public void onReload(ResourceManager resourceManager) {}
+
+    public void onDataGather(DataGatherCollector collector) {
+
+    }
+
+    public IEventBus modEventBus() {
+        return modEventBus;
+    }
+
+    public ModContainer container() {
+        return container;
+    }
 
     public static abstract class Client extends Feature {
         public Client(IEventBus modEventBus, ModContainer container) {

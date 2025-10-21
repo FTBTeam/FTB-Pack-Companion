@@ -33,7 +33,7 @@ public interface PCCommonConfig {
     BooleanValue SHOW_ON_START = SHADERS_NOTICE.addBoolean("show_on_start", false)
             .comment("When enabled, the shaders notice will be shown on world start if shaders are included in the pack.");
 
-    static void load() {
+    static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);
     }
 

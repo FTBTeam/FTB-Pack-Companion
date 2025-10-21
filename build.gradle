@@ -116,6 +116,11 @@ repositories {
             includeGroup "com.github.rtyley"
         }
     }
+
+    maven {
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
 }
 
 dependencies {
@@ -128,8 +133,11 @@ dependencies {
     implementation "curse.maven:irisshaders-455508:6661598"
     implementation "curse.maven:embeddium-908741:6118392"
 
-    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
-    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+
+//    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
+//    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 }
 
 tasks.register("sourcesJar", Jar) {

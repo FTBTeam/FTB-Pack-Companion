@@ -14,7 +14,8 @@
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
     "features.performance.ReloadableServerResourcesMixin",
-    "features.strongholdplacement.ChunkGeneratorStructureStateMixin"
+    "features.strongholdplacement.ChunkGeneratorStructureStateMixin",
+    "features.structurerotation.JigsawPlacementMixin"
   ],
   "injectors": {
     "defaultRequire": 1
