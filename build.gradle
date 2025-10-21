@@ -12,7 +12,7 @@ tasks.named('wrapper', Wrapper).configure {
 
 def mcMinorAndPatch = getMinorAndPatchFromMc()
 
-version = "${mcMinorAndPatch}.${mod_version}-beta.3"
+version = "${mcMinorAndPatch}.${mod_version}"
 group = project.maven_group
 
 base {
