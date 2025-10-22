@@ -13,16 +13,18 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record TryOpenActionPadFromItemPacket() implements CustomPacketPayload {
+public enum TryOpenActionPadFromItemPacket implements CustomPacketPayload {
+    INSTANCE;
+
     public static final Type<TryOpenActionPadFromItemPacket> TYPE = new Type<>(PackCompanion.id("try_open_action_pad_from_item"));
-    public static final StreamCodec<FriendlyByteBuf, TryOpenActionPadFromItemPacket> STREAM_CODEC = StreamCodec.unit(new TryOpenActionPadFromItemPacket());
+    public static final StreamCodec<FriendlyByteBuf, TryOpenActionPadFromItemPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    public static void handle(TryOpenActionPadFromItemPacket packet, IPayloadContext context) {
+    public static void handle(TryOpenActionPadFromItemPacket ignored, IPayloadContext context) {
         context.enqueueWork(() -> {
             var player = context.player();
             for (var itemStack : player.getInventory().items) {

@@ -24,10 +24,10 @@ public class PadActions {
     private static final List<PadAction> defaultDestination = List.of(
             new PadAction("ftbpackcompanion.spawn", Icons.GLOBE, Optional.empty(), Optional.of(new PadAction.CommandAction(
                     "/spawn", Commands.LEVEL_GAMEMASTERS, false
-            )), Optional.empty()),
+            )), Optional.empty(), true),
             new PadAction("ftbpackcompanion.home", Icons.COMPASS, Optional.empty(), Optional.of(new PadAction.CommandAction(
                     "/home", Commands.LEVEL_GAMEMASTERS, false
-            )), Optional.empty())
+            )), Optional.empty(), true)
     );
 
     public static PadActions get() {
@@ -96,7 +96,7 @@ public class PadActions {
         return unlocked;
     }
 
-    public List<PadAction> getActions() {
-        return actions;
+    public Optional<PadAction> getAction(Player player, String actionName) {
+        return getUnlockedActions(player).stream().filter(a -> a.name().equals(actionName)).findFirst();
     }
 }

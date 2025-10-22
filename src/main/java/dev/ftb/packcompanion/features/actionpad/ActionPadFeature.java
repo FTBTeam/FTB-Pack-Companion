@@ -1,5 +1,6 @@
 package dev.ftb.packcompanion.features.actionpad;
 
+import dev.ftb.mods.ftblibrary.FTBLibrary;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.actionpad.client.ActionPadClient;
@@ -15,6 +16,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -30,9 +32,16 @@ public class ActionPadFeature extends Feature.Common {
         super(modEventBus, container);
 
         modEventBus.addListener(this::onClientInit);
+        modEventBus.addListener(this::creativeTab);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(ActionPadClient::onRegisterKeyBindings);
+        }
+    }
+
+    private void creativeTab(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTab() == FTBLibrary.getCreativeModeTab().get()) {
+            event.accept(ACTION_PAD.get());
         }
     }
 

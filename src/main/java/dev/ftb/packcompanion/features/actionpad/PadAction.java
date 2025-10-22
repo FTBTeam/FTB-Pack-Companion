@@ -28,14 +28,16 @@ public record PadAction(
         Icon icon,
         Optional<String> unlockedAt,
         Optional<CommandAction> commandAction,
-        Optional<TeleportAction> teleportAction
+        Optional<TeleportAction> teleportAction,
+        boolean autoclose
 ) {
     public static final Codec<PadAction> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             Codec.STRING.fieldOf("name").forGetter(PadAction::name),
             Icon.CODEC.fieldOf("icon").forGetter(PadAction::icon),
             Codec.STRING.optionalFieldOf("unlocked_at").forGetter(PadAction::unlockedAt),
             CommandAction.CODEC.optionalFieldOf("command_action").forGetter(PadAction::commandAction),
-            TeleportAction.CODEC.optionalFieldOf("teleport_action").forGetter(PadAction::teleportAction)
+            TeleportAction.CODEC.optionalFieldOf("teleport_action").forGetter(PadAction::teleportAction),
+            Codec.BOOL.optionalFieldOf("autoclose", true).forGetter(PadAction::autoclose)
     ).apply(builder, PadAction::new));
 
     public static final StreamCodec<FriendlyByteBuf, PadAction> STREAM_CODEC = StreamCodec.composite(
@@ -44,6 +46,7 @@ public record PadAction(
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), PadAction::unlockedAt,
             ByteBufCodecs.optional(CommandAction.STREAM_CODEC), PadAction::commandAction,
             ByteBufCodecs.optional(TeleportAction.STREAM_CODEC), PadAction::teleportAction,
+            ByteBufCodecs.BOOL, PadAction::autoclose,
             PadAction::new
     );
 
@@ -118,6 +121,7 @@ public record PadAction(
 
     @FunctionalInterface
     public interface ActionRunner {
+        default ActionRunner asActionRunner() { return this; }
         void run(ServerPlayer player);
     }
 }

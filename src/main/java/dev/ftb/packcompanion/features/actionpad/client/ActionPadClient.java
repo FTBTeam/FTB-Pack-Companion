@@ -25,7 +25,7 @@ public class ActionPadClient {
     public static void onInputEvent(InputEvent.Key event) {
         if (OPEN_ACTION_PAD_KEY.consumeClick()) {
             // Figure it out basically, let the server do the hard work and tell us what to do
-            PacketDistributor.sendToServer(new TryOpenActionPadFromItemPacket());
+            PacketDistributor.sendToServer(TryOpenActionPadFromItemPacket.INSTANCE);
         }
     }
 
