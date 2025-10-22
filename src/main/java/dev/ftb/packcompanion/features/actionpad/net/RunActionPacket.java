@@ -27,9 +27,9 @@ public record RunActionPacket(String actionName) implements CustomPacketPayload 
         if (context.player() instanceof ServerPlayer serverPlayer) {
             context.enqueueWork(() ->
                     PadActions.get().getAction(serverPlayer, packet.actionName)
-                            .flatMap(action -> action.commandAction()
-                                    .map(ActionRunner::asActionRunner)
-                                    .or(() -> action.teleportAction().map(ActionRunner::asActionRunner)))
+                            .flatMap(action -> action.commandAction().map(ActionRunner::asActionRunner)
+                                    .or(() -> action.teleportAction().map(ActionRunner::asActionRunner))
+                            )
                             .ifPresent(actionRunner -> actionRunner.run(serverPlayer)));
         }
     }
