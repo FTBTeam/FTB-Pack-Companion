@@ -1,11 +1,11 @@
-package dev.ftb.packcompanion.features.teleporter;
+package dev.ftb.packcompanion.features.actionpad;
 
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
-import dev.ftb.packcompanion.features.teleporter.client.TeleporterClient;
-import dev.ftb.packcompanion.features.teleporter.net.OpenTeleporterPacket;
-import dev.ftb.packcompanion.features.teleporter.net.RunTeleporterAction;
-import dev.ftb.packcompanion.features.teleporter.net.TryOpenTeleporterFromItemPacket;
+import dev.ftb.packcompanion.features.actionpad.client.ActionPadClient;
+import dev.ftb.packcompanion.features.actionpad.net.OpenActionPadPacket;
+import dev.ftb.packcompanion.features.actionpad.net.RunActionPacket;
+import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionPadFromItemPacket;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.Item;
@@ -20,56 +20,56 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import top.theillusivec4.curios.api.CuriosTags;
 
-public class TeleporterFeature extends Feature.Common {
+public class ActionPadFeature extends Feature.Common {
     private static final DeferredRegister<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
-    public static final DeferredHolder<Item, TeleporterItem> TELEPORTER_ITEM = ITEM_REGISTRY.register("teleporter", () ->
-            new TeleporterItem(new Item.Properties().stacksTo(1))
+    public static final DeferredHolder<Item, ActionPadItem> ACTION_PAD = ITEM_REGISTRY.register("action_pad", () ->
+            new ActionPadItem(new Item.Properties().stacksTo(1))
     );
 
-    public TeleporterFeature(IEventBus modEventBus, ModContainer container) {
+    public ActionPadFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
         modEventBus.addListener(this::onClientInit);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            modEventBus.addListener(TeleporterClient::onRegisterKeyBindings);
+            modEventBus.addListener(ActionPadClient::onRegisterKeyBindings);
         }
     }
 
     private void onClientInit(FMLClientSetupEvent event) {
-        NeoForge.EVENT_BUS.addListener(TeleporterClient::onInputEvent);
+        NeoForge.EVENT_BUS.addListener(ActionPadClient::onInputEvent);
     }
 
     @Override
     public void onReload(ResourceManager resourceManager) {
-        // Reload destinations
-        TeleporterDestinations.get().load();
+        // Reload actions
+        PadActions.get().load();
     }
 
     @Override
     public void registerPackets(PayloadRegistrar registrar) {
-        registrar.playToClient(OpenTeleporterPacket.TYPE, OpenTeleporterPacket.STREAM_CODEC, OpenTeleporterPacket::handle);
-        registrar.playToServer(RunTeleporterAction.TYPE, RunTeleporterAction.STREAM_CODEC, RunTeleporterAction::handle);
-        registrar.playToServer(TryOpenTeleporterFromItemPacket.TYPE, TryOpenTeleporterFromItemPacket.STREAM_CODEC, TryOpenTeleporterFromItemPacket::handle);
+        registrar.playToClient(OpenActionPadPacket.TYPE, OpenActionPadPacket.STREAM_CODEC, OpenActionPadPacket::handle);
+        registrar.playToServer(RunActionPacket.TYPE, RunActionPacket.STREAM_CODEC, RunActionPacket::handle);
+        registrar.playToServer(TryOpenActionPadFromItemPacket.TYPE, TryOpenActionPadFromItemPacket.STREAM_CODEC, TryOpenActionPadFromItemPacket::handle);
     }
 
     @Override
     public void onDataGather(DataGatherCollector collector) {
         DataGatherCollector.TranslationCollector translations = collector.translationCollector();
 
-        translations.addItem(TELEPORTER_ITEM, "Teleporter");
+        translations.addItem(ACTION_PAD, "Action Pad");
         translations.prefixed("home", "Home");
         translations.prefixed("spawn", "Spawn");
 
         translations.prefixed("key.category", "Pack Companion");
-        translations.prefixed("key.open_teleporter", "Open Teleporter");
+        translations.prefixed("key.open_action_pad", "Open Action Pad");
 
         collector.addItemModelProvider(provider -> {
-            provider.basicItem(TELEPORTER_ITEM.get());
+            provider.basicItem(ACTION_PAD.get());
         });
 
         collector.addItemTagProvider(provider -> {
-            provider.appendItemTag(CuriosTags.CURIO).add(TELEPORTER_ITEM.get());
+            provider.appendItemTag(CuriosTags.CURIO).add(ACTION_PAD.get());
         });
     }
 }

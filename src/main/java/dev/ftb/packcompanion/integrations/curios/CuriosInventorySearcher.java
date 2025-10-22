@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.integrations.curios;
 
-import dev.ftb.packcompanion.features.teleporter.TeleporterFeature;
+import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.integrations.InventorySearchProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -15,7 +15,7 @@ public class CuriosInventorySearcher implements InventorySearchProvider {
         Optional<ICuriosItemHandler> curiosInventory = CuriosApi.getCuriosInventory(player);
 
         return curiosInventory
-                .map(handler -> handler.findFirstCurio(TeleporterFeature.TELEPORTER_ITEM.get()).isPresent())
+                .map(handler -> handler.findFirstCurio(ActionPadFeature.ACTION_PAD.get()).isPresent())
                 .orElse(false);
     }
 }

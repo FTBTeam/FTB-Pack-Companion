@@ -1,20 +1,20 @@
-package dev.ftb.packcompanion.features.teleporter.client;
+package dev.ftb.packcompanion.features.actionpad.client;
 
 import dev.ftb.mods.ftblibrary.ui.Panel;
 import dev.ftb.mods.ftblibrary.ui.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
-import dev.ftb.packcompanion.features.teleporter.TeleporterAction;
-import dev.ftb.packcompanion.features.teleporter.net.RunTeleporterAction;
+import dev.ftb.packcompanion.features.actionpad.PadAction;
+import dev.ftb.packcompanion.features.actionpad.net.RunActionPacket;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
-public class TeleporterScreen extends AbstractButtonListScreen {
-    private final List<TeleporterAction> destinations;
+public class ActionPadScreen extends AbstractButtonListScreen {
+    private final List<PadAction> destinations;
 
-    public TeleporterScreen(List<TeleporterAction> destinations) {
+    public ActionPadScreen(List<PadAction> destinations) {
         super();
 
         this.showBottomPanel(false);
@@ -36,7 +36,7 @@ public class TeleporterScreen extends AbstractButtonListScreen {
             panel.add(new SimpleTextButton(panel, Component.translatable(destination.name()), destination.icon()) {
                 @Override
                 public void onClicked(MouseButton mouseButton) {
-                    PacketDistributor.sendToServer(new RunTeleporterAction(destination));
+                    PacketDistributor.sendToServer(new RunActionPacket(destination));
                 }
             });
         }

@@ -1,4 +1,4 @@
-package dev.ftb.packcompanion.features.teleporter;
+package dev.ftb.packcompanion.features.actionpad;
 
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
@@ -17,48 +17,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TeleporterDestinations {
-    private static TeleporterDestinations INSTANCE;
+public class PadActions {
+    private static PadActions INSTANCE;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TeleporterDestinations.class);
-    private static final List<TeleporterAction> defaultDestination = List.of(
-            new TeleporterAction("ftbpackcompanion.spawn", Icons.GLOBE, Optional.empty(), Optional.of(new TeleporterAction.CommandAction(
+    private static final Logger LOGGER = LoggerFactory.getLogger(PadActions.class);
+    private static final List<PadAction> defaultDestination = List.of(
+            new PadAction("ftbpackcompanion.spawn", Icons.GLOBE, Optional.empty(), Optional.of(new PadAction.CommandAction(
                     "/spawn", Commands.LEVEL_GAMEMASTERS, false
             )), Optional.empty()),
-            new TeleporterAction("ftbpackcompanion.home", Icons.COMPASS, Optional.empty(), Optional.of(new TeleporterAction.CommandAction(
+            new PadAction("ftbpackcompanion.home", Icons.COMPASS, Optional.empty(), Optional.of(new PadAction.CommandAction(
                     "/home", Commands.LEVEL_GAMEMASTERS, false
             )), Optional.empty())
     );
 
-    public static TeleporterDestinations get() {
+    public static PadActions get() {
         if (INSTANCE == null) {
-            INSTANCE = new TeleporterDestinations();
+            INSTANCE = new PadActions();
             INSTANCE.load();
         }
 
         return INSTANCE;
     }
 
-    private final List<TeleporterAction> destinations = new ArrayList<>();
-    private final Path destinationsFile = FMLPaths.CONFIGDIR.get().resolve("ftbpc_server_destinations.snbt");
+    private final List<PadAction> actions = new ArrayList<>();
+    private final Path destinationsFile = FMLPaths.CONFIGDIR.get().resolve("ftbpc_pad_actions.snbt");
 
     public void load() {
         try {
             var compoundTag = SNBT.tryRead(destinationsFile);
             if (compoundTag != null) {
-                destinations.clear();
-                TeleporterAction.CODEC.listOf().parse(NbtOps.INSTANCE, compoundTag.getList("destinations", CompoundTag.TAG_COMPOUND))
+                actions.clear();
+                PadAction.CODEC.listOf().parse(NbtOps.INSTANCE, compoundTag.getList("actions", CompoundTag.TAG_COMPOUND))
                         .result()
                         .ifPresentOrElse(
-                                destinations::addAll,
-                                () -> destinations.addAll(defaultDestination)
+                                actions::addAll,
+                                () -> actions.addAll(defaultDestination)
                         );
             }
         } catch (Exception error) {
-            LOGGER.error("Failed to load teleporter destinations, using default", error);
+            LOGGER.error("Failed to load action pad actions, using default", error);
         } finally {
-            if (destinations.isEmpty()) {
-                destinations.addAll(defaultDestination);
+            if (actions.isEmpty()) {
+                actions.addAll(defaultDestination);
                 // Try and write the default file
                 writeDefault();
             }
@@ -66,24 +66,24 @@ public class TeleporterDestinations {
     }
 
     public void writeDefault() {
-        ListTag items = TeleporterAction.CODEC.listOf().encodeStart(NbtOps.INSTANCE, defaultDestination)
+        ListTag items = PadAction.CODEC.listOf().encodeStart(NbtOps.INSTANCE, defaultDestination)
                 .result()
                 .map(nbt -> (ListTag) nbt)
                 .orElse(new ListTag());
 
         CompoundTag compoundTag = new CompoundTag();
-        compoundTag.put("destinations", items);
+        compoundTag.put("actions", items);
 
         try {
             SNBT.tryWrite(destinationsFile, compoundTag);
         } catch (Exception error) {
-            LOGGER.error("Failed to write default teleporter destinations", error);
+            LOGGER.error("Failed to write default action pad actions", error);
         }
     }
 
-    public List<TeleporterAction> getUnlockedDestinations(Player player) {
-        List<TeleporterAction> unlocked = new ArrayList<>();
-        for (TeleporterAction action : destinations) {
+    public List<PadAction> getUnlockedActions(Player player) {
+        List<PadAction> unlocked = new ArrayList<>();
+        for (PadAction action : actions) {
             if (action.unlockedAt().isEmpty()) {
                 unlocked.add(action);
                 continue;
@@ -96,7 +96,7 @@ public class TeleporterDestinations {
         return unlocked;
     }
 
-    public List<TeleporterAction> getDestinations() {
-        return destinations;
+    public List<PadAction> getActions() {
+        return actions;
     }
 }

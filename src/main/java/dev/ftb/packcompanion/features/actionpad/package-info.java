@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.ftb.packcompanion.features.teleporter;
+package dev.ftb.packcompanion.features.actionpad;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import javax.annotation.ParametersAreNonnullByDefault;

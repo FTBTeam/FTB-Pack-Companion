@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.10]
+
+### Changed
+* `Teleporter item` has been changed to `Action Pad` to better reflect it's more generic nature
+* ``
+
 ## [21.1.9]
 
 ### Added
