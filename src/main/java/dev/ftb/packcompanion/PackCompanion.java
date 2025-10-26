@@ -10,7 +10,7 @@ import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
-import dev.ftb.packcompanion.features.teleporter.TeleporterFeature;
+import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.triggerblock.TriggerBlockFeature;
 import dev.ftb.packcompanion.features.villager.NoWanderingTraderInvisPotions;
 import dev.ftb.packcompanion.integrations.Integrations;
@@ -47,6 +47,7 @@ import java.util.function.Predicate;
 @Mod(PackCompanion.MOD_ID)
 public class PackCompanion {
     public static final String MOD_ID = "ftbpc";
+    private static final String KEY_CATEGORY = "ftbpackcompanion.key.category";
 
     public static final Map<ResourceKey<? extends Registry<?>>, DeferredRegister<?>> REGISTRIES = new HashMap<>();
 
@@ -58,7 +59,7 @@ public class PackCompanion {
             ShaderNotice::new,
             NoWanderingTraderInvisPotions::new,
             TriggerBlockFeature::new,
-            TeleporterFeature::new
+            ActionPadFeature::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
@@ -164,5 +165,9 @@ public class PackCompanion {
 
     public List<Feature> features() {
         return createdFeatures;
+    }
+
+    public static String getKeyCategory() {
+        return KEY_CATEGORY;
     }
 }

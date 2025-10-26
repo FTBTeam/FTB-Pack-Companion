@@ -7,8 +7,8 @@ import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.core.utils.ClientPersistentData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 public class ShaderNotice extends Feature.Client {
     public final ClientPersistentData shaderData = new ClientPersistentData("shader_notice");
@@ -18,18 +18,15 @@ public class ShaderNotice extends Feature.Client {
         super(modEventBus, container);
 
         shaderData.load();
-        NeoForge.EVENT_BUS.addListener(this::playerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(this::playerLoggingEvent);
     }
 
-    public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!event.getEntity().level().isClientSide()) {
-            // Only on the client!
-            return;
-        }
+    public void playerLoggingEvent(ClientPlayerNetworkEvent.LoggingIn event) {
         if (!PCCommonConfig.SHOW_ON_START.get()) {
             // Don't show the notice if the option is disabled.
             return;
         }
+
         if (hasOnboarded.get()) {
             // Don't show the notice if the player has already onboarded.
             return;

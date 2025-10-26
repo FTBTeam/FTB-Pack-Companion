@@ -1,4 +1,4 @@
-package dev.ftb.packcompanion.features.teleporter;
+package dev.ftb.packcompanion.features.actionpad;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -23,28 +23,31 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.Optional;
 
-public record TeleporterAction(
+public record PadAction(
         String name,
         Icon icon,
         Optional<String> unlockedAt,
         Optional<CommandAction> commandAction,
-        Optional<TeleportAction> teleportAction
+        Optional<TeleportAction> teleportAction,
+        boolean autoclose
 ) {
-    public static final Codec<TeleporterAction> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-            Codec.STRING.fieldOf("name").forGetter(TeleporterAction::name),
-            Icon.CODEC.fieldOf("icon").forGetter(TeleporterAction::icon),
-            Codec.STRING.optionalFieldOf("unlocked_at").forGetter(TeleporterAction::unlockedAt),
-            CommandAction.CODEC.optionalFieldOf("command_action").forGetter(TeleporterAction::commandAction),
-            TeleportAction.CODEC.optionalFieldOf("teleport_action").forGetter(TeleporterAction::teleportAction)
-    ).apply(builder, TeleporterAction::new));
+    public static final Codec<PadAction> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            Codec.STRING.fieldOf("name").forGetter(PadAction::name),
+            Icon.CODEC.fieldOf("icon").forGetter(PadAction::icon),
+            Codec.STRING.optionalFieldOf("unlocked_at").forGetter(PadAction::unlockedAt),
+            CommandAction.CODEC.optionalFieldOf("command_action").forGetter(PadAction::commandAction),
+            TeleportAction.CODEC.optionalFieldOf("teleport_action").forGetter(PadAction::teleportAction),
+            Codec.BOOL.optionalFieldOf("autoclose", true).forGetter(PadAction::autoclose)
+    ).apply(builder, PadAction::new));
 
-    public static final StreamCodec<FriendlyByteBuf, TeleporterAction> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, TeleporterAction::name,
-            Icon.STREAM_CODEC, TeleporterAction::icon,
-            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), TeleporterAction::unlockedAt,
-            ByteBufCodecs.optional(CommandAction.STREAM_CODEC), TeleporterAction::commandAction,
-            ByteBufCodecs.optional(TeleportAction.STREAM_CODEC), TeleporterAction::teleportAction,
-            TeleporterAction::new
+    public static final StreamCodec<FriendlyByteBuf, PadAction> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, PadAction::name,
+            Icon.STREAM_CODEC, PadAction::icon,
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), PadAction::unlockedAt,
+            ByteBufCodecs.optional(CommandAction.STREAM_CODEC), PadAction::commandAction,
+            ByteBufCodecs.optional(TeleportAction.STREAM_CODEC), PadAction::teleportAction,
+            ByteBufCodecs.BOOL, PadAction::autoclose,
+            PadAction::new
     );
 
     public record CommandAction(String command, int executionLevel, boolean executeAsServer) implements ActionRunner {
@@ -84,7 +87,7 @@ public record TeleporterAction(
             ResourceKey<Level> dimension,
             Optional<Vector2f> rotation
     ) implements ActionRunner {
-        private final static Logger LOGGER = LoggerFactory.getLogger(TeleporterAction.class);
+        private final static Logger LOGGER = LoggerFactory.getLogger(PadAction.class);
 
         public static final Codec<TeleportAction> CODEC = RecordCodecBuilder.create(builder -> builder.group(
                 BlockPos.CODEC.fieldOf("position").forGetter(TeleportAction::position),
@@ -118,6 +121,7 @@ public record TeleporterAction(
 
     @FunctionalInterface
     public interface ActionRunner {
+        default ActionRunner asActionRunner() { return this; }
         void run(ServerPlayer player);
     }
 }

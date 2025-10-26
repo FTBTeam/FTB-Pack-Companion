@@ -11,11 +11,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ShaderNoticeScreen extends BaseScreen {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShaderNoticeScreen.class);
     private final ShaderNotice shaderNotice;
 
     public ShaderNoticeScreen(ShaderNotice shaderNotice) {
+        super();
+
         this.shaderNotice = shaderNotice;
 
         this.setWidth(300);
@@ -24,6 +29,8 @@ public class ShaderNoticeScreen extends BaseScreen {
         if (!ShadersIntegration.get().isAvailable()) {
             closeGui();
         }
+
+        setPreviousScreen(null);
     }
 
     private Option shadersOffPanel;
