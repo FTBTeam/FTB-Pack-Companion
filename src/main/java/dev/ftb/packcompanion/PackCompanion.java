@@ -76,6 +76,8 @@ public class PackCompanion {
         PCServerConfig.init();
         PCClientConfig.init();
 
+        Integrations.instantInit();
+
         this.dataGen = new PackCompanionDataGen(this);
         modEventBus.addListener(this.dataGen::onInitializeDataGenerator);
 
