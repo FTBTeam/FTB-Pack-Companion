@@ -2,13 +2,18 @@ package dev.ftb.packcompanion.config;
 
 import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
-import dev.ftb.mods.ftblibrary.snbt.config.*;
+import dev.ftb.mods.ftblibrary.snbt.config.BaseValue;
+import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
+import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
+import dev.ftb.mods.ftblibrary.snbt.config.StringValue;
 import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.config.values.ChunkPosCustomYHashValue;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface PCCommonConfig {
@@ -32,6 +37,17 @@ public interface PCCommonConfig {
 
     BooleanValue SHOW_ON_START = SHADERS_NOTICE.addBoolean("show_on_start", false)
             .comment("When enabled, the shaders notice will be shown on world start if shaders are included in the pack.");
+
+    SNBTConfig INTEGRATIONS = CONFIG.addGroup("integrations");
+
+    SNBTConfig FTB_CHUNKS = INTEGRATIONS.addGroup("ftb_chunks")
+            .comment("Configuration options for the FTB Chunks mod integration. Only effective if FTB Chunks is installed.");
+
+    ChunkPosCustomYHashValue CUSTOM_Y_LEVEL_CHUNK_POSITIONS = FTB_CHUNKS.add(new ChunkPosCustomYHashValue(
+            FTB_CHUNKS,
+            "custom_y_level_chunk_positions",
+            new HashMap<>()
+    )).comment("A mapping of custom Y levels to chunk positions where those Y levels should be applied for custom Y levels per chunk pos.");
 
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);
