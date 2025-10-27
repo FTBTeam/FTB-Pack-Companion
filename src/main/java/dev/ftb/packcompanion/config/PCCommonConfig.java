@@ -13,7 +13,6 @@ import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public interface PCCommonConfig {
@@ -46,8 +45,8 @@ public interface PCCommonConfig {
     ChunkPosCustomYHashValue CUSTOM_Y_LEVEL_CHUNK_POSITIONS = FTB_CHUNKS.add(new ChunkPosCustomYHashValue(
             FTB_CHUNKS,
             "custom_y_level_chunk_positions",
-            new HashMap<>()
-    )).comment("A mapping of custom Y levels to chunk positions where those Y levels should be applied for custom Y levels per chunk pos.");
+            new ArrayList<>()
+    ).comment("Custom min-y level list for specific block locations within a range from the center, per dimension."));
 
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);

@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.11]
+
+### Added
+
+* FTB Chunks integration to allow for custom Y level's based on the CustomYLevel registry added by FTB Chunks
+
 ## [21.1.10]
 
 ### Changed
