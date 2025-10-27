@@ -3,6 +3,7 @@ package dev.ftb.packcompanion.integrations.chunks;
 import dev.ftb.mods.ftbchunks.api.event.CustomMinYEvent;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.utils.CustomYConfig;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.OptionalInt;
@@ -20,7 +21,7 @@ public class FTBChunksIntegration {
             int z = pos.getZ();
 
             for (var customYConfig : customYLevelChunkPositions) {
-                if (!currentDimension.equals(customYConfig.dimension())) {
+                if (!matchesDimension(customYConfig.equalityCheck(), customYConfig.dimension(), currentDimension)) {
                     continue;
                 }
 
@@ -48,5 +49,14 @@ public class FTBChunksIntegration {
 
             return OptionalInt.empty();
         }));
+    }
+
+    private static boolean matchesDimension(CustomYConfig.DimensionEqualityCheck equalityCheck, String configDimension, ResourceLocation dimension) {
+        var dimensionStr = dimension.toString();
+        return switch (equalityCheck) {
+            case STARTS_WITH -> dimensionStr.startsWith(configDimension);
+            case EXACT_MATCH -> dimensionStr.equals(configDimension);
+            case ENDS_WITH -> dimensionStr.endsWith(configDimension);
+        };
     }
 }
