@@ -2,6 +2,8 @@ package dev.ftb.packcompanion.core.utils;
 
 import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
 
+import java.util.function.Function;
+
 public record CustomYConfig(
         String dimension,
         DimensionEqualityCheck equalityCheck,
@@ -32,8 +34,8 @@ public record CustomYConfig(
             throw new RuntimeException("Invalid range for custom_y_level_chunk_positions");
         }
         int minY = compound.getInt("minY");
-        boolean asRadius = getOrDefault(compound, "asRadius", false);
-        DimensionEqualityCheck equalityCheck = DimensionEqualityCheck.fromString(getOrDefault(compound, "equalityCheck", "exact_match"));
+        boolean asRadius = getOrDefault(compound, (tag) -> tag.getBoolean("asRadius"), false);
+        DimensionEqualityCheck equalityCheck = DimensionEqualityCheck.fromString(getOrDefault(compound, (SNBTCompoundTag tag) -> tag.getString("equalityCheck"), "starts_with"));
         return new CustomYConfig(dimension, equalityCheck, x, z, range, minY, asRadius);
     }
 
@@ -57,17 +59,11 @@ public record CustomYConfig(
         }
     }
 
-    private static <T> T getOrDefault(SNBTCompoundTag compound, String key, T defaultValue) {
-        if (!compound.contains(key)) {
+    private static <T> T getOrDefault(SNBTCompoundTag compoundTag, Function<SNBTCompoundTag, T> reader, T defaultValue) {
+        try {
+            return reader.apply(compoundTag);
+        } catch (Exception e) {
             return defaultValue;
         }
-
-        Object value = compound.get(key);
-        assert value != null;
-        if (value.getClass().isInstance(defaultValue)) {
-            return (T) value;
-        }
-
-        return defaultValue;
     }
 }
