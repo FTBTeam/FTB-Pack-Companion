@@ -1,5 +1,6 @@
 {
   "block.ftbpc.trigger_block": "Player Trigger",
+  "ftbpackcompanion.actionpad.tpa.request_sent": "TP request sent to",
   "ftbpackcompanion.home": "Home",
   "ftbpackcompanion.key.category": "Pack Companion",
   "ftbpackcompanion.key.open_action_pad": "Open Action Pad",
@@ -11,5 +12,6 @@
   "ftbpackcompanion.shaders_notice.shaders_btn.enable": "Enable shaders",
   "ftbpackcompanion.shaders_notice.title": "Would you like to use shaders?",
   "ftbpackcompanion.spawn": "Spawn",
+  "ftbpackcompanion.tpa": "Request Teleport",
   "item.ftbpc.action_pad": "Action Pad"
 }

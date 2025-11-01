@@ -11,11 +11,12 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.List;
 
-public record OpenActionPadPacket(List<PadAction> actions) implements CustomPacketPayload {
+public record OpenActionPadPacket(List<PadAction> actions, boolean playersOnline) implements CustomPacketPayload {
     public static final Type<OpenActionPadPacket> TYPE = new Type<>(PackCompanion.id("open_action_pad"));
 
     public static final StreamCodec<FriendlyByteBuf, OpenActionPadPacket> STREAM_CODEC = StreamCodec.composite(
             PadAction.STREAM_CODEC.apply(ByteBufCodecs.list()), OpenActionPadPacket::actions,
+            ByteBufCodecs.BOOL, OpenActionPadPacket::playersOnline,
             OpenActionPadPacket::new
     );
 
@@ -25,6 +26,6 @@ public record OpenActionPadPacket(List<PadAction> actions) implements CustomPack
     }
 
     public static void handle(OpenActionPadPacket packet, IPayloadContext payload) {
-        payload.enqueueWork(() -> ActionPadClient.openActionPadScreen(packet.actions()));
+        payload.enqueueWork(() -> ActionPadClient.openActionPadScreen(packet.actions(), packet.playersOnline()));
     }
 }

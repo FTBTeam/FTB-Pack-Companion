@@ -4,9 +4,7 @@ import dev.ftb.mods.ftblibrary.FTBLibrary;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.actionpad.client.ActionPadClient;
-import dev.ftb.packcompanion.features.actionpad.net.OpenActionPadPacket;
-import dev.ftb.packcompanion.features.actionpad.net.RunActionPacket;
-import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionPadFromItemPacket;
+import dev.ftb.packcompanion.features.actionpad.net.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.Item;
@@ -58,8 +56,11 @@ public class ActionPadFeature extends Feature.Common {
     @Override
     public void registerPackets(PayloadRegistrar registrar) {
         registrar.playToClient(OpenActionPadPacket.TYPE, OpenActionPadPacket.STREAM_CODEC, OpenActionPadPacket::handle);
+        registrar.playToClient(OpenTPAPacket.TYPE, OpenTPAPacket.STREAM_CODEC, OpenTPAPacket::handle);
+
         registrar.playToServer(RunActionPacket.TYPE, RunActionPacket.STREAM_CODEC, RunActionPacket::handle);
         registrar.playToServer(TryOpenActionPadFromItemPacket.TYPE, TryOpenActionPadFromItemPacket.STREAM_CODEC, TryOpenActionPadFromItemPacket::handle);
+        registrar.playToServer(TryOpenActionTPAPacket.TYPE, TryOpenActionTPAPacket.STREAM_CODEC, TryOpenActionTPAPacket::handle);
     }
 
     @Override
@@ -69,6 +70,8 @@ public class ActionPadFeature extends Feature.Common {
         translations.addItem(ACTION_PAD, "Action Pad");
         translations.prefixed("home", "Home");
         translations.prefixed("spawn", "Spawn");
+        translations.prefixed("tpa", "Request Teleport");
+        translations.prefixed("actionpad.tpa.request_sent", "TP request sent to");
 
         translations.prefixed("key.category", "Pack Companion");
         translations.prefixed("key.open_action_pad", "Open Action Pad");
