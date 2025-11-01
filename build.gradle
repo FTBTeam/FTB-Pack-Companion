@@ -88,6 +88,13 @@ repositories {
     }
 
     maven {
+        url = "https://maven.ftb.dev/snapshots"
+        content {
+            includeGroup("dev.ftb.mods")
+        }
+    }
+
+    maven {
         url = "https://cursemaven.com"
         content {
             includeGroup("curse.maven")
