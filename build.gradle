@@ -146,6 +146,7 @@ dependencies {
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
+    runtimeOnly "curse.maven:ftb-essentials-410811:6979622"
 //    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
 //    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 }
