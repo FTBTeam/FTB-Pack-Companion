@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion.features.actionpad.client;
 
 import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.core.utils.NameAndUuid;
 import dev.ftb.packcompanion.features.actionpad.PadAction;
 import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionPadFromItemPacket;
 import net.minecraft.client.KeyMapping;
@@ -29,7 +30,11 @@ public class ActionPadClient {
         }
     }
 
-    public static void openActionPadScreen(List<PadAction> actions) {
-        new ActionPadScreen(actions).openGuiLater();
+    public static void openActionPadScreen(List<PadAction> actions, boolean playersOnline) {
+        new ActionPadScreen(actions, playersOnline).openGuiLater();
+    }
+
+    public static void openActionPadTpaScreen(List<NameAndUuid> users) {
+        new ActionTPAScreen(users).openGuiLater();
     }
 }

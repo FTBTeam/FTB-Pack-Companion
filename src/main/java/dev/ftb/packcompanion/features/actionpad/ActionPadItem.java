@@ -8,7 +8,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.Optional;
 
 public class ActionPadItem extends Item {
     public ActionPadItem(Properties properties) {
@@ -18,7 +21,16 @@ public class ActionPadItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide()) {
-            PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenActionPadPacket(PadActions.get().getUnlockedActions(player)));
+            boolean hasPlayersOnline = Optional.ofNullable(player.getServer())
+                    .map(e -> e.getPlayerList().getPlayerCount() > 1)
+                    .orElse(false);
+
+            if (!FMLEnvironment.production) {
+                // Bypass check in dev
+                hasPlayersOnline = true;
+            }
+
+            PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenActionPadPacket(PadActions.get().getUnlockedActions(player), hasPlayersOnline));
         }
 
         return super.use(level, player, usedHand);
