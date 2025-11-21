@@ -1,5 +1,14 @@
 # Changelog
 
+## [21.1.12]
+
+### Added
+
+* Forced Game Rules mapping via `forced-game-rules` in the `ftbpc-common.snbt` config file.
+  * This contains a mapping of `rules` that can accept the game rule name as the key and the value as the value to set it to.
+  * This can only be set to either a boolean or an integer depending on the game rule type.
+  * Incorrect game rule names or incorrect values will throw the game.
+
 ## [21.1.11]
 
 ### Added

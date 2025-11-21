@@ -1,19 +1,16 @@
 package dev.ftb.packcompanion.config;
 
 import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
-import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
-import dev.ftb.mods.ftblibrary.snbt.config.BaseValue;
 import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
 import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
 import dev.ftb.mods.ftblibrary.snbt.config.StringValue;
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.config.values.ChunkPosCustomYHashValue;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import org.jetbrains.annotations.Nullable;
+import dev.ftb.packcompanion.config.values.GameRuleMapping;
+import dev.ftb.packcompanion.config.values.SparseStructuresConfig;
+import dev.ftb.packcompanion.config.values.SparseStructuresValue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public interface PCCommonConfig {
     SNBTConfig CONFIG = SNBTConfig.create(PackCompanion.MOD_ID + "-common");
@@ -48,82 +45,16 @@ public interface PCCommonConfig {
             new ArrayList<>()
     ).comment("Custom min-y level list for specific block locations within a range from the center, per dimension."));
 
+    SNBTConfig FORCED_GAME_RULES = CONFIG.addGroup("forced-game-rules");
+
+    GameRuleMapping GAME_RULE_MAPPING = FORCED_GAME_RULES.add(new GameRuleMapping(
+            FORCED_GAME_RULES,
+            "rules",
+            Map.of()
+    ).comment("Game rules that are forced on the server. The keys must be valid game rule IDs."));
+
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);
     }
 
-    class SparseStructuresValue extends BaseValue<SparseStructuresConfig> {
-        protected SparseStructuresValue(@Nullable SNBTConfig c, String n, SparseStructuresConfig def) {
-            super(c, n, def);
-        }
-
-        @Override
-        public void write(SNBTCompoundTag compoundTag) {
-            SNBTCompoundTag tag = new SNBTCompoundTag();
-
-            tag.comment("enabled", "Whether sparse structures are enabled.");
-            tag.putBoolean("enabled", get().enabled);
-
-            tag.comment("global_spread_factor", "The global spread factor for all structures when no custom spread factor is defined.");
-            tag.putDouble("global_spread_factor", get().globalSpreadFactor);
-
-            var list = new ListTag();
-            for (var custom : get().customSpreadFactors) {
-                var customTag = new SNBTCompoundTag();
-                customTag.putString("structure", custom.structure);
-                customTag.putDouble("spread_factor", custom.spreadFactor);
-                list.add(customTag);
-            }
-
-            tag.comment("custom_spread_factors", "Custom spread factors for specific structures.");
-            tag.put("custom_spread_factors", list);
-
-            compoundTag.comment(this.key, "Sparse structures configuration. See https://github.com/MCTeamPotato/SparseStructuresReforged/tree/1201 for more information.");
-            compoundTag.put(this.key, tag);
-        }
-
-        @Override
-        public void read(SNBTCompoundTag parent) {
-            if (!parent.contains(this.key)) {
-                set(SparseStructuresConfig.DEFAULT);
-                return;
-            }
-
-            var tag = (SNBTCompoundTag) parent.get(this.key);
-            if (tag == null) {
-                set(SparseStructuresConfig.DEFAULT);
-                return;
-            }
-
-            var enabled = tag.getBoolean("enabled");
-            var globalSpreadFactor = tag.getDouble("global_spread_factor");
-            var customSpreadFactors = new ArrayList<CustomSpreadFactors>();
-
-            if (tag.contains("custom_spread_factors")) {
-                var listTag = tag.getList("custom_spread_factors", Tag.TAG_COMPOUND);
-                for (var customTag : listTag) {
-                    var compound = (SNBTCompoundTag) customTag;
-                    customSpreadFactors.add(new CustomSpreadFactors(
-                            compound.getString("structure"),
-                            compound.getDouble("spread_factor")
-                    ));
-                }
-            }
-
-            set(new SparseStructuresConfig(enabled, globalSpreadFactor, customSpreadFactors));
-        }
-    }
-
-    record SparseStructuresConfig(
-            boolean enabled,
-            double globalSpreadFactor,
-            List<CustomSpreadFactors> customSpreadFactors
-    ) {
-        public static final SparseStructuresConfig DEFAULT = new SparseStructuresConfig(false, 2D, new ArrayList<>());
-    }
-
-    record CustomSpreadFactors(
-            String structure,
-            double spreadFactor
-    ) {}
 }

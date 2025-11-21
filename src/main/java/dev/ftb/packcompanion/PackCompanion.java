@@ -6,6 +6,7 @@ import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.buffs.MobEntityBuffFeature;
+import dev.ftb.packcompanion.features.forcedgamerule.ForcedGameRulesFeature;
 import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
@@ -59,7 +60,8 @@ public class PackCompanion {
             ShaderNotice::new,
             NoWanderingTraderInvisPotions::new,
             TriggerBlockFeature::new,
-            ActionPadFeature::new
+            ActionPadFeature::new,
+            ForcedGameRulesFeature::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
