@@ -6,23 +6,27 @@ import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.actionpad.client.ActionPadClient;
 import dev.ftb.packcompanion.features.actionpad.net.*;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import top.theillusivec4.curios.api.CuriosTags;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ActionPadFeature extends Feature.Common {
     private static final DeferredRegister<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
-    public static final DeferredHolder<Item, ActionPadItem> ACTION_PAD = ITEM_REGISTRY.register("action_pad", () ->
+    public static final RegistryObject<ActionPadItem> ACTION_PAD = ITEM_REGISTRY.register("action_pad", () ->
             new ActionPadItem(new Item.Properties().stacksTo(1))
     );
 
@@ -38,13 +42,13 @@ public class ActionPadFeature extends Feature.Common {
     }
 
     private void creativeTab(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTab() == FTBLibrary.getCreativeModeTab().get()) {
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(ACTION_PAD.get());
         }
     }
 
     private void onClientInit(FMLClientSetupEvent event) {
-        NeoForge.EVENT_BUS.addListener(ActionPadClient::onInputEvent);
+        MinecraftForge.EVENT_BUS.addListener(ActionPadClient::onInputEvent);
     }
 
     @Override
@@ -54,13 +58,14 @@ public class ActionPadFeature extends Feature.Common {
     }
 
     @Override
-    public void registerPackets(PayloadRegistrar registrar) {
-        registrar.playToClient(OpenActionPadPacket.TYPE, OpenActionPadPacket.STREAM_CODEC, OpenActionPadPacket::handle);
-        registrar.playToClient(OpenTPAPacket.TYPE, OpenTPAPacket.STREAM_CODEC, OpenTPAPacket::handle);
+    public void registerPackets(SimpleChannel channel, AtomicInteger packetId) {
+        // TODO: Finish implementation of action pad packets
+        channel.registerMessage(packetId.getAndIncrement(), OpenActionPadPacket.class, OpenActionPadPacket::encode, OpenActionPadPacket::decode, OpenActionPadPacket::handle);
 
-        registrar.playToServer(RunActionPacket.TYPE, RunActionPacket.STREAM_CODEC, RunActionPacket::handle);
-        registrar.playToServer(TryOpenActionPadFromItemPacket.TYPE, TryOpenActionPadFromItemPacket.STREAM_CODEC, TryOpenActionPadFromItemPacket::handle);
-        registrar.playToServer(TryOpenActionTPAPacket.TYPE, TryOpenActionTPAPacket.STREAM_CODEC, TryOpenActionTPAPacket::handle);
+        channel.registerMessage(packetId.getAndIncrement(), OpenTPAPacket.class, OpenTPAPacket::encode, OpenTPAPacket::decode, OpenTPAPacket::handle);
+        channel.registerMessage(packetId.getAndIncrement(), RunActionPacket.class, RunActionPacket::encode, RunActionPacket::decode, RunActionPacket::handle);
+        channel.registerMessage(packetId.getAndIncrement(), TryOpenActionPadFromItemPacket.class, TryOpenActionPadFromItemPacket::encode, TryOpenActionPadFromItemPacket::decode, TryOpenActionPadFromItemPacket::handle);
+        channel.registerMessage(packetId.getAndIncrement(), TryOpenActionTPAPacket.class, TryOpenActionTPAPacket::encode, TryOpenActionTPAPacket::decode, TryOpenActionTPAPacket::handle);
     }
 
     @Override
@@ -81,7 +86,8 @@ public class ActionPadFeature extends Feature.Common {
         });
 
         collector.addItemTagProvider(provider -> {
-            provider.appendItemTag(CuriosTags.CURIO).add(ACTION_PAD.get());
+            var tagKey = TagKey.create(Registries.ITEM, new ResourceLocation("curios:curio"));
+            provider.appendItemTag(tagKey).add(ACTION_PAD.get());
         });
     }
 }

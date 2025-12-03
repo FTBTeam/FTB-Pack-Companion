@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion.api.client.pause;
 
 import com.google.common.collect.Lists;
+import dev.ftb.packcompanion.mixin.ScreenAccessor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -37,7 +38,14 @@ public record ScreenWidgetCollection(
 
     public void commitToScreen(Screen screen) {
         screen.renderables.addAll(this.renderables);
-        screen.narratables.addAll(this.narratables);
-        screen.children.addAll(this.children);
+
+        List<NarratableEntry> internalNarratables = ((ScreenAccessor) screen).getNarratables();
+        internalNarratables.addAll(this.narratables);
+
+        List<GuiEventListener> internalChildren = ((ScreenAccessor) screen).getChildren();
+        internalChildren.addAll(this.children);
+
+        ((ScreenAccessor) screen).setNarratables(internalNarratables);
+        ((ScreenAccessor) screen).setChildren(internalChildren);
     }
 }

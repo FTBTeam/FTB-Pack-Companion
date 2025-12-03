@@ -3,12 +3,12 @@ package dev.ftb.packcompanion.features.actionpad;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
-import dev.ftb.packcompanion.PackCompanionExpectPlatform;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class PadActions {
     }
 
     private final List<PadAction> actions = new ArrayList<>();
-    private final Path destinationsFile = PackCompanionExpectPlatform.getConfigDirectory().resolve("ftbpc_pad_actions.snbt");
+    private final Path destinationsFile = FMLPaths.CONFIGDIR.get().resolve("ftbpc_pad_actions.snbt");
 
     public void load() {
         try {

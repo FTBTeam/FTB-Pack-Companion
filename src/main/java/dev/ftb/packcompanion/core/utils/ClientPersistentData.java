@@ -1,7 +1,7 @@
 package dev.ftb.packcompanion.core.utils;
 
-import dev.architectury.platform.Platform;
 import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.nio.file.Path;
 
@@ -13,7 +13,7 @@ public class ClientPersistentData {
 
     public ClientPersistentData(String name) {
         this.name = name;
-        this.path = Platform.getGameFolder()
+        this.path = FMLPaths.GAMEDIR.get()
                 .resolve("moddata")
                 .resolve("ftbpackcompanion")
                 .resolve(name + ".snbt");

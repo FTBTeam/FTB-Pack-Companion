@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.mixin.patches.jer;
 
-import dev.ftb.packcompanion.forge.integrations.jer.JERIntegration;
+import dev.ftb.packcompanion.integrations.jer.JERIntegration;
 import jeresources.api.IJERAPI;
 import jeresources.forge.ForgePlatformHelper;
 import org.spongepowered.asm.mixin.Mixin;

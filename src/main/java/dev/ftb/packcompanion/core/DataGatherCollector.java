@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,13 +65,13 @@ public class DataGatherCollector {
             translations.put(key, value);
         }
 
-        public void addBlock(DeferredHolder<Block, ? extends Block> blockHolder, String name) {
+        public void addBlock(RegistryObject<? extends Block> blockHolder, String name) {
             ResourceLocation resourceKey = blockHolder.getKey().location();
             String key = "block." + resourceKey.getNamespace() + "." + resourceKey.getPath();
             add(key, name);
         }
 
-        public void addItem(DeferredHolder<Item, ? extends Item> item, String value) {
+        public void addItem(RegistryObject<? extends Item> item, String value) {
             ResourceLocation resourceKey = item.getKey().location();
             String key = "item." + resourceKey.getNamespace() + "." + resourceKey.getPath();
             add(key, value);

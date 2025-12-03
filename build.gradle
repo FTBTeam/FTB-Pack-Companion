@@ -25,6 +25,8 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 legacyForge {
 	version = "${minecraft_version}-${forge_version}"
 
+    validateAccessTransformers = true
+
 	parchment {
 		mappingsVersion = project.parchment_mappings_version
 		minecraftVersion = project.parchment_minecraft_version.replace("\${mc_version}", minecraft_version)
@@ -111,28 +113,62 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+        content {
+            includeGroup "mezz.jei"
+        }
+    }
+
+    maven {
+        name = "Create Maven"
+        url = "https://maven.createmod.net"
+    }
+
+    maven {
+        url 'https://maven.blamejared.com'
+        content {
+            includeGroup "net.darkhax.tips"
+            includeGroup "net.darkhax.bookshelf"
+        }
+    }
+
+    maven {
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
 }
 
 dependencies {
     modImplementation "dev.ftb.mods:ftb-library-forge:${ftb_library_version}"
+    modRuntimeOnly "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
     modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
     modRuntimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}") { transitive = false }
     modRuntimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
 
-    modRuntimeOnly("curse.maven:creeperhost-minetogether-267172:5075809")
-    modRuntimeOnly("curse.maven:poly-576589:5218944")
+    modCompileOnly "top.theillusivec4.curios:curios-forge:${curios_version}:api"
+    modRuntimeOnly "top.theillusivec4.curios:curios-forge:${curios_version}"
+
+    modCompileOnly("curse.maven:creeperhost-minetogether-267172:5075809")
+    modCompileOnly("curse.maven:poly-576589:5218944")
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-gui:${jei_version}")
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-core:${jei_version}") // Required for JER
 
-//    modRuntimeOnly("curse.maven:jei-238222:5101366")
+    modRuntimeOnly("curse.maven:jei-238222:${jei_runtime_version}")
 
-    modRuntimeOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
+    modCompileOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
     modRuntimeOnly("net.darkhax.bookshelf:Bookshelf-Forge-${minecraft_version}:${bs_version}")
 
     modImplementation("curse.maven:jer-240630:5057220")
+
+    modImplementation("curse.maven:oculus-581495:${oculus_version}")
+    modRuntimeOnly("curse.maven:embeddium-908741:${embeddium}")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

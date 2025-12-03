@@ -3,32 +3,36 @@ package dev.ftb.packcompanion.features.actionpad.net;
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.core.utils.NameAndUuid;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
-public enum TryOpenActionTPAPacket implements CustomPacketPayload {
-    INSTANCE;
+public class TryOpenActionTPAPacket {
+    public static final TryOpenActionTPAPacket INSTANCE = new TryOpenActionTPAPacket();
 
-    public static final Type<TryOpenActionTPAPacket> TYPE = new Type<>(PackCompanion.id("try_open_action_tpa"));
-    public static final StreamCodec<FriendlyByteBuf, TryOpenActionTPAPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public TryOpenActionTPAPacket() {
     }
 
-    public static void handle(TryOpenActionTPAPacket ignored, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var player = context.player();
+    public void encode(FriendlyByteBuf buffer) {
+    }
 
-            List<NameAndUuid> users = Objects.requireNonNull(context.player().getServer())
+    public static TryOpenActionTPAPacket decode(FriendlyByteBuf buffer) {
+        return INSTANCE;
+    }
+
+    public static void handle(TryOpenActionTPAPacket ignored, Supplier<NetworkEvent.Context> context) {
+        context.get().enqueueWork(() -> {
+            var player = context.get().getSender();
+            if (player == null) {
+                return;
+            }
+
+            List<NameAndUuid> users = Objects.requireNonNull(player.getServer())
                     .getPlayerList()
                     .getPlayers()
                     .stream()
@@ -36,7 +40,9 @@ public enum TryOpenActionTPAPacket implements CustomPacketPayload {
                     .map(p -> new NameAndUuid(p.getName().getString(), p.getUUID()))
                     .toList();
 
-            PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenTPAPacket(users));
+            PackCompanion.NETWORK.send(PacketDistributor.PLAYER.with(() -> player), new OpenTPAPacket(users));
         });
+
+        context.get().setPacketHandled(true);
     }
 }

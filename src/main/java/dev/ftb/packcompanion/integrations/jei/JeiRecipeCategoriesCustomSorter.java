@@ -1,10 +1,10 @@
 package dev.ftb.packcompanion.integrations.jei;
 
-import dev.ftb.packcompanion.PackCompanionExpectPlatform;
 import dev.ftb.packcompanion.api.PackCompanionAPI;
 import dev.ftb.packcompanion.config.PCClientConfig;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public class JeiRecipeCategoriesCustomSorter {
     }
 
     private boolean loadSortingOrder() {
-        var sortingOrderPath = PackCompanionExpectPlatform.getGameDirectory().resolve("data/" + PackCompanionAPI.MOD_ID + "/jei_recipe_category_sorting_order.txt");
+        var sortingOrderPath = FMLPaths.GAMEDIR.get().resolve("data/" + PackCompanionAPI.MOD_ID + "/jei_recipe_category_sorting_order.txt");
         if (Files.notExists(sortingOrderPath)) {
             return false;
         }

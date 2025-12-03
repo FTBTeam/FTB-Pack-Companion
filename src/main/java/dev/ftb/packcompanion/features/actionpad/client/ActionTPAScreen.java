@@ -35,8 +35,8 @@ public class ActionTPAScreen extends AbstractButtonListScreen {
         }
 
         setSize(
-                Mth.clamp(max, 150, getWindow().getGuiScaledWidth() * 3 / 4),
-                Mth.clamp(20 + getTopPanelHeight() + users.size() * 20, 50, getWindow().getGuiScaledHeight() * 3 / 4)
+                Mth.clamp(max, 150, getScreen().getGuiScaledWidth() * 3 / 4),
+                Mth.clamp(20 + getTopPanelHeight() + users.size() * 20, 50, getScreen().getGuiScaledHeight() * 3 / 4)
         );
 
         return true;

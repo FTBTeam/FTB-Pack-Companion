@@ -1,11 +1,10 @@
-package dev.ftb.packcompanion.forge.integrations.jer;
+package dev.ftb.packcompanion.integrations.jer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.ftb.packcompanion.PackCompanionExpectPlatform;
 import dev.ftb.packcompanion.api.PackCompanionAPI;
 import jeresources.api.IJERAPI;
 import jeresources.api.IJERPlugin;
@@ -13,6 +12,7 @@ import jeresources.api.JERPlugin;
 import jeresources.util.LogHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 @JERPlugin
 public class JERIntegration implements IJERPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(JERIntegration.class);
@@ -31,7 +32,7 @@ public class JERIntegration implements IJERPlugin {
     @Override
     public void receive(IJERAPI ijerapi) {
         LOGGER.info("Loading Better Loot JER Integration");
-        var extendedLootJsonPath = PackCompanionExpectPlatform.getGameDirectory().resolve("data/" + PackCompanionAPI.MOD_ID + "/jer_extended_loot.json");
+        var extendedLootJsonPath = FMLPaths.GAMEDIR.get().resolve("data/" + PackCompanionAPI.MOD_ID + "/jer_extended_loot.json");
 
         if (Files.notExists(extendedLootJsonPath)) {
             LOGGER.warn("jer_extended_loot.json does not exist, skipping");

@@ -1,6 +1,5 @@
 package dev.ftb.packcompanion.features.triggerblock;
 
-import dev.ftb.packcompanion.registry.BlockEntityRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,7 +10,7 @@ public class TriggerBlockEntity extends BlockEntity {
     private String ignorePlayersWithTag = null;
 
     public TriggerBlockEntity(BlockPos pos, BlockState blockState) {
-        super(BlockEntityRegistries.TRIGGER_BLOCK_ENTITY_TYPE.get(), pos, blockState);
+        super(TriggerBlockFeature.TRIGGER_BLOCK_ENTITY_TYPE.get(), pos, blockState);
     }
 
     @Override

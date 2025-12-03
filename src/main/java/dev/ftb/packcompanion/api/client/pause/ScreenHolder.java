@@ -3,6 +3,7 @@ package dev.ftb.packcompanion.api.client.pause;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import dev.ftb.mods.ftblibrary.ui.Widget;
+import dev.ftb.packcompanion.mixin.ScreenAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Renderable;
@@ -44,11 +45,11 @@ public class ScreenHolder {
     }
 
     public ImmutableCollection<NarratableEntry> narratables() {
-        return ImmutableList.copyOf(this.screen.narratables);
+        return ImmutableList.copyOf(((ScreenAccessor) this.screen).getNarratables());
     }
 
     public ImmutableCollection<GuiEventListener> children() {
-        return ImmutableList.copyOf(this.screen.children);
+        return ImmutableList.copyOf(((ScreenAccessor) this.screen).getChildren());
     }
 
     public int getWidth() {

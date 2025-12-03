@@ -1,13 +1,13 @@
 package dev.ftb.packcompanion.core.utils;
 
-import dev.architectury.platform.Platform;
-import net.fabricmc.api.EnvType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 public class ClientHelpers {
     public static boolean clientIsSurvival() {
-        if (Platform.getEnv() != EnvType.CLIENT) {
+        if (FMLEnvironment.dist != Dist.CLIENT) {
             throw new IllegalStateException("This method can only be called on the client side.");
         }
 

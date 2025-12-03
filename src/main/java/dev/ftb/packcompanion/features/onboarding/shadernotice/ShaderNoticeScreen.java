@@ -16,10 +16,11 @@ import org.slf4j.LoggerFactory;
 
 public class ShaderNoticeScreen extends BaseScreen {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShaderNoticeScreen.class);
+
     private final ShaderNotice shaderNotice;
 
     public ShaderNoticeScreen(ShaderNotice shaderNotice) {
-        super(null);
+        super();
 
         this.shaderNotice = shaderNotice;
 
@@ -75,11 +76,6 @@ public class ShaderNoticeScreen extends BaseScreen {
         MutableComponent text = Component.translatable("ftbpackcompanion.shaders_notice.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.AQUA);
         int stringWidth = this.getTheme().getStringWidth(text);
         graphics.drawString(this.getTheme().getFont(), text, x + ((width - stringWidth) / 2), y - 16, Color4I.WHITE.rgb());
-    }
-
-    @Override
-    public boolean usePreviousScreenOnBack() {
-        return false;
     }
 
     private static class Option extends Panel {
@@ -160,16 +156,15 @@ public class ShaderNoticeScreen extends BaseScreen {
         @Override
         public void addWidgets() {
             this.add(this.descriptionField = new TextField(this));
+            this.descriptionField.setMinWidth(width - 10);
+            this.descriptionField.setMaxWidth(width - 10);
             this.descriptionField.setText(this.description);
         }
 
         @Override
         public void alignWidgets() {
-            this.descriptionField.setSize(this.width - 10, this.height);
+//            this.descriptionField.setSize(this.width - 10, this.height);
             this.descriptionField.setPos(5, 0);
-            this.descriptionField.setMinWidth(width - 10);
-            this.descriptionField.setMaxWidth(width - 10);
-            this.descriptionField.reflow();
         }
     }
 }

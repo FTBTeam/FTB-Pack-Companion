@@ -5,19 +5,20 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "ScreenAccessor",
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
-    "features.singleplayerseed.WorldGenSettingsComponentMixin",
-    "features.pausescreen.PauseMenuMixin"
+    "features.pausescreen.PauseMenuMixin",
+    "features.singleplayerseed.WorldGenSettingsComponentMixin"
   ],
   "mixins": [
-    "features.bedtime.ServerPlayerMixin",
-    "patches.jer.JERPluginLoadFixMixin",
     "features.bedtime.BedMixin",
-    "features.jigsaw.JigsawPlacementMixin",
+    "features.bedtime.ServerPlayerMixin",
     "features.jei.RecipeGuiTabsMixin",
+    "features.jigsaw.JigsawPlacementMixin",
+    "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
-    "features.spawners.SpawnDataMixin"
+    "patches.jer.JERPluginLoadFixMixin"
   ],
   "injectors": {
     "defaultRequire": 1

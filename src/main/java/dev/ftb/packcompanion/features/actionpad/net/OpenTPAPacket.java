@@ -1,30 +1,40 @@
 package dev.ftb.packcompanion.features.actionpad.net;
 
-import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.core.utils.NameAndUuid;
 import dev.ftb.packcompanion.features.actionpad.client.ActionPadClient;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-public record OpenTPAPacket(List<NameAndUuid> users) implements CustomPacketPayload {
-    public static final Type<OpenTPAPacket> TYPE = new Type<>(PackCompanion.id("open_tpa"));
+public class OpenTPAPacket {
+    List<NameAndUuid> users;
 
-    public static final StreamCodec<FriendlyByteBuf, OpenTPAPacket> STREAM_CODEC = StreamCodec.composite(
-            NameAndUuid.STREAM_CODEC.apply(ByteBufCodecs.list()), OpenTPAPacket::users,
-            OpenTPAPacket::new
-    );
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public OpenTPAPacket(List<NameAndUuid> users) {
+        this.users = users;
     }
 
-    public static void handle(OpenTPAPacket packet, IPayloadContext payload) {
-        payload.enqueueWork(() -> ActionPadClient.openActionPadTpaScreen(packet.users()));
+    public void encode(FriendlyByteBuf friendlyByteBuf) {
+        friendlyByteBuf.writeVarInt(users.size());
+        for (NameAndUuid u : users) {
+            u.toBuffer(friendlyByteBuf);
+        }
+    }
+
+    public static OpenTPAPacket decode(FriendlyByteBuf friendlyByteBuf) {
+        var size = friendlyByteBuf.readVarInt();
+        var list = new ArrayList<NameAndUuid>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(NameAndUuid.fromBuffer(friendlyByteBuf));
+        }
+
+        return new OpenTPAPacket(list);
+    }
+
+    public static void handle(OpenTPAPacket packet, Supplier<NetworkEvent.Context> content) {
+        content.get().enqueueWork(() -> ActionPadClient.openActionPadTpaScreen(packet.users));
+        content.get().setPacketHandled(true);
     }
 }

@@ -3,7 +3,6 @@ package dev.ftb.packcompanion.features.loot;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import dev.ftb.packcompanion.api.PackCompanionAPI;
-import dev.ftb.packcompanion.registry.LootTableRegistries;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -16,10 +15,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,7 +97,7 @@ public class RandomNameLootFunction extends LootItemConditionalFunction {
 
     @Override
     public LootItemFunctionType getType() {
-        return LootTableRegistries.RANDOM_NAME_LOOT_FUNCTION.get();
+        return RandomNameLootFeature.RANDOM_NAMED_LOOT_FUNCTION.get();
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<RandomNameLootFunction> {

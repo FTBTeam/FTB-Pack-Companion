@@ -6,30 +6,35 @@ import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.actionpad.ActionPadItem;
 import dev.ftb.packcompanion.integrations.InventorySearcher;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
-public enum TryOpenActionPadFromItemPacket implements CustomPacketPayload {
-    INSTANCE;
+public class TryOpenActionPadFromItemPacket {
+    public static final TryOpenActionPadFromItemPacket INSTANCE = new TryOpenActionPadFromItemPacket();
 
-    public static final Type<TryOpenActionPadFromItemPacket> TYPE = new Type<>(PackCompanion.id("try_open_action_pad_from_item"));
-    public static final StreamCodec<FriendlyByteBuf, TryOpenActionPadFromItemPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    private TryOpenActionPadFromItemPacket() {}
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public void encode(FriendlyByteBuf buf) {
+        // No data to encode
     }
 
-    public static void handle(TryOpenActionPadFromItemPacket ignored, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var player = context.player();
+    public static TryOpenActionPadFromItemPacket decode(FriendlyByteBuf buf) {
+        return INSTANCE;
+    }
+
+    public static void handle(TryOpenActionPadFromItemPacket ignored, Supplier<NetworkEvent.Context> context) {
+        context.get().enqueueWork(() -> {
+            var player = context.get().getSender();
+            if (player == null) {
+                return;
+            }
+
             boolean hasPlayersOnline = Optional.ofNullable(player.getServer())
                     .map(e -> e.getPlayerList().getPlayerCount() > 1)
                     .orElse(false);
@@ -51,9 +56,11 @@ public enum TryOpenActionPadFromItemPacket implements CustomPacketPayload {
                 sendOpenPacket(player, hasPlayersOnline);
             }
         });
+
+        context.get().setPacketHandled(true);
     }
 
     private static void sendOpenPacket(Player player, boolean playersOnline) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenActionPadPacket(PadActions.get().getUnlockedActions(player), playersOnline));
+        PackCompanion.NETWORK.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new OpenActionPadPacket(PadActions.get().getUnlockedActions(player), playersOnline));
     }
 }

@@ -10,13 +10,12 @@ public record NameAndUuid(
 ) {
     public void toBuffer(FriendlyByteBuf buf) {
         buf.writeUtf(name);
-        buf.writeLong(uuid.getMostSignificantBits());
-        buf.writeLong(uuid.getLeastSignificantBits());
+        buf.writeUUID(uuid);
     }
 
     public static NameAndUuid fromBuffer(FriendlyByteBuf buf) {
         String name = buf.readUtf();
-        UUID uuid = new UUID(buf.readLong(), buf.readLong());
+        UUID uuid = buf.readUUID();
         return new NameAndUuid(name, uuid);
     }
 }

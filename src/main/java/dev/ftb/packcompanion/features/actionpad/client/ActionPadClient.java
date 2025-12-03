@@ -5,9 +5,8 @@ import dev.ftb.packcompanion.core.utils.NameAndUuid;
 import dev.ftb.packcompanion.features.actionpad.PadAction;
 import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionPadFromItemPacket;
 import net.minecraft.client.KeyMapping;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public class ActionPadClient {
     public static void onInputEvent(InputEvent.Key event) {
         if (OPEN_ACTION_PAD_KEY.consumeClick()) {
             // Figure it out basically, let the server do the hard work and tell us what to do
-            PacketDistributor.sendToServer(TryOpenActionPadFromItemPacket.INSTANCE);
+            PackCompanion.NETWORK.sendToServer(TryOpenActionPadFromItemPacket.INSTANCE);
         }
     }
 

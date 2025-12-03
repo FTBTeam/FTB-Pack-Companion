@@ -1,8 +1,8 @@
 package dev.ftb.packcompanion.api.client.pause;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * @implNote Please do NOT try and modify the screen. This api is provided to avoid nasty hacks

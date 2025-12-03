@@ -2,7 +2,7 @@ package dev.ftb.packcompanion.features.triggerblock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public enum TriggerBlockController {
         }
 
         // Trigger an event.
-        NeoForge.EVENT_BUS.post(new TriggerBlockEvent(player, pos, name));
+        MinecraftForge.EVENT_BUS.post(new TriggerBlockEvent(player, pos, name));
     }
 
     record TriggerId(UUID playerId, String id) {

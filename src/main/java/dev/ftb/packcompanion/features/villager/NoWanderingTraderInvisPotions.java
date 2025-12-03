@@ -5,16 +5,16 @@ import dev.ftb.packcompanion.core.Feature;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.UseItemGoal;
 import net.minecraft.world.entity.npc.WanderingTrader;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModContainer;
 
 public class NoWanderingTraderInvisPotions extends Feature.Server {
     public NoWanderingTraderInvisPotions(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
-        NeoForge.EVENT_BUS.addListener(this::onEntityJoinLevel);
+        MinecraftForge.EVENT_BUS.addListener(this::onEntityJoinLevel);
     }
 
     private void onEntityJoinLevel(EntityJoinLevelEvent event) {

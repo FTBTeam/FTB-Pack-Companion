@@ -5,13 +5,13 @@ import dev.ftb.mods.ftblibrary.ui.Panel;
 import dev.ftb.mods.ftblibrary.ui.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
+import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.actionpad.PadAction;
 import dev.ftb.packcompanion.features.actionpad.net.RunActionPacket;
 import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionTPAPacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -38,8 +38,8 @@ public class ActionPadScreen extends AbstractButtonListScreen {
         }
 
         setSize(
-                Mth.clamp(max, 150, getWindow().getGuiScaledWidth() * 3 / 4),
-                Mth.clamp(20 + getTopPanelHeight() + actions.size() * 20, 50, getWindow().getGuiScaledHeight() * 3 / 4)
+                Mth.clamp(max, 150, this.getScreen().getGuiScaledWidth() * 3 / 4),
+                Mth.clamp(20 + getTopPanelHeight() + actions.size() * 20, 50, getScreen().getGuiScaledHeight() * 3 / 4)
         );
         return true;
     }
@@ -56,7 +56,7 @@ public class ActionPadScreen extends AbstractButtonListScreen {
             panel.add(new SimpleTextButton(panel, Component.translatable("ftbpackcompanion.tpa"), Icons.MARKER) {
                 @Override
                 public void onClicked(MouseButton mouseButton) {
-                    PacketDistributor.sendToServer(TryOpenActionTPAPacket.INSTANCE);
+                    PackCompanion.NETWORK.sendToServer(TryOpenActionTPAPacket.INSTANCE);
                 }
             });
         }
@@ -65,7 +65,7 @@ public class ActionPadScreen extends AbstractButtonListScreen {
             panel.add(new SimpleTextButton(panel, Component.translatable(action.name()), action.icon()) {
                 @Override
                 public void onClicked(MouseButton mouseButton) {
-                    PacketDistributor.sendToServer(new RunActionPacket(action.name()));
+                    PackCompanion.NETWORK.sendToServer(new RunActionPacket(action.name()));
                     if (action.autoclose()) {
                         closeGui();
                     }

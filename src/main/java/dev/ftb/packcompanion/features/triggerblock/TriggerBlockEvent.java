@@ -2,7 +2,7 @@ package dev.ftb.packcompanion.features.triggerblock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class TriggerBlockEvent extends Event {
     private final Player player;

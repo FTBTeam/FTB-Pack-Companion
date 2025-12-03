@@ -24,6 +24,11 @@ public interface PCServerConfig {
     DoubleValue MODIFY_MOB_BASE_HEALTH = CONFIG.addDouble("modify_mob_base_health", 0D, 0D, 1000D)
             .comment("If non-zero, set the base health of all mobs to be multiplied by this value. Set to 0 to disable.");
 
+    SNBTConfig VILLAGERS = CONFIG.addGroup("villagers");
+    BooleanValue NO_WANDERING_TRADER_INVIS_POTIONS = VILLAGERS.addBoolean("no_wandering_trader_invis_potions", false)
+            .comment("If true, Wandering Traders will no longer drink invisibility potions at night",
+                    "(or milk buckets to remove their invisibility when it's day)");
+
     static void load(MinecraftServer server) {
         ConfigUtil.loadDefaulted(CONFIG, server.getWorldPath(ConfigUtil.SERVER_CONFIG_DIR), PackCompanionAPI.MOD_ID);
     }

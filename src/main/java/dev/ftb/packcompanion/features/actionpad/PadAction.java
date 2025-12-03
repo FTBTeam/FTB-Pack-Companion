@@ -8,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,6 +38,38 @@ public record PadAction(
             Codec.BOOL.optionalFieldOf("autoclose", true).forGetter(PadAction::autoclose)
     ).apply(builder, PadAction::new));
 
+    public static PadAction decode(FriendlyByteBuf buffer) {
+        String name = buffer.readUtf();
+        Icon icon = Icon.getIcon(buffer.readUtf());
+        boolean autoclose = buffer.readBoolean();
+
+        // Read the flag to see which optional fields are present
+        var readerFlag = buffer.readByte();
+
+        Optional<String> unlockedAt = (readerFlag & 1) != 0 ? Optional.of(buffer.readUtf()) : Optional.empty();
+        Optional<CommandAction> commandAction = (readerFlag & 2) != 0 ? Optional.of(CommandAction.decode(buffer)) : Optional.empty();
+        Optional<TeleportAction> teleportAction = (readerFlag & 4) != 0 ? Optional.of(TeleportAction.decode(buffer)) : Optional.empty();
+
+        return new PadAction(name, icon, unlockedAt, commandAction, teleportAction, autoclose);
+    }
+
+    public void encode(FriendlyByteBuf buffer) {
+        buffer.writeUtf(name);
+        buffer.writeUtf(icon.toString());
+        buffer.writeBoolean(autoclose);
+
+        // Bump the flag so we know which optional fields are present
+        var readerFlag = 0;
+        if (unlockedAt.isPresent()) readerFlag |= 1;
+        if (commandAction.isPresent()) readerFlag |= 2;
+        if (teleportAction.isPresent()) readerFlag |= 4;
+        buffer.writeByte(readerFlag);
+
+        unlockedAt.ifPresent(buffer::writeUtf);
+        commandAction.ifPresent(action -> action.encode(buffer));
+        teleportAction.ifPresent(action -> action.encode(buffer));
+    }
+
 //    public static final StreamCodec<FriendlyByteBuf, PadAction> STREAM_CODEC = StreamCodec.composite(
 //            ByteBufCodecs.STRING_UTF8, PadAction::name,
 //            Icon.STREAM_CODEC, PadAction::icon,
@@ -54,12 +87,19 @@ public record PadAction(
                 Codec.BOOL.optionalFieldOf("execute_as_server", false).forGetter(CommandAction::executeAsServer)
         ).apply(builder, CommandAction::new));
 
-//        public static final StreamCodec<FriendlyByteBuf, CommandAction> STREAM_CODEC = StreamCodec.composite(
-//                ByteBufCodecs.STRING_UTF8, CommandAction::command,
-//                ByteBufCodecs.optional(ByteBufCodecs.INT).map(opt -> opt.orElse(Commands.LEVEL_GAMEMASTERS), Optional::of), CommandAction::executionLevel,
-//                ByteBufCodecs.optional(ByteBufCodecs.BOOL).map(opt -> opt.orElse(false), Optional::of), CommandAction::executeAsServer,
-//                CommandAction::new
-//        );
+        public static CommandAction decode(FriendlyByteBuf buffer) {
+            String command = buffer.readUtf();
+            int executionLevel = buffer.readInt();
+            boolean executeAsServer = buffer.readBoolean();
+
+            return new CommandAction(command, executionLevel, executeAsServer);
+        }
+
+        public void encode(FriendlyByteBuf buffer) {
+            buffer.writeUtf(command);
+            buffer.writeInt(executionLevel);
+            buffer.writeBoolean(executeAsServer);
+        }
 
         @Override
         public void run(ServerPlayer player) {
@@ -92,12 +132,31 @@ public record PadAction(
                 ExtraCodecs.VECTOR2F_CODEC.optionalFieldOf("rotation").forGetter(TeleportAction::rotation)
         ).apply(builder, TeleportAction::new));
 
-//        public static final StreamCodec<FriendlyByteBuf, TeleportAction> STREAM_CODEC = StreamCodec.composite(
-//                net.minecraft.core.BlockPos.STREAM_CODEC, TeleportAction::position,
-//                ResourceKey.streamCodec(Registries.DIMENSION), TeleportAction::dimension,
-//                ByteBufCodecs.optional(ExtraCodecs.VECTOR2F_STREAM_CODEC), TeleportAction::rotation,
-//                TeleportAction::new
-//        );
+        public static TeleportAction decode(FriendlyByteBuf buffer) {
+            BlockPos pos = buffer.readBlockPos();
+            ResourceKey<Level> dimension = buffer.readResourceKey(Registries.DIMENSION);
+            Optional<Vector2f> rotation;
+            if (buffer.readBoolean()) {
+                float yaw = buffer.readFloat();
+                float pitch = buffer.readFloat();
+                rotation = Optional.of(new Vector2f(yaw, pitch));
+            } else {
+                rotation = Optional.empty();
+            }
+            return new TeleportAction(pos, dimension, rotation);
+        }
+
+        public void encode(FriendlyByteBuf buffer) {
+            buffer.writeBlockPos(BlockPos.ZERO);
+            buffer.writeResourceKey(dimension);
+            if (rotation.isPresent()) {
+                buffer.writeBoolean(true);
+                buffer.writeFloat(rotation.get().x);
+                buffer.writeFloat(rotation.get().y);
+            } else {
+                buffer.writeBoolean(false);
+            }
+        }
 
         @Override
         public void run(ServerPlayer player) {

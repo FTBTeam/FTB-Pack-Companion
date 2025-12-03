@@ -1,8 +1,6 @@
 package dev.ftb.packcompanion.features.pausemenuapi;
 
 import com.mojang.realmsclient.RealmsMainScreen;
-import dev.architectury.platform.Platform;
-import dev.ftb.packcompanion.PackCompanionExpectPlatform;
 import dev.ftb.packcompanion.api.client.PackCompanionClientAPI;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseTarget;
 import dev.ftb.packcompanion.api.client.pause.ScreenHolder;
@@ -16,6 +14,8 @@ import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.social.SocialInteractionsScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.client.gui.ModListScreen;
+import net.minecraftforge.fml.ModList;
 
 public class CustomPauseScreen extends Screen {
     public static boolean DISABLE_CUSTOM_PAUSE = false;
@@ -45,11 +45,9 @@ public class CustomPauseScreen extends Screen {
             this.minecraft.setScreen(new StatsScreen(this, this.minecraft.player.getStats()));
         }).bounds(noAdvancements ? this.width / 2 - 102 : (this.width / 2 + 2), this.height / 4 + 48 + -16, noAdvancements ? 204 : 100, 20).build());
 
-        if (PackCompanionExpectPlatform.hasModlistScreen()) {
-            this.addRenderableWidget(Button.builder(Component.translatable("ftbpackcompanion.pause.mods", Platform.getMods().size()), (buttonx) -> {
-                this.minecraft.setScreen(PackCompanionExpectPlatform.getModListScreen().apply(this));
-            }).bounds(this.width / 2 - 102, this.height / 4 + 56, 204, 20).build());
-        }
+        this.addRenderableWidget(Button.builder(Component.translatable("ftbpackcompanion.pause.mods", ModList.get().size()), (buttonx) -> {
+            this.minecraft.setScreen(new ModListScreen(this));
+        }).bounds(this.width / 2 - 102, this.height / 4 + 56, 204, 20).build());
 
         this.addRenderableWidget(Button.builder(Component.translatable("menu.options"), (buttonx) -> {
             this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options));

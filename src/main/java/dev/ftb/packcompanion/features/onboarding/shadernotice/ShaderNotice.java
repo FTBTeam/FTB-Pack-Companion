@@ -5,10 +5,10 @@ import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.core.utils.ClientPersistentData;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModContainer;
 
 public class ShaderNotice extends Feature.Client {
     public final ClientPersistentData shaderData = new ClientPersistentData("shader_notice");
@@ -18,7 +18,7 @@ public class ShaderNotice extends Feature.Client {
         super(modEventBus, container);
 
         shaderData.load();
-        NeoForge.EVENT_BUS.addListener(this::playerLoggingEvent);
+        MinecraftForge.EVENT_BUS.addListener(this::playerLoggingEvent);
     }
 
     public void playerLoggingEvent(ClientPlayerNetworkEvent.LoggingIn event) {

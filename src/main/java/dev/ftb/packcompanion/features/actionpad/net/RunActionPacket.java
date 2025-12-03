@@ -1,36 +1,41 @@
 package dev.ftb.packcompanion.features.actionpad.net;
 
-import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.actionpad.PadAction.ActionRunner;
 import dev.ftb.packcompanion.features.actionpad.PadActions;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
-public record RunActionPacket(String actionName) implements CustomPacketPayload {
-    public static final Type<RunActionPacket> TYPE = new Type<>(PackCompanion.id("run_action_pad_action"));
+import java.util.function.Supplier;
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, RunActionPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, RunActionPacket::actionName,
-            RunActionPacket::new
-    );
+public class RunActionPacket {
+    String actionName;
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public RunActionPacket(String actionName) {
+        this.actionName = actionName;
     }
 
-    public static void handle(RunActionPacket packet, IPayloadContext context) {
-        if (context.player() instanceof ServerPlayer serverPlayer) {
-            context.enqueueWork(() ->
-                    PadActions.get().getAction(serverPlayer, packet.actionName)
+    public void encode(FriendlyByteBuf friendlyByteBuf) {
+        friendlyByteBuf.writeUtf(actionName);
+    }
+
+    public static RunActionPacket decode(FriendlyByteBuf friendlyByteBuf) {
+        String actionName = friendlyByteBuf.readUtf();
+        return new RunActionPacket(actionName);
+    }
+
+    public static void handle(RunActionPacket packet, Supplier<NetworkEvent.Context> context) {
+        NetworkEvent.Context networkContext = context.get();
+        var player = networkContext.getSender();
+
+        if (player != null) {
+            networkContext.enqueueWork(() ->
+                    PadActions.get().getAction(player, packet.actionName)
                             .flatMap(action -> action.commandAction().map(ActionRunner::asActionRunner)
                                     .or(() -> action.teleportAction().map(ActionRunner::asActionRunner))
                             )
-                            .ifPresent(actionRunner -> actionRunner.run(serverPlayer)));
+                            .ifPresent(actionRunner -> actionRunner.run(player)));
         }
+
+        networkContext.setPacketHandled(true);
     }
 }

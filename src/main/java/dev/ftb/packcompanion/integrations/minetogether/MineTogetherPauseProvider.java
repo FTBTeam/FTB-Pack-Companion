@@ -4,7 +4,7 @@ import dev.ftb.packcompanion.api.client.pause.AdditionalPauseProvider;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseTarget;
 import dev.ftb.packcompanion.api.client.pause.ScreenHolder;
 import dev.ftb.packcompanion.api.client.pause.ScreenWidgetCollection;
-import dev.ftb.packcompanion.features.pausemenuapi.SupportPauseProvider;
+import dev.ftb.packcompanion.features.pausemenuapi.providers.SupportPauseProvider;
 import net.creeperhost.minetogether.Constants;
 import net.creeperhost.minetogether.chat.gui.FriendChatGui;
 import net.creeperhost.minetogether.chat.gui.PublicChatGui;
