@@ -16,7 +16,7 @@ public class ShadersIntegration {
     }
 
     public ShadersIntegration() {
-        if (ModList.get().isLoaded("iris")) {
+        if (ModList.get().isLoaded("oculus")) {
             provider = new IrisProvider();
         }
     }
