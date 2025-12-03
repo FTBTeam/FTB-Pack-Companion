@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "package": "dev.ftb.packcompanion.mixin",
+  "refmap": "mixins.ftbpc.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "features.notoast.AdvancementToastMixin",
+    "features.notoast.TutorialMixin",
+    "features.singleplayerseed.WorldGenSettingsComponentMixin",
+    "features.pausescreen.PauseMenuMixin"
+  ],
+  "mixins": [
+    "features.bedtime.ServerPlayerMixin",
+    "patches.jer.JERPluginLoadFixMixin",
+    "features.bedtime.BedMixin",
+    "features.jigsaw.JigsawPlacementMixin",
+    "features.jei.RecipeGuiTabsMixin",
+    "features.spawners.SpawnerMixin",
+    "features.spawners.SpawnDataMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
