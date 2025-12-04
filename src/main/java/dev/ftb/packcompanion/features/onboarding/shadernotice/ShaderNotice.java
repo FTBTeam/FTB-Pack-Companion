@@ -18,6 +18,10 @@ public class ShaderNotice extends Feature.Client {
         super(modEventBus, container);
 
         shaderData.load();
+    }
+
+    @Override
+    public void onClientInit() {
         MinecraftForge.EVENT_BUS.addListener(this::playerLoggingEvent);
     }
 
