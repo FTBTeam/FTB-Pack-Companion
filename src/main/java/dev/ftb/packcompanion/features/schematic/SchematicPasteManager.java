@@ -2,6 +2,7 @@ package dev.ftb.packcompanion.features.schematic;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -71,6 +72,7 @@ public class SchematicPasteManager extends SavedData {
                 worker.tick(server);
                 if (worker.isDone()) {
                     toRemove.add(key);
+                    worker.notifyTermination();
                 }
                 setDirty();
             });
@@ -78,8 +80,8 @@ public class SchematicPasteManager extends SavedData {
         });
     }
 
-    public void startPaste(ResourceLocation location, ServerLevel level, BlockPos basePos, int blocksPerTick) {
-        addWorker(new SchematicPasteWorker(location, Either.left(level), basePos, blocksPerTick));
+    public void startPaste(CommandSourceStack sourceStack, ResourceLocation location, BlockPos basePos, int blocksPerTick) {
+        addWorker(new SchematicPasteWorker(sourceStack, location, Either.left(sourceStack.getLevel()), basePos, blocksPerTick));
     }
 
     private void addWorker(SchematicPasteWorker worker) {
