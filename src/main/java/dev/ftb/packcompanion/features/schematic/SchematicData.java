@@ -109,7 +109,7 @@ class SchematicData {
             while (true) {
                 value |= (blockdata[i] & 127) << (varint_length++ * 7);
                 if (varint_length > 5) {
-                    throw new RuntimeException("VarInt too big (probably corrupted data)");
+                    throw new IOException("VarInt too big (probably corrupted data)");
                 }
                 if ((blockdata[i] & 128) != 128) {
                     i++;

@@ -50,7 +50,7 @@ public class SchematicCommand {
 
     private static int doPaste(CommandContext<CommandSourceStack> ctx, ResourceLocation schematic, BlockPos pos, int blocksPerTick) {
         SchematicPasteManager.getInstance(ctx.getSource().getServer())
-                .startPaste(schematic, ctx.getSource().getLevel(), pos, blocksPerTick);
+                .startPaste(ctx.getSource(), schematic, pos, blocksPerTick);
 
         ctx.getSource().sendSuccess(() -> Component.literal("Schematic paste started for " + schematic + " @ " + pos), false);
         ctx.getSource().sendSuccess(() -> Component.literal("Paste speed: " + blocksPerTick + " blocks/tick"), false);
