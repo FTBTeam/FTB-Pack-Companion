@@ -7,6 +7,7 @@ import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.buffs.MobEntityBuffFeature;
+import dev.ftb.packcompanion.features.commandhistory.CommandHistoryFeature;
 import dev.ftb.packcompanion.features.forcedgamerule.ForcedGameRulesFeature;
 import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
@@ -69,7 +70,8 @@ public class PackCompanion {
             NoWanderingTraderInvisPotions::new,
             TriggerBlockFeature::new,
             ActionPadFeature::new,
-            ForcedGameRulesFeature::new
+            ForcedGameRulesFeature::new,
+            CommandHistoryFeature::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();

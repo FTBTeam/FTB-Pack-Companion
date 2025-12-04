@@ -6,6 +6,7 @@
   "minVersion": "0.8",
   "client": [
     "ScreenAccessor",
+    "features.commandhistory.ChatComponentMixin",
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
     "features.pausescreen.PauseMenuMixin",

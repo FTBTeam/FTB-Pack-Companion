@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Backported Minecrafts command history feature
 - Backported a bunch of features from 1.21
   - Action pad, a simple item that allows a user to run a predefined list of actions, like teleport locations, tpa, etc
   - Forced GameRules, force certain gamerules to be set on a server or singleplayer world upon world load
