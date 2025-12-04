@@ -16,13 +16,13 @@ public class Integrations {
     public static void clientInit() {
         loadIfModPresent("tipsmod", () -> TipsIntegration::init);
         loadIfModPresent("minetogether", () -> MineTogetherIntegration::init);
+        loadIfModPresent("create", () -> CreateIntegration::init);
     }
 
     public static void serverInit() {
     }
 
     public static void commonInit() {
-        loadIfModPresent("create", () -> CreateIntegration::init);
     }
 
     public static void onReload(ResourceManager manager) {

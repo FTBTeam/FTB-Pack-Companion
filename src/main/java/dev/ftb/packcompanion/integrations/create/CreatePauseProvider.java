@@ -1,4 +1,4 @@
-package dev.ftb.packcompanion.forge.integrations.create;
+package dev.ftb.packcompanion.integrations.create;
 
 import com.simibubi.create.infrastructure.gui.OpenCreateMenuButton;
 import dev.ftb.packcompanion.api.client.pause.AdditionalPauseProvider;

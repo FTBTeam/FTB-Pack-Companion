@@ -7,7 +7,7 @@ public class CreateIntegration {
     public static void init() {
         PackCompanionClientAPI.get().registerAdditionalPauseProvider(
                 AdditionalPauseTarget.MENU_LEFT,
-                new dev.ftb.packcompanion.forge.integrations.create.CreatePauseProvider()
+                new CreatePauseProvider()
         );
     }
 }
