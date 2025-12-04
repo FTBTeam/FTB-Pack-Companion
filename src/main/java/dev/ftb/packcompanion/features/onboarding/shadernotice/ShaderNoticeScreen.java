@@ -20,7 +20,7 @@ public class ShaderNoticeScreen extends BaseScreen {
     private final ShaderNotice shaderNotice;
 
     public ShaderNoticeScreen(ShaderNotice shaderNotice) {
-        super();
+        super(null);
 
         this.shaderNotice = shaderNotice;
 
@@ -76,6 +76,11 @@ public class ShaderNoticeScreen extends BaseScreen {
         MutableComponent text = Component.translatable("ftbpackcompanion.shaders_notice.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.AQUA);
         int stringWidth = this.getTheme().getStringWidth(text);
         graphics.drawString(this.getTheme().getFont(), text, x + ((width - stringWidth) / 2), y - 16, Color4I.WHITE.rgb());
+    }
+
+    @Override
+    public boolean usePreviousScreenOnBack() {
+        return false;
     }
 
     private static class Option extends Panel {

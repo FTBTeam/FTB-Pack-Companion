@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
----- TODO
+- Backported a bunch of features from 1.21
+  - Action pad, a simple item that allows a user to run a predefined list of actions, like teleport locations, tpa, etc
+  - Forced GameRules, force certain gamerules to be set on a server or singleplayer world upon world load
+  - Shader notice, if shaders are on the pack, you can enable a notification to let users know and to opt-in to having shaders enabled
+  - Trigger block, an invisible block that will trigger a Forge event when a player walks over it with a small delay to prevent spam
+  - Ability to disable wandering traders from being able to use their invisibility potion on spawn
 
 ## [2.3.0]
 
