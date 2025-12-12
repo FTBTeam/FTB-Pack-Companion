@@ -10,6 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Pseudo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +20,10 @@ import java.util.Optional;
  * Mixin to fix JustEnoughResources biome display for modded biomes.
  * JER uses VanillaRegistries.createLookup() which only returns vanilla biomes.
  * This fix uses the current level's registry which includes modded biomes.
- * 
- * This mixin is only applied if JER is present (checked by FTBPCMixinPlugin).
+ *
+ * The @Pseudo annotation allows this mixin to silently skip if JER is not present.
  */
+@Pseudo
 @Mixin(targets = "jeresources.api.util.BiomeHelper", remap = false)
 public class BiomeHelperMixin {
 
