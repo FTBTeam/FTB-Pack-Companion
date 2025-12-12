@@ -5,12 +5,13 @@ import com.google.gson.JsonObject;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.serialization.Decoder;
 import dev.ftb.packcompanion.config.PCCommonConfig;
+import dev.ftb.packcompanion.config.values.CustomSpreadFactors;
+import dev.ftb.packcompanion.config.values.SparseStructuresConfig;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.*;
 import net.minecraft.server.packs.resources.Resource;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,7 +33,7 @@ public abstract class RegistryDataLoaderMixin {
         }
 
         String string = Registries.elementsDirPath(writableRegistry.key());
-        PCCommonConfig.SparseStructuresConfig config = PCCommonConfig.SPARSE_STRUCTURES.get();
+        SparseStructuresConfig config = PCCommonConfig.SPARSE_STRUCTURES.get();
 
         if (string.equals("worldgen/structure_set")) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -48,7 +49,7 @@ public abstract class RegistryDataLoaderMixin {
                         return structure_set.equals(s.structure()) || jsonObject.getAsJsonArray("structures").asList().stream().anyMatch(p -> p.getAsJsonObject().get("structure").getAsString().equals(s.structure()));
                     })
                     .findFirst()
-                    .orElse(new PCCommonConfig.CustomSpreadFactors("", config.globalSpreadFactor())).spreadFactor();
+                    .orElse(new CustomSpreadFactors("", config.globalSpreadFactor())).spreadFactor();
 
             int spacing;
             int separation;
