@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.14]
+
+### Added
+
+* Mixin into JER to properly support world-gen ore distributions in modded biomes 
+
 ## [21.1.12]
 
 ### Added

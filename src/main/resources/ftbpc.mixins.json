@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "features.jerfix.BiomeHelperMixin",
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
     "features.performance.TagCollectorMixin",
