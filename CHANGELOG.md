@@ -1,5 +1,15 @@
 # Changelog
 
+## [21.1.15]
+
+### Added
+
+* FTB Team stages support for the action pad via the `team_unlocked_at` property in the actions data.
+
+### Fixed
+
+* Fixed an off by one calculation issue causing scrolling on a small list of actions in the action pad gui.
+
 ## [21.1.14]
 
 ### Added
