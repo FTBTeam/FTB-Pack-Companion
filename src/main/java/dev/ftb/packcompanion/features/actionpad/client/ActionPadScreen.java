@@ -39,7 +39,7 @@ public class ActionPadScreen extends AbstractButtonListScreen {
 
         setSize(
                 Mth.clamp(max, 150, getWindow().getGuiScaledWidth() * 3 / 4),
-                Mth.clamp(20 + getTopPanelHeight() + actions.size() * 20, 50, getWindow().getGuiScaledHeight() * 3 / 4)
+                Mth.clamp(20 + getTopPanelHeight() + (actions.size() + 1) * 20, 50, getWindow().getGuiScaledHeight() * 3 / 4)
         );
         return true;
     }

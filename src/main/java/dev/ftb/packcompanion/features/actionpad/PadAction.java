@@ -3,6 +3,7 @@ package dev.ftb.packcompanion.features.actionpad;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftblibrary.util.NetworkHelper;
 import dev.ftb.packcompanion.core.utils.ExtraCodecs;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -27,6 +28,7 @@ public record PadAction(
         String name,
         Icon icon,
         Optional<String> unlockedAt,
+        Optional<String> teamUnlockedAt,
         Optional<CommandAction> commandAction,
         Optional<TeleportAction> teleportAction,
         boolean autoclose
@@ -35,15 +37,17 @@ public record PadAction(
             Codec.STRING.fieldOf("name").forGetter(PadAction::name),
             Icon.CODEC.fieldOf("icon").forGetter(PadAction::icon),
             Codec.STRING.optionalFieldOf("unlocked_at").forGetter(PadAction::unlockedAt),
+            Codec.STRING.optionalFieldOf("team_unlocked_at").forGetter(PadAction::teamUnlockedAt),
             CommandAction.CODEC.optionalFieldOf("command_action").forGetter(PadAction::commandAction),
             TeleportAction.CODEC.optionalFieldOf("teleport_action").forGetter(PadAction::teleportAction),
             Codec.BOOL.optionalFieldOf("autoclose", true).forGetter(PadAction::autoclose)
     ).apply(builder, PadAction::new));
 
-    public static final StreamCodec<FriendlyByteBuf, PadAction> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<FriendlyByteBuf, PadAction> STREAM_CODEC = NetworkHelper.composite(
             ByteBufCodecs.STRING_UTF8, PadAction::name,
             Icon.STREAM_CODEC, PadAction::icon,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), PadAction::unlockedAt,
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), PadAction::teamUnlockedAt,
             ByteBufCodecs.optional(CommandAction.STREAM_CODEC), PadAction::commandAction,
             ByteBufCodecs.optional(TeleportAction.STREAM_CODEC), PadAction::teleportAction,
             ByteBufCodecs.BOOL, PadAction::autoclose,

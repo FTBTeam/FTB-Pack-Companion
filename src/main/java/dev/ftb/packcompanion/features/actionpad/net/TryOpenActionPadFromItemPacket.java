@@ -54,6 +54,6 @@ public enum TryOpenActionPadFromItemPacket implements CustomPacketPayload {
     }
 
     private static void sendOpenPacket(Player player, boolean playersOnline) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenActionPadPacket(PadActions.get().getUnlockedActions(player), playersOnline));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenActionPadPacket(PadActions.get().getUnlockedActions((ServerPlayer) player), playersOnline));
     }
 }
