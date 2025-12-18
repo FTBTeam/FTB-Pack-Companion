@@ -30,7 +30,7 @@ public class ActionPadItem extends Item {
                 hasPlayersOnline = true;
             }
 
-            PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenActionPadPacket(PadActions.get().getUnlockedActions(player), hasPlayersOnline));
+            PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenActionPadPacket(PadActions.get().getUnlockedActions((ServerPlayer) player), hasPlayersOnline));
         }
 
         return super.use(level, player, usedHand);

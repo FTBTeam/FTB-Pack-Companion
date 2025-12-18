@@ -3,10 +3,12 @@ package dev.ftb.packcompanion.features.actionpad;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
+import dev.ftb.packcompanion.integrations.teams.TeamsIntegration;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.loading.FMLPaths;
 import org.slf4j.Logger;
@@ -22,10 +24,10 @@ public class PadActions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PadActions.class);
     private static final List<PadAction> defaultDestination = List.of(
-            new PadAction("ftbpackcompanion.spawn", Icons.GLOBE, Optional.empty(), Optional.of(new PadAction.CommandAction(
+            new PadAction("ftbpackcompanion.spawn", Icons.GLOBE, Optional.empty(), Optional.empty(), Optional.of(new PadAction.CommandAction(
                     "/spawn", Commands.LEVEL_GAMEMASTERS, false
             )), Optional.empty(), true),
-            new PadAction("ftbpackcompanion.home", Icons.COMPASS, Optional.empty(), Optional.of(new PadAction.CommandAction(
+            new PadAction("ftbpackcompanion.home", Icons.COMPASS, Optional.empty(), Optional.empty(), Optional.of(new PadAction.CommandAction(
                     "/home", Commands.LEVEL_GAMEMASTERS, false
             )), Optional.empty(), true)
     );
@@ -81,22 +83,35 @@ public class PadActions {
         }
     }
 
-    public List<PadAction> getUnlockedActions(Player player) {
+    public List<PadAction> getUnlockedActions(ServerPlayer player) {
         List<PadAction> unlocked = new ArrayList<>();
         for (PadAction action : actions) {
-            if (action.unlockedAt().isEmpty()) {
+            // If no stage condition is required, always unlocked
+            if (action.unlockedAt().isEmpty() && action.teamUnlockedAt().isEmpty()) {
                 unlocked.add(action);
                 continue;
             }
 
-            if (StageHelper.getInstance().getProvider().has(player, action.unlockedAt().get())) {
-                unlocked.add(action);
+            // If the teams stage is present, check that first
+            if (action.teamUnlockedAt().isPresent()) {
+                if (TeamsIntegration.get().hasStage(player, action.teamUnlockedAt().get())) {
+                    unlocked.add(action);
+                    continue;
+                }
+            }
+
+            // Finally, check the normal stage condition
+            // Really, the dev should never enable both as that's messy but we don't enforce that
+            if (action.unlockedAt().isPresent()) {
+                if (StageHelper.getInstance().getProvider().has(player, action.unlockedAt().get())) {
+                    unlocked.add(action);
+                }
             }
         }
         return unlocked;
     }
 
     public Optional<PadAction> getAction(Player player, String actionName) {
-        return getUnlockedActions(player).stream().filter(a -> a.name().equals(actionName)).findFirst();
+        return getUnlockedActions((ServerPlayer) player).stream().filter(a -> a.name().equals(actionName)).findFirst();
     }
 }
