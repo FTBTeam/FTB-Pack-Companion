@@ -17,5 +17,6 @@
   "ftbpackcompanion.shaders_notice.title": "Would you like to use shaders?",
   "ftbpackcompanion.spawn": "Spawn",
   "ftbpackcompanion.tpa": "Request Teleport",
-  "item.ftbpc.action_pad": "Action Pad"
+  "item.ftbpc.action_pad": "Action Pad",
+  "item.ftbpc.structure_placer": "Structure Placer"
 }
