@@ -10,4 +10,4 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
 }
 
-rootProject.name = "ftb-pack-companion"
+rootProject.name = "ftb-pack-companion-20.1"
