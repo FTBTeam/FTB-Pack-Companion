@@ -1,4 +1,287 @@
 plugins {
+	id 'java-library'
+	id 'idea'
+	id 'maven-publish'
+	id 'net.neoforged.moddev.legacyforge' version '2.0.78'
+	id "me.modmuss50.mod-publish-plugin" version "0.8.3"
+}
+
+tasks.named('wrapper', Wrapper).configure {
+	distributionType = Wrapper.DistributionType.BIN
+}
+
+version = "${mod_version}"
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/changelog.gradle'
+apply from: "https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/publishing.gradle"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+legacyForge {
+	version = "${minecraft_version}-${forge_version}"
+
+    validateAccessTransformers = true
+
+	parchment {
+		mappingsVersion = project.parchment_mappings_version
+		minecraftVersion = project.parchment_minecraft_version.replace("\${mc_version}", minecraft_version)
+	}
+
+	runs {
+		configureEach {
+			systemProperty 'forge.logging.markers', 'REGISTRIES'
+			logLevel = org.slf4j.event.Level.DEBUG
+		}
+
+		client {
+			client()
+
+			// Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+			systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+		}
+
+		server {
+			server()
+			programArgument '--nogui'
+			systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+		}
+
+		gameTestServer {
+			type = "gameTestServer"
+			systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+		}
+
+		data {
+			data()
+			programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+		}
+	}
+
+	mods {
+		"${mod_id}" {
+			sourceSet(sourceSets.main)
+		}
+	}
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+// Sets up a dependency configuration called 'localRuntime'.
+// This configuration should be used instead of 'runtimeOnly' to declare
+// a dependency that will be present for runtime testing but that is
+// "optional", meaning it will not be pulled by dependents of this mod.
+configurations {
+	runtimeClasspath.extendsFrom localRuntime
+}
+
+repositories {
+	maven {
+		url = "https://maven.ftb.dev/releases"
+		content {
+			includeGroup("dev.ftb.mods")
+		}
+	}
+
+	maven {
+		url = "https://maven.ftb.dev/snapshots"
+		content {
+			includeGroup("dev.ftb.mods")
+		}
+	}
+
+	maven {
+		url = "https://maven.architectury.dev"
+		content {
+			includeGroup("dev.architectury")
+		}
+	}
+
+    maven {
+        name = 'tterrag maven'
+        url = 'https://maven.tterrag.com/'
+    }
+
+    maven {
+        name = "cursemaven"
+        url = "https://cursemaven.com/"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+        content {
+            includeGroup "mezz.jei"
+        }
+    }
+
+    maven {
+        name = "Create Maven"
+        url = "https://maven.createmod.net"
+    }
+
+    maven {
+        url 'https://maven.blamejared.com'
+        content {
+            includeGroup "net.darkhax.tips"
+            includeGroup "net.darkhax.bookshelf"
+        }
+    }
+
+    maven {
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
+}
+
+dependencies {
+    modImplementation "dev.ftb.mods:ftb-library-forge:${ftb_library_version}"
+    modRuntimeOnly "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+
+    modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    modRuntimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}") { transitive = false }
+    modRuntimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+
+    modCompileOnly "top.theillusivec4.curios:curios-forge:${curios_version}:api"
+    modRuntimeOnly "top.theillusivec4.curios:curios-forge:${curios_version}"
+
+    modCompileOnly("curse.maven:creeperhost-minetogether-267172:5075809")
+    modCompileOnly("curse.maven:poly-576589:5218944")
+
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-gui:${jei_version}")
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-core:${jei_version}") // Required for JER
+
+    modRuntimeOnly("curse.maven:jei-238222:${jei_runtime_version}")
+
+    modCompileOnly("net.darkhax.tips:Tips-Forge-${minecraft_version}:${tips_version}")
+    modRuntimeOnly("net.darkhax.bookshelf:Bookshelf-Forge-${minecraft_version}:${bs_version}")
+
+    modImplementation("curse.maven:jer-240630:5057220")
+
+    modImplementation("curse.maven:oculus-581495:${oculus_version}")
+    modRuntimeOnly("curse.maven:embeddium-908741:${embeddium}")
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin {
+    add sourceSets.main, "mixins.${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
+
+tasks.register("sourcesJar", Jar) {
+	archiveClassifier.set("sources")
+	from sourceSets.main.allJava
+}
+
+// Uncomment this if you want to create an API jar
+// tasks.register("apiJar", Jar) {
+// 	archiveClassifier.set("api")
+
+// 	from sourceSets.main.output
+
+// 	include 'dev/ftb/mods/{package_name}/api/**'
+// }
+
+tasks.named("jar") {
+	dependsOn("sourcesJar")
+	// Uncomment this if you want to create an API jar
+	// dependsOn("apiJar")
+
+    manifest.attributes([
+            "MixinConfigs": "${mod_id}.mixins.json"
+    ])
+}
+
+tasks.withType(ProcessResources).configureEach {
+	var replaceProperties = [
+		version: version,
+		mod_id: mod_id,
+		pack_format: pack_format,
+		loader_version_range: loader_version_range,
+	]
+
+	inputs.properties replaceProperties
+
+	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+		expand replaceProperties
+	}
+
+	// Copy in the repos license file
+	from(project.rootDir) {
+		include 'LICENSE.md'
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+idea {
+	module {
+		downloadSources = true
+		downloadJavadoc = true
+	}
+}
+
+publishMods {
+	def CFToken = providers.environmentVariable("CURSEFORGE_KEY");
+
+	dryRun = !CFToken.isPresent()
+	displayName = "[FORGE] FTB Pack Companion ${project.version}"
+	modLoaders.add("neoforge")
+
+	changelog = createChangelog(project)
+	file = jar.archiveFile
+	version = project.version // Pretty sure it defaults to this
+
+	def tag = providers.environmentVariable("TAG").getOrElse("release")
+	type = tag.endsWith("-beta") ? BETA : (tag.endsWith("-alpha") ? ALPHA : STABLE)
+
+	curseforge {
+		accessToken = CFToken.orElse("missing")
+		projectId = project.curseforge_id
+		minecraftVersions.add(project.minecraft_version)
+		javaVersions.add(JavaVersion.VERSION_21)
+	}
+}
+
+publishing {
+	publications {
+		register('mavenJava', MavenPublication) {
+			version = ftbPublishing.mavenVersion
+            artifactId = archives_base_name
+			from components.java
+			artifact sourcesJar
+			// Uncomment this if you want to create an API jar
+			// artifact apiJar
+		}
+	}
+
+	repositories {
+		if (ftbPublishing.ftbToken) {
+			maven {
+				url ftbPublishing.ftbURL
+				credentials {
+					username = ftbPublishing.ftbUser
+					password = ftbPublishing.ftbToken
+				}
+			}
+		}
+	}
+}
+
+/**
+plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.5-SNAPSHOT" apply false
 }
@@ -102,3 +385,4 @@ subprojects {
         }
     }
 }
+**/

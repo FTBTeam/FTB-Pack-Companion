@@ -1,14 +1,14 @@
-name: Java CI - Build on Push
+name: Build / Test
 
 on:
   push:
-    branches: [ main, dev, "1.*" ]
+    branches: [main, dev, "1.**"]
   workflow_dispatch:
     inputs:
       skip_maven_publish:
-        description: 'Skip Maven publishing'
+        description: "Skip Maven publishing"
         required: true
-        default: 'false'
+        default: "false"
 
 jobs:
   build:
@@ -18,6 +18,6 @@ jobs:
     with:
       curse-publish-task: ""
       maven-snapshots: true
+      java-version: 21
     secrets:
       ftb-maven-token: ${{ secrets.FTB_MAVEN_TOKEN }}
-      saps-token: ${{ secrets.SAPS_TOKEN }}
