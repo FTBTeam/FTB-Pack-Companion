@@ -5,12 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [20.1.3]
-
-### Fixed
-
-- Minor issue with the action pad's GUI not correctly calculating its height.
-
 ## [20.1.2]
 
 ### Added
@@ -22,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Shader notice, if shaders are on the pack, you can enable a notification to let users know and to opt-in to having shaders enabled
   - Trigger block, an invisible block that will trigger a Forge event when a player walks over it with a small delay to prevent spam
   - Ability to disable wandering traders from being able to use their invisibility potion on spawn
+  - 
+### Fixed
+
+- Minor issue with the action pad's GUI not correctly calculating its height.
 
 ## [2.3.0]
 
