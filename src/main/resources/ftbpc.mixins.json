@@ -11,6 +11,7 @@
     "features.singleplayerseed.WorldGenSettingsComponentMixin"
   ],
   "mixins": [
+    "features.accessor.StructureTemplateMixin",
     "features.performance.ReloadableServerResourcesMixin",
     "features.sparsestructures.RegistryDataLoaderMixin",
     "features.spawners.SpawnDataMixin",
