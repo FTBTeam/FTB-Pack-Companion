@@ -1,6 +1,5 @@
 package dev.ftb.packcompanion.features.structureplacer;
 
-import dev.ftb.packcompanion.features.structureplacer.client.PlacerItemConfigureScreen;
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,8 +27,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public class PlacerItem extends Item {
-    private static Map<ResourceLocation, @Nullable ProcessedStructureTemplate> clientStructureCache = new HashMap<>();
-    private static Set<ResourceLocation> requestedStructures = new HashSet<>();
+    private static final Map<ResourceLocation, @Nullable ProcessedStructureTemplate> clientStructureCache = new HashMap<>();
+    private static final Set<ResourceLocation> requestedStructures = new HashSet<>();
 
     public PlacerItem(Properties properties) {
         super(properties);
@@ -39,10 +38,6 @@ public class PlacerItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         var itemStack = player.getItemInHand(usedHand);
         if (level.isClientSide()) {
-            if (player.isShiftKeyDown()) {
-                new PlacerItemConfigureScreen(itemStack).openGuiLater();
-            }
-
             return InteractionResultHolder.pass(itemStack);
         }
 
@@ -60,6 +55,10 @@ public class PlacerItem extends Item {
             var shiftedPos = axisBasedBlockOffset(player, lookingAtPos, boundingBox);
 
             structure.placeInWorld((ServerLevelAccessor) level, shiftedPos, shiftedPos, settings, level.getRandom(), 2);
+
+            if (!player.isCreative()) {
+                itemStack.shrink(1);
+            }
         });
 
         return super.use(level, player, usedHand);

@@ -1,11 +1,8 @@
 package dev.ftb.packcompanion.features.structureplacer;
 
-import com.mojang.serialization.Codec;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.structureplacer.client.PlacerRender;
-import dev.ftb.packcompanion.features.structureplacer.network.GetStructureIdsPacket;
-import dev.ftb.packcompanion.features.structureplacer.network.ProvideStructureIdsPacket;
 import dev.ftb.packcompanion.features.structureplacer.network.ProvideStructurePacket;
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
 import net.minecraft.core.component.DataComponentType;
@@ -50,8 +47,6 @@ public class StructurePlacerFeature extends Feature.Common {
     public void registerPackets(PayloadRegistrar registrar) {
         registrar.playToServer(RequestStructurePacket.TYPE, RequestStructurePacket.STREAM_CODEC, RequestStructurePacket::handle);
         registrar.playToClient(ProvideStructurePacket.TYPE, ProvideStructurePacket.STREAM_CODEC, ProvideStructurePacket::handle);
-        registrar.playToServer(GetStructureIdsPacket.TYPE, GetStructureIdsPacket.STREAM_CODEC, GetStructureIdsPacket::handle);
-        registrar.playToClient(ProvideStructureIdsPacket.TYPE, ProvideStructureIdsPacket.STREAM_CODEC, ProvideStructureIdsPacket::handle);
     }
 
     @Override
