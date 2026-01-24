@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -41,17 +42,20 @@ public class PlacerRender {
         var itemInOffHand = player.getOffhandItem();
 
         PlacerItem placerItem = null;
+        ItemStack activeItem = ItemStack.EMPTY;
         if (itemInHand.getItem() instanceof PlacerItem) {
             placerItem = (PlacerItem) itemInHand.getItem();
+            activeItem = itemInHand;
         } else if (itemInOffHand.getItem() instanceof PlacerItem) {
             placerItem = (PlacerItem) itemInOffHand.getItem();
+            activeItem = itemInOffHand;
         }
 
         if (placerItem == null) {
             return;
         }
 
-        Optional<ProcessedStructureTemplate> structure = placerItem.getStructure(level);
+        Optional<ProcessedStructureTemplate> structure = placerItem.getStructureClient(activeItem, level);
         if (structure.isEmpty()) {
             return;
         }
@@ -81,24 +85,16 @@ public class PlacerRender {
         BoundingBox boundingBox = template.getBoundingBox(BlockPos.ZERO, rotation, BlockPos.ZERO, Mirror.NONE);
         var shiftedLookingAt = PlacerItem.axisBasedBlockOffset(player, lookingAtPos, boundingBox);
 
-        var canBuildHere = canBuild.get(shiftedLookingAt, (pos) -> {
-            var res = processedTemplate.getSolidBlockPositions().stream()
-                    .map(inputPos -> {
-                        var transformedPos = StructureTemplate.transform(inputPos, Mirror.NONE, rotation, BlockPos.ZERO)
-                                .offset(pos);
-                        return level.getBlockState(transformedPos);
-                    })
-                    .noneMatch(state -> {
-                        var r = !state.isAir() && !state.canBeReplaced();
-                        if (r) {
-                            System.out.println("Cannot build at " + pos + " because of block " + state);
-                        }
-                        return r;
-                    });
+        // Determine if we can build here
+        var canBuildHere = canBuild.get(shiftedLookingAt, (pos) -> processedTemplate.getSolidBlockPositions().stream()
+                .map(inputPos -> {
+                    var transformedPos = StructureTemplate.transform(inputPos, Mirror.NONE, rotation, BlockPos.ZERO)
+                            .offset(pos);
+                    return level.getBlockState(transformedPos);
+                })
+                .noneMatch(state -> !state.isAir() && !state.canBeReplaced()));
 
-            return res;
-        });
-
+        // Render the outline.
         LevelRenderer.renderVoxelShape(
                 event.getPoseStack(),
                 render,
@@ -126,7 +122,7 @@ public class PlacerRender {
                         info.state(),
                         poseStack,
                         source,
-                        LevelRenderer.getLightColor(level, info.pos()),
+                        LevelRenderer.getLightColor(level, pos),
                         OverlayTexture.NO_OVERLAY
                 );
 

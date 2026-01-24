@@ -2,17 +2,23 @@ package dev.ftb.packcompanion.features.structureplacer.network;
 
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.structureplacer.PlacerItem;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 // From client to server, handled on the server
 public record RequestStructurePacket(
@@ -45,7 +51,7 @@ public record RequestStructurePacket(
                 return Optional.of(compound);
             }).orElse(Optional.empty());
 
-            PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ProvideStructurePacket(structureCompound));
+            PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ProvideStructurePacket(packet.structureId, structureCompound));
         });
     }
 }
