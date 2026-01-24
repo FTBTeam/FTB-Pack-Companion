@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
@@ -61,10 +62,10 @@ public class SchematicPasteWorker {
                     null,
                     ResourceLocation.tryParse(c.getString("schematic")),
                     Either.right(ResourceLocation.tryParse(c.getString("dimensionId"))),
-                    NbtUtils.readBlockPos(c.getCompound("basePos")),
+                    NbtUtils.readBlockPos(c, "basePos").orElse(BlockPos.ZERO),
                     c.getInt("speed")
             );
-            worker.currentPos.set(NbtUtils.readBlockPos(c.getCompound("currentPos")).mutable());
+            worker.currentPos.set(NbtUtils.readBlockPos(c, "currentPos").orElse(BlockPos.ZERO).mutable());
             return Optional.of(worker);
         }
         return Optional.empty();
@@ -99,7 +100,7 @@ public class SchematicPasteWorker {
                 data.getBlockEntityDataAt(currentPos).ifPresent(beData -> {
                     BlockEntity be = level.getBlockEntity(destPos);
                     if (be != null) {
-                        be.load(beData);
+                        be.loadWithComponents(beData, server.registryAccess());
                     }
                 });
                 advanceCurrentPos();
@@ -127,7 +128,7 @@ public class SchematicPasteWorker {
         var fullLoc = location.withPath(p -> "schematics/" + p + ".schem");
         future = CompletableFuture.runAsync(() -> server.getResourceManager().getResource(fullLoc).ifPresentOrElse(resource -> {
             try (var in = resource.open()) {
-                CompoundTag schemTag = NbtIo.readCompressed(in);
+                CompoundTag schemTag = NbtIo.readCompressed(in, NbtAccounter.unlimitedHeap());
                 data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
                 state = State.PASTING;
             } catch (IOException e) {

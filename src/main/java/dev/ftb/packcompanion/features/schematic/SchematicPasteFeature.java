@@ -6,10 +6,10 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModContainer;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class SchematicPasteFeature extends Feature.Server {
 
     @Override
     public void onServerInit(MinecraftServer server) {
-        MinecraftForge.EVENT_BUS.addListener(this::onServerTick);
+        NeoForge.EVENT_BUS.addListener(this::onServerTick);
     }
 
     @Override
@@ -28,9 +28,7 @@ public class SchematicPasteFeature extends Feature.Server {
         return List.of(SchematicCommand.register());
     }
 
-    private void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            SchematicPasteManager.getInstance(event.getServer()).tick(event.getServer());
-        }
+    private void onServerTick(ServerTickEvent.Post event) {
+        SchematicPasteManager.getInstance(event.getServer()).tick(event.getServer());
     }
 }

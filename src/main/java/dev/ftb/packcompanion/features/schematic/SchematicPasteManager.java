@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -25,28 +26,16 @@ public class SchematicPasteManager extends SavedData {
     private static final String DATA_NAME = "ftb_schematic_paste";
     static final Logger LOGGER = LoggerFactory.getLogger(SchematicPasteManager.class);
 
-    private static ServerLevel overworld;
-
     private final Map<ResourceLocation,Map<ResourceLocation, SchematicPasteWorker>> workers = new ConcurrentHashMap<>();
 
     private SchematicPasteManager() {
     }
 
-    private static ServerLevel getOverworld(MinecraftServer server) {
-        if (overworld == null) {
-            overworld = server.getLevel(Level.OVERWORLD);
-            if (overworld == null) {
-                throw new IllegalStateException("Overworld not initialized!");
-            }
-        }
-        return overworld;
-    }
-
     public static SchematicPasteManager getInstance(MinecraftServer server) {
-        return getOverworld(server).getDataStorage().computeIfAbsent(SchematicPasteManager::load, SchematicPasteManager::new, DATA_NAME);
+        return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(SchematicPasteManager::new, SchematicPasteManager::load), DATA_NAME);
     }
 
-    private static SchematicPasteManager load(CompoundTag compoundTag) {
+    private static SchematicPasteManager load(CompoundTag compoundTag, HolderLookup.Provider provider) {
         return new SchematicPasteManager().readNBT(compoundTag);
     }
 
@@ -58,7 +47,7 @@ public class SchematicPasteManager extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag compoundTag) {
+    public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
         ListTag list = new ListTag();
         workers.forEach((dimId, map) -> map.values().forEach((v -> list.add(v.saveNBT()))));
         compoundTag.put("workers", list);
