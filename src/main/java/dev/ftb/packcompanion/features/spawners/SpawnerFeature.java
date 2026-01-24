@@ -326,7 +326,7 @@ public class SpawnerFeature extends Feature.Server {
         }
 
         public static DataStore create(MinecraftServer server) {
-            return server.getLevel(Level.OVERWORLD).getDataStorage()
+            return server.overworld().getDataStorage()
                     .computeIfAbsent(new SavedData.Factory<>(DataStore::new, DataStore::load, DataFixTypes.SAVED_DATA_COMMAND_STORAGE), "ftbpc-spawner-manager");
         }
 

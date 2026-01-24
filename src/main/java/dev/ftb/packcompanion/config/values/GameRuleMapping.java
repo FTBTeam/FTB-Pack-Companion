@@ -1,32 +1,18 @@
 package dev.ftb.packcompanion.config.values;
 
 import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
-import dev.ftb.mods.ftblibrary.snbt.config.BaseValue;
 import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class GameRuleMapping extends BaseValue<Map<String, Tag>> {
+public class GameRuleMapping extends AbstractMapValue<Tag> {
     public GameRuleMapping(@Nullable SNBTConfig c, String n, Map<String, Tag> def) {
         super(c, n, def);
-    }
-
-    @Override
-    public void write(SNBTCompoundTag compoundTag) {
-        SNBTCompoundTag tag = new SNBTCompoundTag();
-
-        for (Map.Entry<String, Tag> entry : get().entrySet()) {
-            tag.put(entry.getKey(), entry.getValue());
-        }
-
-        compoundTag.comment(this.key, "Mapping of game rule keys to their values. Boolean game rules are stored as byte tags (0 or 1), integer game rules are stored as int tags.");
-        compoundTag.put(this.key, tag);
     }
 
     @Override
@@ -53,22 +39,20 @@ public class GameRuleMapping extends BaseValue<Map<String, Tag>> {
             }
         }
 
-        Map<String, Tag> map = new HashMap<>();
-        for (String key : tag.getAllKeys()) {
-            Tag valueTag = tag.get(key);
-            if (valueTag == null) {
-                continue;
-            }
+        super.read(compoundTag);
+    }
 
-            if (valueTag.getId() == Tag.TAG_BYTE) {
-                map.put(key, valueTag);
-            } else if (valueTag.getId() == Tag.TAG_INT) {
-                map.put(key, valueTag);
-            } else {
-                throw new IllegalStateException("Invalid tag type for game rule key '" + key + "': " + valueTag.getId());
-            }
+    @Override
+    Tag readValue(Tag tag) {
+        if (tag.getId() == Tag.TAG_BYTE || tag.getId() == Tag.TAG_INT) {
+            return tag;
+        } else {
+            throw new IllegalStateException("Invalid tag type for game rule key '" + key + "': " + tag.getId());
         }
+    }
 
-        set(map);
+    @Override
+    Tag writeValue(Tag value) {
+        return value;
     }
 }
