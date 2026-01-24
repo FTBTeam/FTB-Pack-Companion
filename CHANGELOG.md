@@ -1,5 +1,15 @@
 # Changelog
 
+## [21.1.16]
+
+### Added
+
+- Force game modes per dimension. When the player moves to a dimension with a forced gamemode, their previous gamemode will be saved and their new gamemode will be applied. When the player leaves the dimension, their previous gamemode will be restored. If no previous gamemode is found, it will default to survival.
+  - Configurable via `dimension_forced_gamemodes` in the server config file.
+    - This is a mapping of dimension resource locations to gamemodes. This is the `GameType` enum.
+  - Commands to bypass forced gamemodes have been added `/ftbpc forcedgamemodes bypass <list|add|remove> <player>` to manage the bypass list.
+  - A command to force fix a player has been added `/ftbpc forcedgamemodes fixme`
+
 ## [21.1.15]
 
 ### Added
