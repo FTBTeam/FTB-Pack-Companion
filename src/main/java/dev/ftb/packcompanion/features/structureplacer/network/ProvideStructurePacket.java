@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -16,11 +17,13 @@ import java.util.Optional;
 
 // From server to client, handled on the client
 public record ProvideStructurePacket(
+        ResourceLocation id,
         Optional<CompoundTag> structure
 ) implements CustomPacketPayload {
     public static final Type<ProvideStructurePacket> TYPE = new Type<>(PackCompanion.id("provide_structure"));
 
     public static final StreamCodec<FriendlyByteBuf, ProvideStructurePacket> STREAM_CODEC = StreamCodec.composite(
+        ResourceLocation.STREAM_CODEC, ProvideStructurePacket::id,
         ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG), ProvideStructurePacket::structure,
         ProvideStructurePacket::new
     );
@@ -32,21 +35,22 @@ public record ProvideStructurePacket(
 
     public static void handle(ProvideStructurePacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
-            if (packet.structure().isEmpty()) {
-                System.out.println("Received empty structure in ProvideStructurePacket");
-                return;
-            }
-
             var player = context.player();
             var itemInSlot = player.getMainHandItem();
             if (!(itemInSlot.getItem() instanceof PlacerItem placerItem)) {
                 return; // ffs. stop changing slots you bit**
             }
 
+            ResourceLocation resourceLocation = packet.id;
+            if (packet.structure().isEmpty()) {
+                placerItem.failedToLoad(resourceLocation);
+                return;
+            }
+
             var parsedStructure = new StructureTemplate();
             parsedStructure.load(BuiltInRegistries.BLOCK.asLookup(), packet.structure().get());
 
-            placerItem.setStructure(new ProcessedStructureTemplate(parsedStructure));
+            placerItem.setStructure(new ProcessedStructureTemplate(resourceLocation, parsedStructure));
         });
     }
 }

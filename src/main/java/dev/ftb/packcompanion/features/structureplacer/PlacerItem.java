@@ -1,5 +1,6 @@
 package dev.ftb.packcompanion.features.structureplacer;
 
+import dev.ftb.packcompanion.features.structureplacer.client.PlacerItemConfigureScreen;
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,18 +16,20 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.Set;
 
 public class PlacerItem extends Item {
-    private final LoadedValue<ProcessedStructureTemplate> structure = new LoadedValue<>();
-    private boolean requestedStructure = false;
-
-    private ResourceLocation structureLocation = ResourceLocation.withDefaultNamespace("pillager_outpost/watchtower");
+    private static Map<ResourceLocation, @Nullable ProcessedStructureTemplate> clientStructureCache = new HashMap<>();
+    private static Set<ResourceLocation> requestedStructures = new HashSet<>();
 
     public PlacerItem(Properties properties) {
         super(properties);
@@ -34,17 +37,20 @@ public class PlacerItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        var itemStack = player.getItemInHand(usedHand);
         if (level.isClientSide()) {
-            return InteractionResultHolder.pass(player.getItemInHand(usedHand));
+            if (player.isShiftKeyDown()) {
+                new PlacerItemConfigureScreen(itemStack).openGuiLater();
+            }
+
+            return InteractionResultHolder.pass(itemStack);
         }
 
-        getStructure(level).ifPresent(processedStructure -> {
+        getStructureServer(itemStack, level).ifPresent(structure -> {
             var lookingAtPos = playerLookingAtPos(player);
             if (lookingAtPos == null) {
                 return;
             }
-
-            var structure = processedStructure.getHeldTemplate();
 
             Rotation rotation = rotationFromPlayerAxis(player);
             StructurePlaceSettings settings = new StructurePlaceSettings()
@@ -107,66 +113,57 @@ public class PlacerItem extends Item {
         return null;
     }
 
-    public Optional<ProcessedStructureTemplate> getStructure(Level level) {
-        if (requestedStructure) {
+    public Optional<StructureTemplate> getStructureServer(ItemStack itemStack, Level level) {
+        if (!(level instanceof ServerLevel)) {
+            throw new IllegalStateException("getStructureServer can only be called on the server side");
+        }
+
+        var structureId = getStructureIdFromItem(itemStack);
+        if (structureId == null) {
             return Optional.empty();
         }
 
-        if (!structure.isLoaded()) {
-            if (level instanceof ServerLevel) {
-                System.out.println("Loading structure directly from server: " + this.structureLocation);
-                structure.loadValue(() -> {
-                    var structure = ((ServerLevel) level).getStructureManager().get(this.structureLocation).orElse(null);
-                    if (structure == null) {
-                        return null;
-                    }
+        var structure = ((ServerLevel) level).getStructureManager().get(structureId).orElse(null);
+        return Optional.ofNullable(structure);
+    }
 
-                    return new ProcessedStructureTemplate(structure);
-                });
-            } else {
-                System.out.println("Requesting structure from server: " + this.structureLocation);
-                requestedStructure = true;
-                // Request structure from server
-                PacketDistributor.sendToServer(new RequestStructurePacket(this.structureLocation));
-            }
-
+    public Optional<ProcessedStructureTemplate> getStructureClient(ItemStack itemStack, Level level) {
+        var structureId = getStructureIdFromItem(itemStack);
+        if (structureId == null) {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(structure.getValue());
+        // Bypass ones that are loading.
+        if (requestedStructures.contains(structureId)) {
+            return Optional.empty();
+        }
+
+        if (clientStructureCache.containsKey(structureId)) {
+            return Optional.ofNullable(clientStructureCache.get(structureId));
+        }
+
+        // Ask to load structure
+        requestedStructures.add(structureId);
+        PacketDistributor.sendToServer(new RequestStructurePacket(structureId));
+        return Optional.empty();
     }
 
     public void setStructure(ProcessedStructureTemplate parsedStructure) {
-        this.structure.updateValue(parsedStructure);
-        if (this.requestedStructure) {
-            requestedStructure = false;
-        }
+        requestedStructures.remove(parsedStructure.getId());
+        clientStructureCache.put(parsedStructure.getId(), parsedStructure);
     }
 
-    private static class LoadedValue<T> {
-        public @Nullable T value = null;
-        public boolean loaded = false;
+    public void failedToLoad(ResourceLocation resourceLocation) {
+        clientStructureCache.put(resourceLocation, null);
+        requestedStructures.remove(resourceLocation);
+    }
 
-        public boolean isLoaded() {
-            return loaded;
-        }
+    @Nullable
+    public static ResourceLocation getStructureIdFromItem(ItemStack stack) {
+        return stack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT_TYPE.get());
+    }
 
-        public void loadValue(Supplier<T> supplier) {
-            if (!loaded) {
-                value = supplier.get();
-                loaded = true;
-            }
-
-            throw new IllegalStateException("Value already loaded");
-        }
-
-        public void updateValue(T newValue) {
-            this.value = newValue;
-            this.loaded = true;
-        }
-
-        public @Nullable T getValue() {
-            return value;
-        }
+    public static void setStructureId(ResourceLocation structureId, ItemStack stack) {
+        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT_TYPE.get(), structureId);
     }
 }
