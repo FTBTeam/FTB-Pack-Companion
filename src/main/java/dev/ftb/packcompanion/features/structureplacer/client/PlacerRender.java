@@ -99,7 +99,7 @@ public class PlacerRender {
                 event.getPoseStack(),
                 render,
                 Shapes.create(new AABB(boundingBox.minX(), boundingBox.minY(), boundingBox.minZ(),
-                        boundingBox.maxX(), boundingBox.maxY() + 1 , boundingBox.maxZ())),
+                        boundingBox.maxX() + 1, boundingBox.maxY() + 1 , boundingBox.maxZ() + 1)),
                 shiftedLookingAt.getX(), shiftedLookingAt.getY(),
                 shiftedLookingAt.getZ(),
                 canBuildHere ? 0.0f : 1f, canBuildHere ? 1.0f : 0f, 0.0f,
