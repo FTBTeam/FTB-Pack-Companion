@@ -32,7 +32,7 @@ public class SchematicPasteManager extends SavedData {
     private SchematicPasteManager() {
     }
 
-    private static ServerLevel getOverworld(MinecraftServer server) {
+    public static ServerLevel getOverworld(MinecraftServer server) {
         if (overworld == null) {
             overworld = server.getLevel(Level.OVERWORLD);
             if (overworld == null) {
