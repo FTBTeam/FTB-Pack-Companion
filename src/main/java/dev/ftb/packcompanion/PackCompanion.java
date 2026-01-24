@@ -10,6 +10,7 @@ import dev.ftb.packcompanion.features.forcedgamemodes.ForcedGameModesFeature;
 import dev.ftb.packcompanion.features.forcedgamerule.ForcedGameRulesFeature;
 import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
+import dev.ftb.packcompanion.features.schematic.SchematicPasteFeature;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
 import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
@@ -63,7 +64,8 @@ public class PackCompanion {
             TriggerBlockFeature::new,
             ActionPadFeature::new,
             ForcedGameRulesFeature::new,
-            ForcedGameModesFeature::new
+            ForcedGameModesFeature::new,
+            SchematicPasteFeature::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();
