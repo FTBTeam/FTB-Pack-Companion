@@ -6,7 +6,6 @@ import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.buffs.MobEntityBuffFeature;
-import dev.ftb.packcompanion.features.commandhistory.CommandHistoryFeature;
 import dev.ftb.packcompanion.features.forcedgamemodes.ForcedGameModesFeature;
 import dev.ftb.packcompanion.features.forcedgamerule.ForcedGameRulesFeature;
 import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;

@@ -137,8 +137,8 @@ dependencies {
     runtimeOnly "curse.maven:konkrete-410295:5453385"
     runtimeOnly "curse.maven:melody-938643:5453382"
 
-    implementation "curse.maven:irisshaders-455508:6661598"
-    implementation "curse.maven:embeddium-908741:6118392"
+    compileOnly "curse.maven:irisshaders-455508:6661598"
+    compileOnly "curse.maven:embeddium-908741:6118392"
 
     compileOnly "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
     localRuntime "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"

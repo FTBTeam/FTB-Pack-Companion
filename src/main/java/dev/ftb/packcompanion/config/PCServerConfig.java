@@ -1,14 +1,14 @@
 package dev.ftb.packcompanion.config;
 
+import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
-import dev.ftb.mods.ftblibrary.snbt.config.ConfigUtil;
 import dev.ftb.mods.ftblibrary.snbt.config.DoubleValue;
 import dev.ftb.mods.ftblibrary.snbt.config.IntValue;
 import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
 import dev.ftb.mods.ftblibrary.snbt.config.StringListValue;
-import dev.ftb.packcompanion.api.PackCompanionAPI;
+import dev.ftb.mods.ftblibrary.snbt.config.StringMapValue;
+import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.config.values.AbstractMapValue;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameType;
 
 import java.util.ArrayList;
@@ -51,9 +51,7 @@ public interface PCServerConfig {
     AbstractMapValue.CodecBased<GameType> DIMENSION_FORCED_GAMEMODES = CONFIG.add(new AbstractMapValue.CodecBased<>(
             CONFIG,
             "dimension_forced_gamemodes",
-            new HashMap<>(Map.of(
-                "ftb:test_dimension", GameType.CREATIVE
-            )),
+            new HashMap<>(),
             GameType.CODEC
     ).comment("A mapping of dimension IDs to forced game modes. Players entering the dimension will have their game mode changed accordingly."));
 

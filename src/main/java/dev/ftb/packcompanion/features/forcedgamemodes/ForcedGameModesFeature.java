@@ -20,10 +20,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModContainer;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class ForcedGameModesFeature extends Feature.Common {
     public ForcedGameModesFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
-        MinecraftForge.EVENT_BUS.addListener(this::onPlayerChangeDimension);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerChangeDimension);
     }
 
     @Override

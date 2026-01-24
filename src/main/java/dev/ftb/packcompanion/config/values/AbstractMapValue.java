@@ -63,14 +63,14 @@ public abstract class AbstractMapValue<T> extends BaseValue<Map<String, T>> {
 
         @Override
         T readValue(Tag tag) {
-            return this.codec.decode(NbtOps.INSTANCE, tag).getOrThrow(false, s -> {
+            return this.codec.decode(NbtOps.INSTANCE, tag).getOrThrow(s -> {
                 throw new IllegalStateException("Failed to decode value for key '" + key + "': " + s);
             }).getFirst();
         }
 
         @Override
         Tag writeValue(T value) {
-            return this.codec.encodeStart(NbtOps.INSTANCE, value).getOrThrow(false, s -> {
+            return this.codec.encodeStart(NbtOps.INSTANCE, value).getOrThrow(s -> {
                 throw new IllegalStateException("Failed to encode value for key '" + key + "': " + s);
             });
         }

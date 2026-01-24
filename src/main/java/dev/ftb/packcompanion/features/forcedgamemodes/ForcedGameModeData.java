@@ -1,10 +1,11 @@
 package dev.ftb.packcompanion.features.forcedgamemodes;
 
 import com.mojang.authlib.GameProfile;
-import dev.ftb.packcompanion.features.schematic.SchematicPasteManager;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.slf4j.Logger;
@@ -27,11 +28,13 @@ public class ForcedGameModeData extends SavedData {
     }
 
     public static ForcedGameModeData getInstance(MinecraftServer server) {
-        return SchematicPasteManager.getOverworld(server).getDataStorage().computeIfAbsent(ForcedGameModeData::load, ForcedGameModeData::new, DATA_NAME);
+        return server.overworld().getDataStorage().computeIfAbsent(
+                new SavedData.Factory<>(ForcedGameModeData::new, ForcedGameModeData::load, DataFixTypes.SAVED_DATA_COMMAND_STORAGE)
+                , DATA_NAME);
     }
 
-    private static ForcedGameModeData load(CompoundTag compoundTag) {
-        return new ForcedGameModeData().readNBT(compoundTag);
+    private static ForcedGameModeData load(CompoundTag tag, HolderLookup.Provider provider) {
+        return new ForcedGameModeData().readNBT(tag);
     }
 
     public Set<GameProfile> bypassPlayers() {
@@ -91,7 +94,7 @@ public class ForcedGameModeData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag compoundTag) {
+    public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
         var bypassList = new ListTag();
         for (var profile : bypassPlayers) {
             var tag = new CompoundTag();
