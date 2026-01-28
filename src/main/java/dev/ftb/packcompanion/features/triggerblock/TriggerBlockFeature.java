@@ -31,11 +31,20 @@ public class TriggerBlockFeature extends Feature.Common {
     public TriggerBlockFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
-        MinecraftForge.EVENT_BUS.addListener(this::onServerLevelTick);
+        MinecraftForge.EVENT_BUS.addListener(this::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(this::onClientTick);
     }
 
-    private void onServerLevelTick(TickEvent.ServerTickEvent event) {
-        TriggerBlockController.INSTANCE.onTick();
+    private void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            TriggerBlockController.getInstance(false).onTick();
+        }
+    }
+
+    private void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            TriggerBlockController.getInstance(true).onTick();
+        }
     }
 
     @Override
