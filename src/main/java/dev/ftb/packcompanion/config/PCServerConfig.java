@@ -1,10 +1,19 @@
 package dev.ftb.packcompanion.config;
 
-import dev.ftb.mods.ftblibrary.snbt.config.*;
+import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
+import dev.ftb.mods.ftblibrary.snbt.config.ConfigUtil;
+import dev.ftb.mods.ftblibrary.snbt.config.DoubleValue;
+import dev.ftb.mods.ftblibrary.snbt.config.IntValue;
+import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
+import dev.ftb.mods.ftblibrary.snbt.config.StringListValue;
 import dev.ftb.packcompanion.api.PackCompanionAPI;
+import dev.ftb.packcompanion.config.values.AbstractMapValue;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.GameType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public interface PCServerConfig {
     SNBTConfig CONFIG = SNBTConfig.create(PackCompanionAPI.MOD_ID + "-server");
@@ -28,6 +37,15 @@ public interface PCServerConfig {
     BooleanValue NO_WANDERING_TRADER_INVIS_POTIONS = VILLAGERS.addBoolean("no_wandering_trader_invis_potions", false)
             .comment("If true, Wandering Traders will no longer drink invisibility potions at night",
                     "(or milk buckets to remove their invisibility when it's day)");
+
+    AbstractMapValue.CodecBased<GameType> DIMENSION_FORCED_GAMEMODES = CONFIG.add(new AbstractMapValue.CodecBased<>(
+            CONFIG,
+            "dimension_forced_gamemodes",
+            new HashMap<>(Map.of(
+                "ftb:test_dimension", GameType.CREATIVE
+            )),
+            GameType.CODEC
+    ).comment("A mapping of dimension IDs to forced game modes. Players entering the dimension will have their game mode changed accordingly."));
 
     static void load(MinecraftServer server) {
         ConfigUtil.loadDefaulted(CONFIG, server.getWorldPath(ConfigUtil.SERVER_CONFIG_DIR), PackCompanionAPI.MOD_ID);
