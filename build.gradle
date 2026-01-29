@@ -153,11 +153,11 @@ dependencies {
 //    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
 //    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 
-    implementation "curse.maven:reliquified-twilight-forest-1186617:6880511"
-    implementation "curse.maven:the-twilight-forest-227639:7398100"
-    implementation "curse.maven:octo-lib-916747:6932487"
-    implementation "curse.maven:relics-mod-445274:7533442"
-    implementation "curse.maven:architectury-api-419699:5786327"
+    compileOnly "curse.maven:reliquified-twilight-forest-1186617:6880511"
+    runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
+    runtimeOnly "curse.maven:octo-lib-916747:6932487"
+    runtimeOnly "curse.maven:relics-mod-445274:7533442"
+    runtimeOnly "curse.maven:architectury-api-419699:5786327"
 }
 
 tasks.register("sourcesJar", Jar) {
