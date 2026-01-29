@@ -16,7 +16,8 @@
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
     "features.strongholdplacement.ChunkGeneratorStructureStateMixin",
-    "features.structurerotation.JigsawPlacementMixin"
+    "features.structurerotation.JigsawPlacementMixin",
+    "fixes.RTWFireflyQueenItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

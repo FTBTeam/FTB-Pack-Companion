@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.17]
+
+### Added
+
+- Added mixin to fix a bug with reliquified twilight forest firefly queen crashing players
+
 ## [21.1.16]
 
 ### Added
