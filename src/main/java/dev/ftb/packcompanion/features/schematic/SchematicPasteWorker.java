@@ -29,7 +29,8 @@ public class SchematicPasteWorker {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
     private final ResourceLocation location;
     private final BlockPos basePos;
-    private final int blocksPerTick;  // blocks per tick
+    private final int speed;  // blocks per tick, or total paste time
+    private final boolean perTick;
     private final BlockPos.MutableBlockPos currentPos;
     @Nullable
     private final CommandSourceStack sourceStack;
@@ -39,12 +40,14 @@ public class SchematicPasteWorker {
     private State state;
     private CompletableFuture<Void> future;
     private String terminationMessage = "";
+    private int blocksPerTick;
 
-    public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, ResourceLocation location, Either<ServerLevel,ResourceLocation> levelOrDimensionId, BlockPos basePos, int blocksPerTick) {
+    public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, ResourceLocation location, Either<ServerLevel,ResourceLocation> levelOrDimensionId, BlockPos basePos, int speed, boolean perTick) {
         this.sourceStack = sourceStack;
         this.location = location;
         this.basePos = basePos;
-        this.blocksPerTick = blocksPerTick;
+        this.speed = speed;
+        this.perTick = perTick;
         levelOrDimensionId
                 .ifLeft(level -> {
                     this.level = level;
@@ -62,8 +65,8 @@ public class SchematicPasteWorker {
                     ResourceLocation.tryParse(c.getString("schematic")),
                     Either.right(ResourceLocation.tryParse(c.getString("dimensionId"))),
                     NbtUtils.readBlockPos(c.getCompound("basePos")),
-                    c.getInt("speed")
-            );
+                    c.getInt("speed"),
+                    c.getBoolean("perTick"));
             worker.currentPos.set(NbtUtils.readBlockPos(c.getCompound("currentPos")).mutable());
             return Optional.of(worker);
         }
@@ -75,12 +78,13 @@ public class SchematicPasteWorker {
             tag.putString("schematic", location.toString());
             tag.putString("dimensionId", dimensionId.toString());
             tag.put("basePos", NbtUtils.writeBlockPos(basePos));
-            tag.putInt("speed", blocksPerTick);
+            tag.putInt("speed", speed);
             tag.put("currentPos", NbtUtils.writeBlockPos(currentPos));
+            if (perTick) tag.putBoolean("perTick", true);
         });
     }
 
-    public void tick(MinecraftServer server) {
+    public void tick(MinecraftServer server, int globalLimit) {
         if (state == State.INIT) {
             if (level == null) {
                 level = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
@@ -93,15 +97,19 @@ public class SchematicPasteWorker {
             state = State.LOADING;
             loadSchematicDataAsync(server);
         } else if (state == State.PASTING) {
-            for (int i = 0; i < blocksPerTick; i++) {
+            int pasted = 0;
+            while (pasted < blocksPerTick && pasted < globalLimit) {
                 BlockPos destPos = basePos.offset(currentPos);
-                level.setBlock(destPos, data.getBlockAt(currentPos, AIR_STATE), Block.UPDATE_CLIENTS);
-                data.getBlockEntityDataAt(currentPos).ifPresent(beData -> {
-                    BlockEntity be = level.getBlockEntity(destPos);
-                    if (be != null) {
-                        be.load(beData);
-                    }
-                });
+                // note: only count a block as pasted (for limit purposes) if it actually changed the level's blockstate
+                if (level.setBlock(destPos, data.getBlockAt(currentPos, AIR_STATE), Block.UPDATE_CLIENTS)) {
+                    data.getBlockEntityDataAt(currentPos).ifPresent(beData -> {
+                        BlockEntity be = level.getBlockEntity(destPos);
+                        if (be != null) {
+                            be.load(beData);
+                        }
+                    });
+                    pasted++;
+                }
                 advanceCurrentPos();
                 if (state == State.FINISHED) return;
             }
@@ -130,6 +138,7 @@ public class SchematicPasteWorker {
                 CompoundTag schemTag = NbtIo.readCompressed(in);
                 data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
                 state = State.PASTING;
+                blocksPerTick = perTick ? speed : data.getNonAirBlockCount() / speed;
             } catch (IOException e) {
                 SchematicPasteManager.LOGGER.error("can't open resource {}: {}", location, e.getMessage());
                 fail("Schematic %s can't be read: %s", location, e.getMessage());

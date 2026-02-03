@@ -4,20 +4,28 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class SchematicCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> register() {
@@ -25,15 +33,33 @@ public class SchematicCommand {
                 .requires(commandSource -> commandSource.hasPermission(2))
                 .then(Commands.literal("paste")
                         .then(Commands.argument("schematic", ResourceLocationArgument.id())
+                                .suggests(SchematicCommand::suggestSchematics)
                                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
-                                        .then(Commands.argument("blocks_per_tick", IntegerArgumentType.integer(1))
-                                                .executes(ctx -> doPaste(ctx,
-                                                        ResourceLocationArgument.getId(ctx, "schematic"),
-                                                        BlockPosArgument.getBlockPos(ctx, "pos"),
-                                                        IntegerArgumentType.getInteger(ctx, "blocks_per_tick"))
+                                        .then(Commands.argument("speed", IntegerArgumentType.integer(1))
+                                                .then(Commands.literal("per_tick")
+                                                        .executes(ctx -> doPaste(ctx,
+                                                                ResourceLocationArgument.getId(ctx, "schematic"),
+                                                                BlockPosArgument.getBlockPos(ctx, "pos"),
+                                                                IntegerArgumentType.getInteger(ctx, "speed"),
+                                                                true)
+                                                        )
+                                                )
+                                                .then(Commands.literal("ticks")
+                                                        .executes(ctx -> doPaste(ctx,
+                                                                ResourceLocationArgument.getId(ctx, "schematic"),
+                                                                BlockPosArgument.getBlockPos(ctx, "pos"),
+                                                                IntegerArgumentType.getInteger(ctx, "speed"),
+                                                                false)
+                                                        )
                                                 )
                                         )
                                 )
+                        )
+                )
+                .then(Commands.literal("info")
+                        .then(Commands.argument("schematic", ResourceLocationArgument.id())
+                                .suggests(SchematicCommand::suggestSchematics)
+                                .executes(ctx -> getSchematicInfo(ctx, ResourceLocationArgument.getId(ctx, "schematic")))
                         )
                 )
                 .then(Commands.literal("list")
@@ -48,14 +74,49 @@ public class SchematicCommand {
                 );
     }
 
-    private static int doPaste(CommandContext<CommandSourceStack> ctx, ResourceLocation schematic, BlockPos pos, int blocksPerTick) {
+    private static CompletableFuture<Suggestions> suggestSchematics(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
+        var map = ctx.getSource().getServer().getResourceManager().listResources(
+                "schematics", id -> id.getPath().endsWith(".schem")
+        );
+        return SharedSuggestionProvider.suggest(map.keySet().stream().map(SchematicCommand::stripSchematicId), builder);
+    }
+
+    private static String stripSchematicId(ResourceLocation id) {
+        return id.getNamespace() + ":" + id.getPath().replace("schematics/", "").replace(".schem", "");
+    }
+
+    private static int doPaste(CommandContext<CommandSourceStack> ctx, ResourceLocation schematic, BlockPos pos, int speed, boolean perTick) {
         SchematicPasteManager.getInstance(ctx.getSource().getServer())
-                .startPaste(ctx.getSource(), schematic, pos, blocksPerTick);
+                .startPaste(ctx.getSource(), schematic, pos, speed, perTick);
 
         ctx.getSource().sendSuccess(() -> Component.literal("Schematic paste started for " + schematic + " @ " + pos), false);
-        ctx.getSource().sendSuccess(() -> Component.literal("Paste speed: " + blocksPerTick + " blocks/tick"), false);
+        String s = perTick ? " blocks/tick": " ticks";
+        ctx.getSource().sendSuccess(() -> Component.literal("Paste speed: " + speed + s), false);
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static int getSchematicInfo(CommandContext<CommandSourceStack> ctx, ResourceLocation schematic) {
+        var fullLoc = schematic.withPath(p -> "schematics/" + p + ".schem");
+        var server = ctx.getSource().getServer();
+        return server.getResourceManager().getResource(fullLoc).map(resource -> {
+            try (var in = resource.open()) {
+                CompoundTag schemTag = NbtIo.readCompressed(in);
+                var data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
+                ctx.getSource().sendSuccess(() -> Component.literal(String.format("%s : %dx%dx%d = %,d blocks",
+                                schematic,
+                                data.getWidth(), data.getHeight(), data.getLength(),
+                                data.getWidth() * data.getHeight() * data.getLength()
+                        )),
+                        false
+                );
+                ctx.getSource().sendSuccess(() -> Component.literal(String.format("  (%,d non-air blocks)", data.getNonAirBlockCount())), false);
+                return Command.SINGLE_SUCCESS;
+            } catch (IOException e) {
+                ctx.getSource().sendFailure(Component.literal("can't load schematic " + schematic + ": " + e.getMessage()));
+                return 0;
+            }
+        }).orElse(0);
     }
 
     private static int listPastes(CommandContext<CommandSourceStack> ctx) {

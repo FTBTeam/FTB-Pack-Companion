@@ -21,6 +21,7 @@ class SchematicData {
     private final BlockState[][][] buffer;
     private final int height, length, width;
     private final Map<BlockPos, CompoundTag> blockEntityData = new HashMap<>();
+    private int nonAirBlockCount = 0;
 
     public static SchematicData load(HolderLookup.RegistryLookup<Block> lookup, CompoundTag tag) throws IOException {
         if (tag.contains("Schematic") && tag.getCompound("Schematic").getInt("Version") == 3) {
@@ -67,6 +68,10 @@ class SchematicData {
 
     public int getWidth() {
         return width;
+    }
+
+    public int getNonAirBlockCount() {
+        return nonAirBlockCount;
     }
 
     private void loadBlockEntityData(ListTag tag, String dataKey) {
@@ -123,6 +128,9 @@ class SchematicData {
             int x = (index % xyArea) % width;
             BlockState state = palette[value];
             buffer[x][y][z] = state;
+            if (!state.isAir()) {
+                nonAirBlockCount++;
+            }
 
             index++;
         }
