@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Creative mod pick block works: easy placement of multiple triggers with same ID
     - The triger ID is now also available to clientside event handlers (`event.getIdentifier()`)
 
+### Fixed
+- Fixed reobfuscation issues in published JAR
+
 ## [20.1.3]
 
 ### Added
