@@ -2,6 +2,7 @@ package dev.ftb.packcompanion.features.schematic;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import dev.ftb.packcompanion.config.PCServerConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -66,22 +67,27 @@ public class SchematicPasteManager extends SavedData {
     }
 
     public void tick(MinecraftServer server) {
-        workers.forEach((dimId, map) -> {
-            Set<ResourceLocation> toRemove = new HashSet<>();
-            map.forEach((key, worker) -> {
-                worker.tick(server);
-                if (worker.isDone()) {
-                    toRemove.add(key);
-                    worker.notifyTermination();
-                }
-                setDirty();
+        if (!workers.isEmpty()) {
+            int limit = PCServerConfig.GLOBAL_PASTE_LIMIT.get() == 0 ?
+                    Integer.MAX_VALUE :
+                    PCServerConfig.GLOBAL_PASTE_LIMIT.get() / workers.size();
+            workers.forEach((dimId, map) -> {
+                Set<ResourceLocation> toRemove = new HashSet<>();
+                map.forEach((key, worker) -> {
+                    worker.tick(server, limit);
+                    if (!worker.isRunning()) {
+                        toRemove.add(key);
+                        worker.notifyTermination();
+                    }
+                    setDirty();
+                });
+                toRemove.forEach(map::remove);
             });
-            toRemove.forEach(map::remove);
-        });
+        }
     }
 
-    public void startPaste(CommandSourceStack sourceStack, ResourceLocation location, BlockPos basePos, int blocksPerTick) {
-        addWorker(new SchematicPasteWorker(sourceStack, location, Either.left(sourceStack.getLevel()), basePos, blocksPerTick));
+    public void startPaste(CommandSourceStack sourceStack, ResourceLocation location, BlockPos basePos, int speed, boolean perTick) {
+        addWorker(new SchematicPasteWorker(sourceStack, location, Either.left(sourceStack.getLevel()), basePos, speed, perTick));
     }
 
     private void addWorker(SchematicPasteWorker worker) {

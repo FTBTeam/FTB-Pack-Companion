@@ -241,7 +241,7 @@ publishMods {
 	modLoaders.add("neoforge")
 
 	changelog = createChangelog(project)
-	file = jar.archiveFile
+	file = reobfJar.archiveFile
 	version = project.version // Pretty sure it defaults to this
 
 	def tag = providers.environmentVariable("TAG").getOrElse("release")

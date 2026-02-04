@@ -38,6 +38,11 @@ public interface PCServerConfig {
             .comment("If true, Wandering Traders will no longer drink invisibility potions at night",
                     "(or milk buckets to remove their invisibility when it's day)");
 
+    SNBTConfig SCHEMATICS = CONFIG.addGroup("schematics");
+    IntValue GLOBAL_PASTE_LIMIT = SCHEMATICS.addInt("global_paste_limit", 0)
+            .comment("Maximum number of blocks/tick that can be pasted, divided equally among all current paste workers",
+                    "A value of 0 indicates no limit");
+
     AbstractMapValue.CodecBased<GameType> DIMENSION_FORCED_GAMEMODES = CONFIG.add(new AbstractMapValue.CodecBased<>(
             CONFIG,
             "dimension_forced_gamemodes",
