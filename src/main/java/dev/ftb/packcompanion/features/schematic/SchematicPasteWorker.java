@@ -143,7 +143,7 @@ public class SchematicPasteWorker {
                 CompoundTag schemTag = NbtIo.readCompressed(in);
                 data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
                 state = State.PASTING;
-                blocksPerTick = perTick ? speed : data.getNonAirBlockCount() / speed;
+                blocksPerTick = perTick ? speed : data.getTotalBlockCount() / speed;
             } catch (IOException e) {
                 SchematicPasteManager.LOGGER.error("can't open resource {}: {}", location, e.getMessage());
                 fail("Schematic %s can't be read: %s", location, e.getMessage());
@@ -166,16 +166,17 @@ public class SchematicPasteWorker {
         return location.withSuffix("_" + basePos.getX() + "_" + basePos.getY() + "_" + basePos.getZ());
     }
 
-    public boolean isDone() {
-        return !state.running;
-    }
-
     public int getProgress() {
         if (data == null) return 0;
-        int size = data.getWidth() * data.getHeight() * data.getLength();
-        int c = currentPos.getX() + currentPos.getZ() * data.getWidth() + currentPos.getY() * data.getWidth() * data.getHeight();
+        int c = currentPos.getX()
+                + currentPos.getZ() * data.getWidth()
+                + currentPos.getY() * data.getWidth() * data.getHeight();
 
-        return c * 100 / size;
+        return c * 100 / data.getTotalBlockCount();
+    }
+
+    public boolean isRunning() {
+        return state.running;
     }
 
     public void cancel() {
@@ -184,10 +185,6 @@ public class SchematicPasteWorker {
         }
         state = State.CANCELLED;
         terminationMessage = "Cancelled";
-    }
-
-    public boolean isRunning() {
-        return state == State.INIT || state == State.LOADING || state == State.PASTING;
     }
 
     private void fail(String reason, Object... args) {

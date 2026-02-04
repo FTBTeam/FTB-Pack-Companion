@@ -75,7 +75,7 @@ public class SchematicPasteManager extends SavedData {
                 Set<ResourceLocation> toRemove = new HashSet<>();
                 map.forEach((key, worker) -> {
                     worker.tick(server, limit);
-                    if (worker.isDone()) {
+                    if (!worker.isRunning()) {
                         toRemove.add(key);
                         worker.notifyTermination();
                     }

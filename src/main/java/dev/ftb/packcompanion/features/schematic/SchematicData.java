@@ -74,6 +74,10 @@ class SchematicData {
         return nonAirBlockCount;
     }
 
+    public int getTotalBlockCount() {
+        return width * length * height;
+    }
+
     private void loadBlockEntityData(ListTag tag, String dataKey) {
         for (int i = 0; i < tag.size(); i++) {
             CompoundTag el = tag.getCompound(i);

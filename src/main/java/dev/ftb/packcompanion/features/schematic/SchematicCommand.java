@@ -106,7 +106,7 @@ public class SchematicCommand {
                 ctx.getSource().sendSuccess(() -> Component.literal(String.format("%s : %dx%dx%d = %,d blocks",
                                 schematic,
                                 data.getWidth(), data.getHeight(), data.getLength(),
-                                data.getWidth() * data.getHeight() * data.getLength()
+                                data.getTotalBlockCount()
                         )),
                         false
                 );
