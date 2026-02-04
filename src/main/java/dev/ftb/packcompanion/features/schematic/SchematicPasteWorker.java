@@ -103,9 +103,14 @@ public class SchematicPasteWorker {
                 // note: only count a block as pasted (for limit purposes) if it actually changed the level's blockstate
                 if (level.setBlock(destPos, data.getBlockAt(currentPos, AIR_STATE), Block.UPDATE_CLIENTS)) {
                     data.getBlockEntityDataAt(currentPos).ifPresent(beData -> {
-                        BlockEntity be = level.getBlockEntity(destPos);
-                        if (be != null) {
-                            be.load(beData);
+                        try {
+                            BlockEntity be = level.getBlockEntity(destPos);
+                            if (be != null) {
+                                be.load(beData);
+                            }
+                        } catch (Exception e) {
+                            SchematicPasteFeature.LOGGER.error("caught exception while loading block entity data at {}: {} / {}",
+                                    destPos, e.getClass().getName(), e.getMessage());
                         }
                     });
                     pasted++;

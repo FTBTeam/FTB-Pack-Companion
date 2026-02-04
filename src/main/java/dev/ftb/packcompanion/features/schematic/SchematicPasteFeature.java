@@ -10,10 +10,14 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class SchematicPasteFeature extends Feature.Server {
+    static final Logger LOGGER = LoggerFactory.getLogger(SchematicPasteFeature.class);
+
     public SchematicPasteFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
     }
