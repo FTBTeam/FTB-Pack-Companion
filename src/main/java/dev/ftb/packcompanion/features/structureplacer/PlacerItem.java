@@ -20,6 +20,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.Set;
 public class PlacerItem extends Item {
     private static final Map<ResourceLocation, @Nullable ProcessedStructureTemplate> clientStructureCache = new HashMap<>();
     private static final Set<ResourceLocation> requestedStructures = new HashSet<>();
+    private static final Map<ResourceLocation, Instant> requestTimestamps = new HashMap<>();
 
     public PlacerItem(Properties properties) {
         super(properties);
@@ -134,6 +136,12 @@ public class PlacerItem extends Item {
 
         // Bypass ones that are loading.
         if (requestedStructures.contains(structureId)) {
+            // Has the request timed out? (Give it a second)
+            var requestTime = requestTimestamps.get(structureId);
+            if (requestTime != null && Instant.now().isAfter(requestTime.plusSeconds(1))) {
+                requestedStructures.remove(structureId);
+                requestTimestamps.remove(structureId);
+            }
             return Optional.empty();
         }
 
@@ -142,7 +150,10 @@ public class PlacerItem extends Item {
         }
 
         // Ask to load structure
-        requestedStructures.add(structureId);
+        if (requestedStructures.add(structureId)) {
+            requestTimestamps.put(structureId, Instant.now());
+        }
+
         PacketDistributor.sendToServer(new RequestStructurePacket(structureId));
         return Optional.empty();
     }
