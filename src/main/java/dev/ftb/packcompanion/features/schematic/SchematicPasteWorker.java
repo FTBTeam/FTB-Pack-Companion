@@ -15,14 +15,16 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkStatus;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class SchematicPasteWorker {
@@ -41,6 +43,7 @@ public class SchematicPasteWorker {
     private CompletableFuture<Void> future;
     private String terminationMessage = "";
     private int blocksPerTick;
+    private Deque<ChunkPos> preloadNeeded;
 
     public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, ResourceLocation location, Either<ServerLevel,ResourceLocation> levelOrDimensionId, BlockPos basePos, int speed, boolean perTick) {
         this.sourceStack = sourceStack;
@@ -96,6 +99,28 @@ public class SchematicPasteWorker {
             }
             state = State.LOADING;
             loadSchematicDataAsync(server);
+        } else if (state == State.PRELOAD) {
+            if (preloadNeeded == null) {
+                // first tick of pregen: determine which affected chunks are not currently loaded
+                preloadNeeded = new ArrayDeque<>();
+                for (int x = basePos.getX(); x <= basePos.getX() + data.getWidth(); x += 16) {
+                    for (int z = basePos.getZ(); z <= basePos.getZ() + data.getLength(); z += 16) {
+                        ChunkPos cp = new ChunkPos(x >> 4, z >> 4);
+                        if (!level.hasChunk(cp.x, cp.z)) {
+                            preloadNeeded.addLast(cp);
+                        }
+                    }
+                }
+                SchematicPasteManager.LOGGER.info("need to load {} chunks", preloadNeeded.size());
+            } else if (preloadNeeded.isEmpty()) {
+                // done preloading!
+                state = State.PASTING;
+            } else {
+                // TODO might need to slow this down to every few ticks...?
+                // force chunk to load
+                ChunkPos cp = preloadNeeded.pop();
+                level.getChunk(cp.x, cp.z, ChunkStatus.FULL, true);
+            }
         } else if (state == State.PASTING) {
             int pasted = 0;
             while (pasted < blocksPerTick && pasted < globalLimit) {
@@ -142,7 +167,7 @@ public class SchematicPasteWorker {
             try (var in = resource.open()) {
                 CompoundTag schemTag = NbtIo.readCompressed(in);
                 data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
-                state = State.PASTING;
+                state = State.PRELOAD;
                 blocksPerTick = perTick ? speed : data.getTotalBlockCount() / speed;
             } catch (IOException e) {
                 SchematicPasteManager.LOGGER.error("can't open resource {}: {}", location, e.getMessage());
@@ -202,6 +227,7 @@ public class SchematicPasteWorker {
     public enum State {
         INIT(true),
         LOADING(true),
+        PRELOAD(true),
         PASTING(true),
         FAILED(false),
         FINISHED(false),
