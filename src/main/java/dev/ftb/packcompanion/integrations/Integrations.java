@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion.integrations;
 
 import dev.ftb.packcompanion.integrations.create.CreateIntegration;
+import dev.ftb.packcompanion.integrations.curios.CuriosIntegration;
 import dev.ftb.packcompanion.integrations.jei.JeiIntegration;
 import dev.ftb.packcompanion.integrations.minetogether.MineTogetherIntegration;
 import dev.ftb.packcompanion.integrations.tips.TipsIntegration;
@@ -23,6 +24,7 @@ public class Integrations {
     }
 
     public static void commonInit() {
+        loadIfModPresent("curios", () -> CuriosIntegration::init);
     }
 
     public static void onReload(ResourceManager manager) {

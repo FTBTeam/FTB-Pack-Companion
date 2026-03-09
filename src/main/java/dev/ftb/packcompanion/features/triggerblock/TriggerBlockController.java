@@ -5,16 +5,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public enum TriggerBlockController {
-    INSTANCE;
+public class TriggerBlockController {
+    private static final TriggerBlockController CLIENT_INSTANCE = new TriggerBlockController();
+    private static final TriggerBlockController SERVER_INSTANCE = new TriggerBlockController();
 
-    private final Map<TriggerId, Instant> playersInTriggers = Collections.synchronizedMap(new HashMap<>());
+    private final Map<TriggerId, Instant> playersInTriggers = new HashMap<>();
     private short tickTracker = 0; // Overflowing is intential. We only care about the first X numbers
+
+    public static TriggerBlockController getInstance(boolean client) {
+        return client ? CLIENT_INSTANCE : SERVER_INSTANCE;
+    }
 
     void onTick() {
         // Once a second, clean up old entries.
@@ -23,9 +27,10 @@ public enum TriggerBlockController {
         }
 
         var mapCopy = new HashMap<>(playersInTriggers);
+        Instant fiveSecondsAgo = Instant.now().minusSeconds(5);
         for (var entry : mapCopy.entrySet()) {
             // If the entry is older than 5 seconds, remove it.
-            if (entry.getValue().isBefore(Instant.now().minusSeconds(5))) {
+            if (entry.getValue().isBefore(fiveSecondsAgo)) {
                 playersInTriggers.remove(entry.getKey());
             }
         }
