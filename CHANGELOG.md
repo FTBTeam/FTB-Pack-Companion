@@ -5,12 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [20.1.5]
-
-### Fixed
-
-- Curios support not working for the Action pad
-
 ## [20.1.4]
 
 ### Added
@@ -22,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed reobfuscation issues in published JAR
+- Curios support not working for the Action pad
 
 ## [20.1.3]
 
