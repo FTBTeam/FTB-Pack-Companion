@@ -39,11 +39,12 @@ public class SchematicPasteWorker {
     private ResourceLocation dimensionId;
     private ServerLevel level;
     private SchematicData data;
-    private State state;
+    private volatile State state;
     private CompletableFuture<Void> future;
     private String terminationMessage = "";
     private int blocksPerTick;
     private Deque<ChunkPos> preloadNeeded;
+    private final Set<ChunkPos> forcedChunks = new HashSet<>();
 
     public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, ResourceLocation location, Either<ServerLevel,ResourceLocation> levelOrDimensionId, BlockPos basePos, int speed, boolean perTick) {
         this.sourceStack = sourceStack;
@@ -116,10 +117,14 @@ public class SchematicPasteWorker {
                 // done preloading!
                 state = State.PASTING;
             } else {
-                // TODO might need to slow this down to every few ticks...?
-                // force chunk to load
-                ChunkPos cp = preloadNeeded.pop();
-                level.getChunk(cp.x, cp.z, ChunkStatus.FULL, true);
+                // non-blocking: force-load the chunk and poll until it's ready
+                ChunkPos cp = preloadNeeded.peek();
+                if (level.hasChunk(cp.x, cp.z)) {
+                    preloadNeeded.pop();
+                } else if (forcedChunks.add(cp)) {
+                    level.setChunkForced(cp.x, cp.z, true);
+                }
+                // chunk will be loaded asynchronously by the chunk system; check again next tick
             }
         } else if (state == State.PASTING) {
             int pasted = 0;
@@ -156,6 +161,7 @@ public class SchematicPasteWorker {
                 currentPos.move(Direction.UP); // pos Y
                 if (currentPos.getY() >= data.getHeight() || currentPos.getY() >= level.getMaxBuildHeight()) {
                     state = State.FINISHED;
+                    releaseForcedChunks();
                 }
             }
         }
@@ -167,8 +173,8 @@ public class SchematicPasteWorker {
             try (var in = resource.open()) {
                 CompoundTag schemTag = NbtIo.readCompressed(in);
                 data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
-                state = State.PRELOAD;
                 blocksPerTick = perTick ? speed : data.getTotalBlockCount() / speed;
+                state = State.PRELOAD; // volatile write — must be AFTER data & blocksPerTick are set
             } catch (IOException e) {
                 SchematicPasteManager.LOGGER.error("can't open resource {}: {}", location, e.getMessage());
                 fail("Schematic %s can't be read: %s", location, e.getMessage());
@@ -210,11 +216,22 @@ public class SchematicPasteWorker {
         }
         state = State.CANCELLED;
         terminationMessage = "Cancelled";
+        releaseForcedChunks();
     }
 
     private void fail(String reason, Object... args) {
         state = State.FAILED;
         terminationMessage = String.format(reason, args);
+        releaseForcedChunks();
+    }
+
+    private void releaseForcedChunks() {
+        if (level != null) {
+            for (ChunkPos cp : forcedChunks) {
+                level.setChunkForced(cp.x, cp.z, false);
+            }
+        }
+        forcedChunks.clear();
     }
 
     public void notifyTermination() {
