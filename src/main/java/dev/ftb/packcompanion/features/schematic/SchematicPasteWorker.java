@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Either;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -20,7 +19,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkStatus;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -31,7 +29,7 @@ public class SchematicPasteWorker {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
     private final ResourceLocation location;
     private final BlockPos basePos;
-    private final int speed;  // blocks per tick, or total paste time
+    private final int speed;
     private final boolean perTick;
     private final BlockPos.MutableBlockPos currentPos;
     @Nullable
@@ -43,7 +41,10 @@ public class SchematicPasteWorker {
     private CompletableFuture<Void> future;
     private String terminationMessage = "";
     private int blocksPerTick;
-    private Deque<ChunkPos> preloadNeeded;
+    private Deque<ChunkPos> chunkQueue;
+    private int completedChunks;
+    private int totalChunks;
+    private int chunkMinSX, chunkMaxSX, chunkMinSZ, chunkMaxSZ;
     private final Set<ChunkPos> forcedChunks = new HashSet<>();
 
     public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, ResourceLocation location, Either<ServerLevel,ResourceLocation> levelOrDimensionId, BlockPos basePos, int speed, boolean perTick) {
@@ -71,7 +72,7 @@ public class SchematicPasteWorker {
                     NbtUtils.readBlockPos(c.getCompound("basePos")),
                     c.getInt("speed"),
                     c.getBoolean("perTick"));
-            worker.currentPos.set(NbtUtils.readBlockPos(c.getCompound("currentPos")).mutable());
+            worker.completedChunks = c.getInt("completedChunks");
             return Optional.of(worker);
         }
         return Optional.empty();
@@ -83,7 +84,7 @@ public class SchematicPasteWorker {
             tag.putString("dimensionId", dimensionId.toString());
             tag.put("basePos", NbtUtils.writeBlockPos(basePos));
             tag.putInt("speed", speed);
-            tag.put("currentPos", NbtUtils.writeBlockPos(currentPos));
+            tag.putInt("completedChunks", completedChunks);
             if (perTick) tag.putBoolean("perTick", true);
         });
     }
@@ -101,36 +102,38 @@ public class SchematicPasteWorker {
             state = State.LOADING;
             loadSchematicDataAsync(server);
         } else if (state == State.PRELOAD) {
-            if (preloadNeeded == null) {
-                // first tick of pregen: determine which affected chunks are not currently loaded
-                preloadNeeded = new ArrayDeque<>();
-                for (int x = basePos.getX(); x <= basePos.getX() + data.getWidth(); x += 16) {
-                    for (int z = basePos.getZ(); z <= basePos.getZ() + data.getLength(); z += 16) {
-                        ChunkPos cp = new ChunkPos(x >> 4, z >> 4);
-                        if (!level.hasChunk(cp.x, cp.z)) {
-                            preloadNeeded.addLast(cp);
-                        }
+            if (chunkQueue == null) {
+                chunkQueue = new ArrayDeque<>();
+                int minCX = basePos.getX() >> 4;
+                int maxCX = (basePos.getX() + data.getWidth() - 1) >> 4;
+                int minCZ = basePos.getZ() >> 4;
+                int maxCZ = (basePos.getZ() + data.getLength() - 1) >> 4;
+                for (int cx = minCX; cx <= maxCX; cx++) {
+                    for (int cz = minCZ; cz <= maxCZ; cz++) {
+                        chunkQueue.addLast(new ChunkPos(cx, cz));
                     }
                 }
-                SchematicPasteManager.LOGGER.info("need to load {} chunks", preloadNeeded.size());
-            } else if (preloadNeeded.isEmpty()) {
-                // done preloading!
-                state = State.PASTING;
-            } else {
-                // non-blocking: force-load the chunk and poll until it's ready
-                ChunkPos cp = preloadNeeded.peek();
-                if (level.hasChunk(cp.x, cp.z)) {
-                    preloadNeeded.pop();
-                } else if (forcedChunks.add(cp)) {
-                    level.setChunkForced(cp.x, cp.z, true);
+                totalChunks = chunkQueue.size();
+                for (int i = 0; i < completedChunks && !chunkQueue.isEmpty(); i++) {
+                    chunkQueue.pollFirst();
                 }
-                // chunk will be loaded asynchronously by the chunk system; check again next tick
+                SchematicPasteManager.LOGGER.info("schematic covers {} chunks, {} remaining", totalChunks, chunkQueue.size());
+            }
+            if (chunkQueue.isEmpty()) {
+                state = State.FINISHED;
+                return;
+            }
+            ChunkPos cp = chunkQueue.peek();
+            if (level.hasChunk(cp.x, cp.z)) {
+                beginPastingChunk(cp);
+                state = State.PASTING;
+            } else if (forcedChunks.add(cp)) {
+                level.setChunkForced(cp.x, cp.z, true);
             }
         } else if (state == State.PASTING) {
             int pasted = 0;
             while (pasted < blocksPerTick && pasted < globalLimit) {
                 BlockPos destPos = basePos.offset(currentPos);
-                // note: only count a block as pasted (for limit purposes) if it actually changed the level's blockstate
                 if (level.setBlock(destPos, data.getBlockAt(currentPos, AIR_STATE), Block.UPDATE_CLIENTS)) {
                     data.getBlockEntityDataAt(currentPos).ifPresent(beData -> {
                         try {
@@ -145,25 +148,53 @@ public class SchematicPasteWorker {
                     });
                     pasted++;
                 }
-                advanceCurrentPos();
-                if (state == State.FINISHED) return;
+                if (!advanceWithinChunk()) {
+                    finishCurrentChunk();
+                    if (chunkQueue.isEmpty()) {
+                        state = State.FINISHED;
+                    } else {
+                        state = State.PRELOAD;
+                    }
+                    return;
+                }
             }
         }
     }
 
-    private void advanceCurrentPos() {
-        currentPos.move(Direction.EAST); // pos X
-        if (currentPos.getX() >= data.getWidth()) {
-            currentPos.setX(0);
-            currentPos.move(Direction.SOUTH); // pos Z
-            if (currentPos.getZ() >= data.getLength()) {
-                currentPos.setZ(0);
-                currentPos.move(Direction.UP); // pos Y
-                if (currentPos.getY() >= data.getHeight() || currentPos.getY() >= level.getMaxBuildHeight()) {
-                    state = State.FINISHED;
+    private void beginPastingChunk(ChunkPos cp) {
+        chunkMinSX = Math.max(0, cp.x * 16 - basePos.getX());
+        chunkMaxSX = Math.min(data.getWidth() - 1, cp.x * 16 + 15 - basePos.getX());
+        chunkMinSZ = Math.max(0, cp.z * 16 - basePos.getZ());
+        chunkMaxSZ = Math.min(data.getLength() - 1, cp.z * 16 + 15 - basePos.getZ());
+        currentPos.set(chunkMinSX, 0, chunkMinSZ);
+    }
+
+    private boolean advanceWithinChunk() {
+        int x = currentPos.getX() + 1;
+        if (x > chunkMaxSX) {
+            x = chunkMinSX;
+            int z = currentPos.getZ() + 1;
+            if (z > chunkMaxSZ) {
+                int y = currentPos.getY() + 1;
+                if (y >= data.getHeight() || basePos.getY() + y >= level.getMaxBuildHeight()) {
+                    return false;
                 }
+                currentPos.set(x, y, chunkMinSZ);
+                return true;
             }
+            currentPos.set(x, currentPos.getY(), z);
+            return true;
         }
+        currentPos.set(x, currentPos.getY(), currentPos.getZ());
+        return true;
+    }
+
+    private void finishCurrentChunk() {
+        ChunkPos cp = chunkQueue.pollFirst();
+        if (cp != null && forcedChunks.remove(cp)) {
+            level.setChunkForced(cp.x, cp.z, false);
+        }
+        completedChunks++;
     }
 
     private void loadSchematicDataAsync(MinecraftServer server) {
@@ -173,7 +204,7 @@ public class SchematicPasteWorker {
                 CompoundTag schemTag = NbtIo.readCompressed(in);
                 data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
                 blocksPerTick = perTick ? speed : data.getTotalBlockCount() / speed;
-                state = State.PRELOAD; // volatile write — must be AFTER data & blocksPerTick are set
+                state = State.PRELOAD;
             } catch (IOException e) {
                 SchematicPasteManager.LOGGER.error("can't open resource {}: {}", location, e.getMessage());
                 fail("Schematic %s can't be read: %s", location, e.getMessage());
@@ -197,12 +228,8 @@ public class SchematicPasteWorker {
     }
 
     public int getProgress() {
-        if (data == null) return 0;
-        int c = currentPos.getX()
-                + currentPos.getZ() * data.getWidth()
-                + currentPos.getY() * data.getWidth() * data.getHeight();
-
-        return c * 100 / data.getTotalBlockCount();
+        if (totalChunks == 0) return data != null ? 100 : 0;
+        return completedChunks * 100 / totalChunks;
     }
 
     public boolean isRunning() {
