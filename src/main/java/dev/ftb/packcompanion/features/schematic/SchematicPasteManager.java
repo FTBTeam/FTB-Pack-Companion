@@ -77,7 +77,7 @@ public class SchematicPasteManager extends SavedData {
                     worker.tick(server, limit);
                     if (!worker.isRunning()) {
                         toRemove.add(key);
-                        worker.notifyTermination();
+                        worker.cleanup();
                     }
                     setDirty();
                 });

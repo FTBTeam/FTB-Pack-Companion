@@ -161,7 +161,6 @@ public class SchematicPasteWorker {
                 currentPos.move(Direction.UP); // pos Y
                 if (currentPos.getY() >= data.getHeight() || currentPos.getY() >= level.getMaxBuildHeight()) {
                     state = State.FINISHED;
-                    releaseForcedChunks();
                 }
             }
         }
@@ -216,13 +215,11 @@ public class SchematicPasteWorker {
         }
         state = State.CANCELLED;
         terminationMessage = "Cancelled";
-        releaseForcedChunks();
     }
 
     private void fail(String reason, Object... args) {
         state = State.FAILED;
         terminationMessage = String.format(reason, args);
-        releaseForcedChunks();
     }
 
     private void releaseForcedChunks() {
@@ -234,7 +231,9 @@ public class SchematicPasteWorker {
         forcedChunks.clear();
     }
 
-    public void notifyTermination() {
+    public void cleanup() {
+        releaseForcedChunks();
+
         if (sourceStack != null && !terminationMessage.isEmpty()) {
             sourceStack.sendFailure(Component.literal("Paste of " + location + " in " + dimensionId + " @ " + basePos + " terminated"));
             sourceStack.sendFailure(Component.literal(" - " + terminationMessage));
