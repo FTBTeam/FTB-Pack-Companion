@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -15,10 +16,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -191,10 +197,60 @@ public class SchematicPasteWorker {
 
     private void finishCurrentChunk() {
         ChunkPos cp = chunkQueue.pollFirst();
-        if (cp != null && forcedChunks.remove(cp)) {
-            level.setChunkForced(cp.x, cp.z, false);
+        if (cp != null) {
+            applyBiomesForChunk(cp);
+            if (forcedChunks.remove(cp)) {
+                level.setChunkForced(cp.x, cp.z, false);
+            }
         }
         completedChunks++;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void applyBiomesForChunk(ChunkPos cp) {
+        if (!data.hasBiomeData()) return;
+
+        LevelChunk chunk = level.getChunk(cp.x, cp.z);
+        boolean modified = false;
+
+        int minWX = Math.max(basePos.getX(), cp.getMinBlockX());
+        int maxWX = Math.min(basePos.getX() + data.getWidth() - 1, cp.getMaxBlockX());
+        int minWZ = Math.max(basePos.getZ(), cp.getMinBlockZ());
+        int maxWZ = Math.min(basePos.getZ() + data.getLength() - 1, cp.getMaxBlockZ());
+        int minWY = basePos.getY();
+        int maxWY = Math.min(basePos.getY() + data.getHeight() - 1, level.getMaxBuildHeight() - 1);
+
+        int minBX = minWX >> 2, maxBX = maxWX >> 2;
+        int minBY = minWY >> 2, maxBY = maxWY >> 2;
+        int minBZ = minWZ >> 2, maxBZ = maxWZ >> 2;
+
+        for (int wby = minBY; wby <= maxBY; wby++) {
+            int wy = wby << 2;
+            int sectionIndex = chunk.getSectionIndex(wy);
+            if (sectionIndex < 0 || sectionIndex >= chunk.getSectionsCount()) continue;
+            LevelChunkSection section = chunk.getSection(sectionIndex);
+            PalettedContainer<Holder<Biome>> biomeContainer =
+                    (PalettedContainer<Holder<Biome>>) (Object) section.getBiomes();
+
+            for (int wbz = minBZ; wbz <= maxBZ; wbz++) {
+                for (int wbx = minBX; wbx <= maxBX; wbx++) {
+                    int sx = Math.max(0, Math.min((wbx << 2) - basePos.getX(), data.getWidth() - 1));
+                    int sy = Math.max(0, Math.min((wby << 2) - basePos.getY(), data.getHeight() - 1));
+                    int sz = Math.max(0, Math.min((wbz << 2) - basePos.getZ(), data.getLength() - 1));
+
+                    Holder<Biome> biome = data.getBiomeAtCell(sx >> 2, sy >> 2, sz >> 2);
+                    if (biome != null) {
+                        biomeContainer.getAndSet(wbx & 3, (wy & 15) >> 2, wbz & 3, biome);
+                        modified = true;
+                    }
+                }
+            }
+        }
+
+        if (modified) {
+            chunk.setUnsaved(true);
+            level.getChunkSource().chunkMap.resendBiomesForChunks(List.<ChunkAccess>of(chunk));
+        }
     }
 
     private void loadSchematicDataAsync(MinecraftServer server) {
@@ -202,7 +258,7 @@ public class SchematicPasteWorker {
         future = CompletableFuture.runAsync(() -> server.getResourceManager().getResource(fullLoc).ifPresentOrElse(resource -> {
             try (var in = resource.open()) {
                 CompoundTag schemTag = NbtIo.readCompressed(in);
-                data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
+                data = SchematicData.load(server.registryAccess(), schemTag);
                 blocksPerTick = perTick ? speed : data.getTotalBlockCount() / speed;
                 state = State.PRELOAD;
             } catch (IOException e) {
