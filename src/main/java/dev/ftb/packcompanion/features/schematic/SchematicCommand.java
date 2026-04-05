@@ -13,7 +13,6 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.ClickEvent;
@@ -102,7 +101,7 @@ public class SchematicCommand {
         return server.getResourceManager().getResource(fullLoc).map(resource -> {
             try (var in = resource.open()) {
                 CompoundTag schemTag = NbtIo.readCompressed(in);
-                var data = SchematicData.load(server.registryAccess().lookupOrThrow(Registries.BLOCK), schemTag);
+                var data = SchematicData.load(server.registryAccess(), schemTag);
                 ctx.getSource().sendSuccess(() -> Component.literal(String.format("%s : %dx%dx%d = %,d blocks",
                                 schematic,
                                 data.getWidth(), data.getHeight(), data.getLength(),
@@ -111,6 +110,7 @@ public class SchematicCommand {
                         false
                 );
                 ctx.getSource().sendSuccess(() -> Component.literal(String.format("  (%,d non-air blocks)", data.getNonAirBlockCount())), false);
+                ctx.getSource().sendSuccess(() -> Component.literal("  Biome data: " + (data.hasBiomeData() ? "yes" : "no")), false);
                 return Command.SINGLE_SUCCESS;
             } catch (IOException e) {
                 ctx.getSource().sendFailure(Component.literal("can't load schematic " + schematic + ": " + e.getMessage()));
