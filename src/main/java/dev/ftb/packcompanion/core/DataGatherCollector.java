@@ -1,11 +1,10 @@
 package dev.ftb.packcompanion.core;
 
 import dev.ftb.packcompanion.PackCompanionDataGen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
@@ -66,13 +65,13 @@ public class DataGatherCollector {
         }
 
         public void addBlock(DeferredHolder<Block, ? extends Block> blockHolder, String name) {
-            ResourceLocation resourceKey = blockHolder.getKey().location();
+            Identifier resourceKey = blockHolder.getKey().identifier();
             String key = "block." + resourceKey.getNamespace() + "." + resourceKey.getPath();
             add(key, name);
         }
 
         public void addItem(DeferredHolder<Item, ? extends Item> item, String value) {
-            ResourceLocation resourceKey = item.getKey().location();
+            Identifier resourceKey = item.getKey().identifier();
             String key = "item." + resourceKey.getNamespace() + "." + resourceKey.getPath();
             add(key, value);
         }

@@ -2,35 +2,30 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.78'
-    id "me.modmuss50.mod-publish-plugin" version "0.8.3"
+    alias(libs.plugins.moddev)
+    alias(libs.plugins.modpublish)
 }
 
 tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-def mcMinorAndPatch = getMinorAndPatchFromMc()
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/maven.gradle'
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/publishing-2.gradle'
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/utils.gradle'
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/changelog.gradle'
 
-version = "${mcMinorAndPatch}.${mod_version}"
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+version = createModVersion(project)
 group = project.maven_group
 
 base {
     archivesName = project.archives_base_name
 }
 
-apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/changelog.gradle'
-apply from: "https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/publishing.gradle"
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
 neoForge {
-    version = "${mcMinorAndPatch}.${neo_version}"
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version.replace("\${mc_version}", minecraft_version)
-    }
+    version = "${libs.versions.neoforge.get()}"
 
     runs {
         configureEach {
@@ -57,7 +52,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
     }
@@ -80,33 +75,7 @@ configurations {
 }
 
 repositories {
-    maven {
-        url = "https://maven.ftb.dev/releases"
-        content {
-            includeGroup("dev.ftb.mods")
-        }
-    }
-
-    maven {
-        url = "https://maven.ftb.dev/snapshots"
-        content {
-            includeGroup("dev.ftb.mods")
-        }
-    }
-
-    maven {
-        url = "https://cursemaven.com"
-        content {
-            includeGroup("curse.maven")
-        }
-    }
-
-    maven {
-        url = "https://maven.architectury.dev/"
-        content {
-            includeGroup("dev.architectury")
-        }
-    }
+    commonMavenRepos(repositories)
 
     maven {
         url "https://maven.latvian.dev/releases"
@@ -116,13 +85,12 @@ repositories {
         }
     }
 
-
-    maven {
-        url 'https://jitpack.io'
-        content {
-            includeGroup "com.github.rtyley"
-        }
-    }
+//    maven {
+//        url 'https://jitpack.io'
+//        content {
+//            includeGroup "com.github.rtyley"
+//        }
+//    }
 
     maven {
         name = "Illusive Soulworks maven"
@@ -131,33 +99,33 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}")
+    implementation "dev.ftb.mods:ftb-library-neoforge:${libs.versions.ftblibrary.get()}"
 
-    implementation "curse.maven:fancymenu-367706:6408877"
-    runtimeOnly "curse.maven:konkrete-410295:5453385"
-    runtimeOnly "curse.maven:melody-938643:5453382"
-
-    compileOnly "curse.maven:irisshaders-455508:6661598"
-    compileOnly "curse.maven:embeddium-908741:6118392"
-
-    compileOnly "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
-    localRuntime "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
-
-    compileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
-    localRuntime "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
-
-    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
-    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
-
-    runtimeOnly "curse.maven:ftb-essentials-410811:6979622"
+//    implementation "curse.maven:fancymenu-367706:6408877"
+//    runtimeOnly "curse.maven:konkrete-410295:5453385"
+//    runtimeOnly "curse.maven:melody-938643:5453382"
+//
+//    compileOnly "curse.maven:irisshaders-455508:6661598"
+//    compileOnly "curse.maven:embeddium-908741:6118392"
+//
+//    compileOnly "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
+//    localRuntime "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
+//
+//    compileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
+//    localRuntime "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
+//
+//    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+//    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+//
+//    runtimeOnly "curse.maven:ftb-essentials-410811:6979622"
 //    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
 //    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 
-    compileOnly "curse.maven:reliquified-twilight-forest-1186617:6880511"
-    runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
-    runtimeOnly "curse.maven:octo-lib-916747:6932487"
-    runtimeOnly "curse.maven:relics-mod-445274:7533442"
-    runtimeOnly "curse.maven:architectury-api-419699:5786327"
+//    compileOnly "curse.maven:reliquified-twilight-forest-1186617:6880511"
+//    runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
+//    runtimeOnly "curse.maven:octo-lib-916747:6932487"
+//    runtimeOnly "curse.maven:relics-mod-445274:7533442"
+//    runtimeOnly "curse.maven:architectury-api-419699:5786327"
 }
 
 tasks.register("sourcesJar", Jar) {
@@ -189,7 +157,7 @@ tasks.withType(ProcessResources).configureEach {
             loader_version_range: loader_version_range,
             ftblibraryversion: ftb_library_version,
             // 99.9% of the time we're only going to target a very vague version of neoforge so this is fine.
-            mod_loader_range: mod_loader_range.replace("\${mc_base}", mcMinorAndPatch), // Replace the version in the mod loader range
+            mod_loader_range: mod_loader_range.replace("\${mc_base}", normalisedMcVersion(project)), // Replace the version in the mod loader range
     ]
 
     inputs.properties replaceProperties
@@ -215,12 +183,6 @@ idea {
     }
 }
 
-def getMinorAndPatchFromMc() {
-    String mcVersion = project.minecraft_version
-    String[] split = mcVersion.split("\\.")
-    return split[1] + "." + (split[2] ?: "0")
-}
-
 publishMods {
     def CFToken = providers.environmentVariable("CURSEFORGE_KEY");
 
@@ -232,40 +194,16 @@ publishMods {
     file = jar.archiveFile
     version = project.version // Pretty sure it defaults to this
 
-    def tag = providers.environmentVariable("TAG").getOrElse("release")
-    type = tag.endsWith("-beta") ? BETA : (tag.endsWith("-alpha") ? ALPHA : STABLE)
+    type = createReleaseType(project)
 
     curseforge {
         accessToken = CFToken.orElse("missing")
         projectId = project.curseforge_id
         minecraftVersions.add(project.minecraft_version)
-        javaVersions.add(JavaVersion.VERSION_21)
+        javaVersions.add(JavaVersion.VERSION_25)
 
         requires("ftb-library-forge")
     }
 }
 
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            version = ftbPublishing.mavenVersion
-
-            from components.java
-            artifact sourcesJar
-            // Uncomment this if you want to create an API jar
-            // artifact apiJar
-        }
-    }
-
-    repositories {
-        if (ftbPublishing.ftbToken) {
-            maven {
-                url ftbPublishing.ftbURL
-                credentials {
-                    username = ftbPublishing.ftbUser
-                    password = ftbPublishing.ftbToken
-                }
-            }
-        }
-    }
-}
+createMavenPublishingBlock(project)

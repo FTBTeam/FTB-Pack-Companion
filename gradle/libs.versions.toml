@@ -1,0 +1,10 @@
+[versions]
+moddev = "2.0.140"
+modpublish = "1.1.0"
+
+neoforge = "26.1.1.1-beta"
+ftblibrary = "26.1.0.1-SNAPSHOT"
+
+[plugins]
+moddev = { id = "net.neoforged.moddev", version.ref = "moddev" }
+modpublish = { id = "me.modmuss50.mod-publish-plugin", version.ref = "modpublish" }
