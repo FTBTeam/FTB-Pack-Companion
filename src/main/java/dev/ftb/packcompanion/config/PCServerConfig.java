@@ -3,7 +3,6 @@ package dev.ftb.packcompanion.config;
 import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftblibrary.config.value.*;
 import dev.ftb.packcompanion.PackCompanion;
-import dev.ftb.packcompanion.config.values.CodecMapValue;
 import net.minecraft.world.level.GameType;
 
 import java.util.ArrayList;
@@ -34,12 +33,12 @@ public interface PCServerConfig {
             .comment("If true, Wandering Traders will no longer drink invisibility potions at night",
                     "(or milk buckets to remove their invisibility when it's day)");
 
-    CodecMapValue<GameType> DIMENSION_FORCED_GAMEMODES = CONFIG.add(new CodecMapValue<>(
+    AbstractMapValue<GameType> DIMENSION_FORCED_GAMEMODES = CONFIG.add(new AbstractMapValue<>(
             CONFIG,
             "dimension_forced_gamemodes",
             new HashMap<>(),
             GameType.CODEC
-    ).comment("A mapping of dimension IDs to forced game modes. Players entering the dimension will have their game mode changed accordingly."));
+    ) {}.comment("A mapping of dimension IDs to forced game modes. Players entering the dimension will have their game mode changed accordingly."));
 
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".server", false);

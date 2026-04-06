@@ -38,14 +38,14 @@ public class ActionPadScreen extends AbstractButtonListScreen {
             max = Math.max(max, getTheme().getStringWidth(Component.translatable(a.name())) + 20);
         }
 
-        setWidth(Mth.clamp(max, 150, this.getScreen().getGuiScaledWidth() * 3 / 4));
+        setWidth(Mth.clamp(max, 150, this.getWindow().getGuiScaledWidth() * 3 / 4));
         return true;
     }
 
     @Override
     public void alignWidgets() {
         super.alignWidgets();
-        setHeight(Mth.clamp(24 + getTopPanelHeight() + actions.size() * 20, 50, getScreen().getGuiScaledHeight() * 3 / 4));
+        setHeight(Mth.clamp(24 + getTopPanelHeight() + actions.size() * 20, 50, getWindow().getGuiScaledHeight() * 3 / 4));
     }
 
     @Override

@@ -2,7 +2,7 @@ package dev.ftb.packcompanion.features.actionpad;
 
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
-import dev.ftb.mods.ftblibrary.util.Json5Ops;
+import dev.ftb.mods.ftblibrary.json5.Json5Ops;
 import de.marhali.json5.Json5;
 import de.marhali.json5.Json5Element;
 import de.marhali.json5.Json5Object;

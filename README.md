@@ -2,16 +2,12 @@
 
 Your best friend when developing a Modpack. With an ever-growing list of features, tools, game fixes and more that'll aid in the creation, maintenance and stability of your pack. There is nothing better than bring along a good companion.
 
-## Features for `1.21.1`
+## Features for `26.1+`
 
 * [Action Pad](#action-pad)
   * Teleportation item / and general purpose action item that can be used to display entries to the player when used.
-* [Global Mob heath buff](#global-mob-heath-buff)
-  * Allows a global health modifier to be applied to all mobs.
 * [Forced GameRules](#forced-gamerules)
   * Mapping of forced game-rules that will be applied on world creation / load.
-* [Random Name Loot Function](#random-name-loot-function)
-  * Allows for random names to be applied to items via loot tables.
 * [Shader Notice](#shader-notice)
   * Presents the player with a shader notice screen on the first world load of the instance to allow them to pick shaders on or off.
 * [Spawner Behaviour Modifications](#spawner-behaviour-modifications)
@@ -31,69 +27,69 @@ Your best friend when developing a Modpack. With an ever-growing list of feature
 * [Toast Removals](#toast-removals)
   * Removal of tutorial toasts, social interaction toasts and more via config.
 * [Forced Seed (Single player)](#forced-seed)
-* [FTB Chunks Custom Y Level Integration](#ftb-chunks-custom-y-level-integration)
-  * Support for FTB Chunks custom Y level registry to allow for custom world height levels.
-
-### Other Features
-* Improve reloading performance by disabling block cache rebuild on client tag data reload. Controlled in `ftbpc-server.snbt` and `ftbpc-client.snbt` via `performance.skip_block_cache_rebuild` config option.
 
 ### Action Pad
 
 Multipurpose action item that will display a user friendly GUI when used. This can be used for teleporting or running a command.
 
-`ftbpc_pad_actions.snbt`
+`ftbpc_pad_actions.json5`
+
 **Config**
-```snbt
+```json5
 {
-    actions: [
-        {
-            command_action: {
-                command: "tp @s ~5 ~5 ~5",
-                execution_level: 4
-            },
-            name: "lol",
-            icon: "ftblibrary:icons/globe"
-        },
-        {
-            teleport_action: {
-                position: [100, 64, -100],
-                dimension: "minecraft:the_nether",
-                rotation: [0.0, 0.0]
-            },
-            name: "Nether Teleport",
-            icon: "ftblibrary:icons/nether_portal"
-        }
-    ]
+  actions: [
+    {
+      command_action: {
+        command: "tp @s ~5 ~5 ~5",
+        execution_level: 4
+      },
+      name: "lol",
+      icon: "ftblibrary:icons/globe"
+    },
+    {
+      teleport_action: {
+        position: [
+          100,
+          64,
+          -100
+        ],
+        dimension: "minecraft:the_nether",
+        rotation: [
+          0.0,
+          0.0
+        ]
+      },
+      name: "Nether Teleport",
+      icon: "ftblibrary:icons/nether_portal"
+    }
+  ]
 }
 ```
-
-### Global Mob Heath Buff
-
-Easily apply a global health buff to all mobs in your world. Controlled via the `modify_mob_base_health` config option in the `ftbpc-server.snbt` file. Set this to a decimal value representing the multiplier you want to apply to mob health. For example, setting this to `2.0` will double all mob health.
 
 ### Forced GameRules
 
 The Forced GameRules feature allows you to set specific game rules that will be applied whenever a world is created or loaded. This is controlled via the `forced-game-rules` setting in the `ftbpc-common.snbt` config file.
 
-```snbt
+```json5
 {
-	forced-game-rules: {
-		rules: {
-			randomTickSpeed: 3
-			doDaylightCycle: 1b
-		}
-	}
+  "forced-game-rules": {
+    rules: {
+      randomTickSpeed: 3,
+      doDaylightCycle: false
+    }
+  }
+}
 ```
 
 ### Shader Notice
 
 A simple shader notice screen that will let the user know that shaders can be used and warn them that performance may be impacted. This screen will only show once per instance.
 
-`ftbpc-common.snbt`
-```snbt
+`ftbpc-common.json5`
+```json5
 {
 	shaders_notice: {
-		shader_pack_to_use: "" # Leave blank to pick the first available shader pack
+		shader_pack_to_use: "", // Leave blank to pick the first available shader pack
 		show_on_start: false
 	}
 }
@@ -110,14 +106,14 @@ Spawner behaviour options include:
 * Respawning of spawners after broken
 * Respawn interval modification
 
-```snbt
+```json5
 {
-spawners: {
-		allow_respawn: false
-		punish_for_breaking_spawners: false
-		random_entity: [ ]
-		respawn_interval: 60
-	}
+  spawners: {
+    allow_respawn: false,
+    punish_for_breaking_spawners: false,
+    random_entity: [],
+    respawn_interval: 60
+  }
 }
 ```
 
@@ -127,8 +123,8 @@ Sometimes you may want a specific structure to have a set rotation when spawned 
 
 This accepts a map of template pool ID's to a forced rotation for that pool: one of 'none', 'clockwise_90', '180', 'counterclockwise_90'
 
-`ftbpc-server.snbt`
-```snbt
+`ftbpc-server.json5`
+```json5
 {
     worldgen: {
         structure_rotation_override: {
@@ -161,7 +157,7 @@ This block has a delay to triggering the next event of 5 seconds to prevent spam
 
 Sometimes, specifically in no-sky dimensions, it would be preferred to disable the wandering trader from being able to trigger their invisible potion effect on spawn. This can be disabled via the `ftbpc-server.snbt` config file.
 
-```snbt
+```json5
 {
     villagers: {
         no_wandering_trader_invis_potions: true
@@ -171,13 +167,13 @@ Sometimes, specifically in no-sky dimensions, it would be preferred to disable t
 
 ### Toast Removals
 
-You can disable specific toasts via the `ftbpc-client.snbt` config file.
+You can disable specific toasts via the `ftbpc-client.json5` config file.
 
-```snbt
+```json5
 {
-    disable_advancements_toasts: true
-    disable_recipe_toasts: true
-    disable_socialinteraction_toasts: true
+    disable_advancements_toasts: true,
+    disable_recipe_toasts: true,
+    disable_socialinteraction_toasts: true,
     disable_tutorial_toasts: true
 }
 ```
@@ -186,7 +182,7 @@ You can disable specific toasts via the `ftbpc-client.snbt` config file.
 
 You can force a new world to have a specific seed in singleplayer via the `ftbpc-client.snbt` config file.
 
-```snbt
+```json5
 {
     static_seed: 1234567890
 }
@@ -205,83 +201,6 @@ It should look like this
       "processor_type": "ftbpc:waterlogging_fix_processor"
     }
   ]
-}
-```
-
-### Random Name Loot Function
-
-The `RandomNameLootFunction` it a `LootItemFunction` that allows you to set an item's name based on a list of names. This requires a list of `Component`'s in `JSON` format to be placed in the `data/ftbpc/sources/random-name-loot-source.json` folder. You can use a `datapack` or `KubeJS` to modify this file as by default, it simply contains an example.
-
-**Example of how the json file should look**
-
-```json
-{
-  "example": [
-    {"bold":true,"color":"blue","text":"I'm an examples!"}
-  ],
-  "list2": [
-    {"text":"I'm an example 2!"},
-    {"text":"More than just one"}
-  ]
-}
-```
-
-Each key in the Map / Object List must be unique as it's used as the identifier category for the loot function to find a random name. As you can see, you need to use a fully JSON compliant `Component` for the function to work correctly. Errors will be logged if this is done wrong.
-
-**Here is what the loot table can look like to take advantage of the above json file**
-
-```json
-{
-  "entries": [
-    {
-      "type": "minecraft:item",
-      "name": "minecraft:stone",
-      "functions": [
-        {
-          "function": "ftbpc:random_loot_item_function",
-          "nameSetKey": "example"
-        }
-      ]
-    },
-    {
-      "type": "minecraft:item",
-      "name": "minecraft:gold",
-      "functions": [
-        {
-          "function": "ftbpc:random_loot_item_function",
-          "nameSetKey": "list2"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### FTB Chunks Custom Y Level Integration
-
-FTB Chunks integration to allow for custom min-y level rendering of the minimap. Controlled via the `ftbpc-common.snbt` config file using the `integrations.ftb_chunks.custom_y_level_chunk_positions` which takes in a list of chunk positions.
-
-* `dimensionEqualityCheck` is optional. This can be used when dimension names are dynamic like with FTB Team Bases
-* `dimensionEqualityCheck` accepts `starts_with`, `exact_match` and `ends_with` as options
-* `asRadius` and `range` are optional. If `asRadius` is true, the `range` will be used as a radius from the chunk position instead of a square area.
-
-```snbt
-{
-    integrations: {
-        ftb_chunks: {
-            custom_y_level_chunk_positions: [
-                {
-                    x: 0 
-                    z: 0
-                    min_y: -64
-                    range: 128
-                    asRadius: true
-                    dimension: "minecraft:overworld" 
-                    dimensionEqualityCheck: "starts_with"
-                }
-            ]
-        }
-    }
 }
 ```
 

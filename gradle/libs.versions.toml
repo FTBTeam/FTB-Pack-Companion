@@ -4,9 +4,9 @@ modpublish = "1.1.0"
 
 neoforge = "26.1.1.1-beta"
 
-ftblibrary = "26.1.0.1-SNAPSHOT"
-ftbchunks = "26.1.0.1-SNAPSHOT"
-ftbteams = "26.1.0.1-SNAPSHOT"
+ftblibrary = "26.1.0.4-SNAPSHOT"
+ftbchunks = "26.1.0.2-SNAPSHOT"
+ftbteams = "26.1.0.2-SNAPSHOT"
 jei = "29.3.0.22"
 curios = "15.0.0-beta.1+26.1"
 

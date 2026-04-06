@@ -3,11 +3,9 @@ package dev.ftb.packcompanion.core;
 import dev.ftb.packcompanion.PackCompanionDataGen;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
