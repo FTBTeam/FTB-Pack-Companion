@@ -15,7 +15,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.level.Level;
 import org.joml.Vector2f;
 import org.slf4j.Logger;
@@ -26,7 +30,7 @@ import java.util.Optional;
 
 public record PadAction(
         String name,
-        Icon icon,
+        Icon<?> icon,
         Optional<String> unlockedAt,
         Optional<String> teamUnlockedAt,
         Optional<CommandAction> commandAction,
@@ -57,13 +61,13 @@ public record PadAction(
     public record CommandAction(String command, int executionLevel, boolean executeAsServer) implements ActionRunner {
         public static final Codec<CommandAction> CODEC = RecordCodecBuilder.create(builder -> builder.group(
                 Codec.STRING.fieldOf("command").forGetter(CommandAction::command),
-                Codec.INT.optionalFieldOf("execution_level", Commands.LEVEL_GAMEMASTERS).forGetter(CommandAction::executionLevel),
+                Codec.INT.optionalFieldOf("execution_level", PermissionLevel.GAMEMASTERS.id()).forGetter(CommandAction::executionLevel),
                 Codec.BOOL.optionalFieldOf("execute_as_server", false).forGetter(CommandAction::executeAsServer)
         ).apply(builder, CommandAction::new));
 
         public static final StreamCodec<FriendlyByteBuf, CommandAction> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.STRING_UTF8, CommandAction::command,
-                ByteBufCodecs.optional(ByteBufCodecs.INT).map(opt -> opt.orElse(Commands.LEVEL_GAMEMASTERS), Optional::of), CommandAction::executionLevel,
+                ByteBufCodecs.optional(ByteBufCodecs.INT).map(opt -> opt.orElse(PermissionLevel.GAMEMASTERS.id()), Optional::of), CommandAction::executionLevel,
                 ByteBufCodecs.optional(ByteBufCodecs.BOOL).map(opt -> opt.orElse(false), Optional::of), CommandAction::executeAsServer,
                 CommandAction::new
         );
@@ -74,9 +78,11 @@ public record PadAction(
 
             CommandSourceStack sourceStack;
             if (executeAsServer) {
-                sourceStack = Objects.requireNonNull(level.getServer()).createCommandSourceStack().withPermission(executionLevel);
+                sourceStack = Objects.requireNonNull(level.getServer()).createCommandSourceStack()
+                        .withPermission(LevelBasedPermissionSet.forLevel(PermissionLevel.byId(executionLevel)));
             } else {
-                sourceStack = player.createCommandSourceStack().withPermission(executionLevel);
+                sourceStack = player.createCommandSourceStack()
+                        .withPermission(LevelBasedPermissionSet.forLevel(PermissionLevel.byId(executionLevel)));
             }
 
             Objects.requireNonNull(level.getServer()).getCommands().performPrefixedCommand(
@@ -108,9 +114,9 @@ public record PadAction(
 
         @Override
         public void run(ServerPlayer player) {
-            ServerLevel level = player.getServer().getLevel(dimension());
+            ServerLevel level = player.level().getServer().getLevel(dimension());
             if (level == null) {
-                LOGGER.warn("Failed to teleport player {}: dimension {} not found", player.getName().getString(), dimension().location());
+                LOGGER.warn("Failed to teleport player {}: dimension {} not found", player.getName().getString(), dimension().identifier());
                 return;
             }
 
@@ -119,7 +125,7 @@ public record PadAction(
 
             var pos = position();
 
-            player.teleportTo(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, RelativeMovement.ALL, yaw, pitch);
+            player.teleportTo(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Relative.ALL, yaw, pitch, false);
         }
     }
 

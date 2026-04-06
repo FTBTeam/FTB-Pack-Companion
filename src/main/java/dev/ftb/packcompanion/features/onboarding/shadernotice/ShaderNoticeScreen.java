@@ -1,14 +1,17 @@
 package dev.ftb.packcompanion.features.onboarding.shadernotice;
 
+import dev.ftb.mods.ftblibrary.client.gui.layout.WidgetLayout;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.*;
+import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.ui.*;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.integrations.iris.ShadersIntegration;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.slf4j.Logger;
@@ -70,11 +73,11 @@ public class ShaderNoticeScreen extends BaseScreen {
     }
 
     @Override
-    public void drawForeground(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
+    public void drawForeground(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h) {
         super.drawForeground(graphics, theme, x, y, w, h);
         MutableComponent text = Component.translatable("ftbpackcompanion.shaders_notice.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.AQUA);
         int stringWidth = this.getTheme().getStringWidth(text);
-        graphics.drawString(this.getTheme().getFont(), text, x + ((width - stringWidth) / 2), y - 16, Color4I.WHITE.rgb());
+        graphics.text(this.getTheme().getFont(), text, x + ((width - stringWidth) / 2), y - 16, Color4I.WHITE.rgb());
     }
 
     @Override
@@ -140,9 +143,9 @@ public class ShaderNoticeScreen extends BaseScreen {
         }
 
         @Override
-        public void drawBackground(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
+        public void drawBackground(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h) {
             if (this.isAlt) {
-                Color4I.WHITE.withAlphaf(.1f).draw(graphics, x, y, w, h);
+                IconHelper.renderIcon(Color4I.WHITE.withAlphaf(.1f), graphics, x, y, w, h);
             }
         }
     }

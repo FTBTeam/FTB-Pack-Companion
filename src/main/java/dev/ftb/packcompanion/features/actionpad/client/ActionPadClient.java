@@ -1,13 +1,13 @@
 package dev.ftb.packcompanion.features.actionpad.client;
 
 import dev.ftb.packcompanion.PackCompanion;
-import dev.ftb.packcompanion.core.utils.NameAndUuid;
 import dev.ftb.packcompanion.features.actionpad.PadAction;
 import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionPadFromItemPacket;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.server.players.NameAndId;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class ActionPadClient {
     public static void onInputEvent(InputEvent.Key event) {
         if (OPEN_ACTION_PAD_KEY.consumeClick()) {
             // Figure it out basically, let the server do the hard work and tell us what to do
-            PacketDistributor.sendToServer(TryOpenActionPadFromItemPacket.INSTANCE);
+            ClientPacketDistributor.sendToServer(TryOpenActionPadFromItemPacket.INSTANCE);
         }
     }
 
@@ -34,7 +34,7 @@ public class ActionPadClient {
         new ActionPadScreen(actions, playersOnline).openGuiLater();
     }
 
-    public static void openActionPadTpaScreen(List<NameAndUuid> users) {
+    public static void openActionPadTpaScreen(List<NameAndId> users) {
         new ActionTPAScreen(users).openGuiLater();
     }
 }

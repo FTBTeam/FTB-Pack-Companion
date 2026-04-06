@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CreateWorldScreen.class)
 public class WorldGenSettingsComponentMixin {
 
-    @Shadow @Final WorldCreationUiState uiState;
+    @Shadow @Final
+    private WorldCreationUiState uiState;
 
     @Inject(method = "onCreate", at = @At("HEAD"))
     void onCreateFinal(CallbackInfo ci) {

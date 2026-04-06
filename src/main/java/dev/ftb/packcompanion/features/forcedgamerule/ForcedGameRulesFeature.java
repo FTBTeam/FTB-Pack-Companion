@@ -1,18 +1,21 @@
 package dev.ftb.packcompanion.features.forcedgamerule;
 
+import com.mojang.datafixers.util.Either;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.Feature;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class ForcedGameRulesFeature extends Feature.Common {
     private static final Logger LOGGER = LoggerFactory.getLogger(ForcedGameRulesFeature.class);
@@ -23,31 +26,36 @@ public class ForcedGameRulesFeature extends Feature.Common {
         NeoForge.EVENT_BUS.addListener(this::onLevelLoad);
     }
 
+    @SuppressWarnings("unchecked")
     public void onLevelLoad(ServerStartedEvent event) {
         var forcedGameRules = PCCommonConfig.GAME_RULE_MAPPING.get();
 
         MinecraftServer server = event.getServer();
-        GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
-            @Override
-            public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
-                if (forcedGameRules.containsKey(key.getId())) {
-                    Tag value = forcedGameRules.get(key.getId());
-                    if (value instanceof ByteTag byteTag) {
-                        GameRules.BooleanValue rule = (GameRules.BooleanValue) server.getGameRules().getRule(key);
-                        var asBoolean = byteTag.getAsByte() != 0;
-                        if (rule.get() != asBoolean) {
-                            LOGGER.info("Setting (bool) game rule '{}' to {}", key.getId(), asBoolean);
-                            rule.set(asBoolean, server);
-                        }
-                    } else if (value instanceof IntTag intTag) {
-                        GameRules.IntegerValue rule = (GameRules.IntegerValue) server.getGameRules().getRule(key);
-                        if (rule.get() != intTag.getAsInt()) {
-                            LOGGER.info("Setting (int) game rule '{}' to {}", key.getId(), intTag.getAsInt());
-                            rule.set(intTag.getAsInt(), server);
-                        }
-                    }
-                }
+        for (Map.Entry<String, Either<Integer, Boolean>> mapping : forcedGameRules.entrySet()) {
+            var id = Identifier.tryParse(mapping.getKey());
+            var value = mapping.getValue();
+
+            if (id == null) {
+                LOGGER.warn("Invalid game rule identifier: '{}'", mapping.getKey());
+                continue;
             }
-        });
+
+            var ruleHolder = BuiltInRegistries.GAME_RULE.get(id);
+            if (ruleHolder.isEmpty()) {
+                LOGGER.warn("Unknown game rule '{}' in config", mapping.getKey());
+                continue;
+            }
+
+            GameRules gameRules = server.getGameRules();
+            var rule = ruleHolder.get().value();
+
+            if (rule.valueClass().isInstance(Integer.class)) {
+                gameRules.set((GameRule<Integer>) rule, value.left().orElseThrow(), server);
+            } else if (rule.valueClass().isInstance(Boolean.class)) {
+                gameRules.set((GameRule<Boolean>) rule, value.right().orElseThrow(), server);
+            } else {
+                LOGGER.warn("Unsupported game rule type for '{}'", mapping.getKey());
+            }
+        }
     }
 }

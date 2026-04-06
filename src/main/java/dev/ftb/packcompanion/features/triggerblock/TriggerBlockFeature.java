@@ -3,6 +3,7 @@ package dev.ftb.packcompanion.features.triggerblock;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -20,12 +21,12 @@ public class TriggerBlockFeature extends Feature.Common {
     public static final DeferredRegister<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPE_REGISTRY = getRegistry(Registries.BLOCK_ENTITY_TYPE);
 
-    public static final DeferredHolder<Block, TriggerBlock> TRIGGER_BLOCK = BLOCK_REGISTRY.register("trigger_block", () -> new TriggerBlock(BlockBehaviour.Properties.of()));
+    public static final DeferredHolder<Block, TriggerBlock> TRIGGER_BLOCK = BLOCK_REGISTRY.register("trigger_block", (v) -> new TriggerBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, v))));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TriggerBlockEntity>> TRIGGER_BLOCK_ENTITY_TYPE =
-            BLOCK_ENTITY_TYPE_REGISTRY.register("trigger_block", () -> BlockEntityType.Builder.of(TriggerBlockEntity::new, TRIGGER_BLOCK.get()).build(null));
+            BLOCK_ENTITY_TYPE_REGISTRY.register("trigger_block", () -> new BlockEntityType<>(TriggerBlockEntity::new, TRIGGER_BLOCK.get()));
 
     static {
-        ITEM_REGISTRY.register("trigger_block", () -> new BlockItem(TRIGGER_BLOCK.get(), new Item.Properties()));
+        ITEM_REGISTRY.register("trigger_block", (v) -> new BlockItem(TRIGGER_BLOCK.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, v))));
     }
 
     public TriggerBlockFeature(IEventBus modEventBus, ModContainer container) {
@@ -44,11 +45,13 @@ public class TriggerBlockFeature extends Feature.Common {
         translations.addBlock(TRIGGER_BLOCK, "Player Trigger");
 
         collector.addBlockStateProvider(provider -> {
-            provider.simpleBlock(TRIGGER_BLOCK.get());
+            provider.registerSimpleFlatItemModel(TRIGGER_BLOCK.get());
+//            provider.simpleBlock(TRIGGER_BLOCK.get());
         });
 
         collector.addItemModelProvider(provider -> {
-            provider.simpleBlockItem(TRIGGER_BLOCK.get());
+
+//            provider.simpleBlockItem(TRIGGER_BLOCK.get());
         });
     }
 }

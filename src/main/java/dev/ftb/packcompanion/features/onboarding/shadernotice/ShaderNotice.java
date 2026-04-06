@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.features.onboarding.shadernotice;
 
-import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
+import dev.ftb.mods.ftblibrary.config.value.BooleanValue;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
@@ -9,6 +9,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class ShaderNotice extends Feature.Client {
     public final ClientPersistentData shaderData = new ClientPersistentData("shader_notice");

@@ -85,6 +85,14 @@ repositories {
         }
     }
 
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+        content {
+            includeGroup "mezz.jei"
+        }
+    }
+
 //    maven {
 //        url 'https://jitpack.io'
 //        content {
@@ -99,24 +107,23 @@ repositories {
 }
 
 dependencies {
-    implementation "dev.ftb.mods:ftb-library-neoforge:${libs.versions.ftblibrary.get()}"
+    implementation libs.ftblibrary
+    implementation libs.ftbchunks
+    implementation libs.ftbteams
+
+    compileOnly libs.curios
+    runtimeOnly libs.curios
+
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${libs.versions.jei.get()}"
+    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${libs.versions.jei.get()}"
 
 //    implementation "curse.maven:fancymenu-367706:6408877"
 //    runtimeOnly "curse.maven:konkrete-410295:5453385"
 //    runtimeOnly "curse.maven:melody-938643:5453382"
 //
-//    compileOnly "curse.maven:irisshaders-455508:6661598"
+    compileOnly "curse.maven:irisshaders-455508:7867946"
 //    compileOnly "curse.maven:embeddium-908741:6118392"
-//
-//    compileOnly "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
-//    localRuntime "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
-//
-//    compileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
-//    localRuntime "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
-//
-//    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
-//    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
-//
+
 //    runtimeOnly "curse.maven:ftb-essentials-410811:6979622"
 //    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
 //    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
@@ -125,7 +132,6 @@ dependencies {
 //    runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
 //    runtimeOnly "curse.maven:octo-lib-916747:6932487"
 //    runtimeOnly "curse.maven:relics-mod-445274:7533442"
-//    runtimeOnly "curse.maven:architectury-api-419699:5786327"
 }
 
 tasks.register("sourcesJar", Jar) {
@@ -155,7 +161,7 @@ tasks.withType(ProcessResources).configureEach {
             mod_name: mod_name,
             pack_format: pack_format,
             loader_version_range: loader_version_range,
-            ftblibraryversion: ftb_library_version,
+            ftblibraryversion: libs.versions.ftblibrary.get(),
             // 99.9% of the time we're only going to target a very vague version of neoforge so this is fine.
             mod_loader_range: mod_loader_range.replace("\${mc_base}", normalisedMcVersion(project)), // Replace the version in the mod loader range
     ]

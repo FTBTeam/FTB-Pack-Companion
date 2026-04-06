@@ -1,17 +1,18 @@
 package dev.ftb.packcompanion.features.actionpad.client;
 
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.screens.AbstractButtonListScreen;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.ui.SimpleTextButton;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
 import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.actionpad.PadAction;
 import dev.ftb.packcompanion.features.actionpad.net.RunActionPacket;
 import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionTPAPacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class ActionPadScreen extends AbstractButtonListScreen {
 
         this.showBottomPanel(false);
         this.setHasSearchBox(true);
-        this.setTitle(ActionPadFeature.ACTION_PAD.get().getDescription());
+        this.setTitle(ActionPadFeature.ACTION_PAD.get().getName(new ItemStack(ActionPadFeature.ACTION_PAD.get())));
 
         this.actions = actions;
         this.playersOnline = playersOnline;
@@ -59,7 +60,7 @@ public class ActionPadScreen extends AbstractButtonListScreen {
             panel.add(new SimpleTextButton(panel, Component.translatable("ftbpackcompanion.tpa"), Icons.MARKER) {
                 @Override
                 public void onClicked(MouseButton mouseButton) {
-                    PacketDistributor.sendToServer(TryOpenActionTPAPacket.INSTANCE);
+                    ClientPacketDistributor.sendToServer(TryOpenActionTPAPacket.INSTANCE);
                 }
             });
         }
@@ -68,7 +69,7 @@ public class ActionPadScreen extends AbstractButtonListScreen {
             panel.add(new SimpleTextButton(panel, Component.translatable(action.name()), action.icon()) {
                 @Override
                 public void onClicked(MouseButton mouseButton) {
-                    PacketDistributor.sendToServer(new RunActionPacket(action.name()));
+                    ClientPacketDistributor.sendToServer(new RunActionPacket(action.name()));
                     if (action.autoclose()) {
                         closeGui();
                     }

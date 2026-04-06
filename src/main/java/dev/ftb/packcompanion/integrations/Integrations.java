@@ -1,19 +1,16 @@
 package dev.ftb.packcompanion.integrations;
 
-import dev.ftb.packcompanion.integrations.chunks.FTBChunksIntegration;
 import dev.ftb.packcompanion.integrations.curios.CuriosIntegration;
-import dev.ftb.packcompanion.integrations.fancymenu.FancyMenuIntegration;
 import net.neoforged.fml.ModList;
 
 import java.util.function.Supplier;
 
 public class Integrations {
     public static void instantInit() {
-        loadIfModPresent("ftbchunks", () -> FTBChunksIntegration::init);
     }
 
     public static void clientInit() {
-        loadIfModPresent("fancymenu", () -> FancyMenuIntegration::init);
+//        loadIfModPresent("fancymenu", () -> FancyMenuIntegration::init);
     }
 
     public static void serverInit() {

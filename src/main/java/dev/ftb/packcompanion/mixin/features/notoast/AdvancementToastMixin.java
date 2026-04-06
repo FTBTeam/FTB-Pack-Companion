@@ -4,13 +4,13 @@ import dev.ftb.packcompanion.config.PCClientConfig;
 import net.minecraft.client.gui.components.toasts.AdvancementToast;
 import net.minecraft.client.gui.components.toasts.RecipeToast;
 import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.gui.components.toasts.ToastManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ToastComponent.class)
+@Mixin(ToastManager.class)
 public class AdvancementToastMixin {
     /**
      * JOB: Rejects the additions of toasts of types that we want to block

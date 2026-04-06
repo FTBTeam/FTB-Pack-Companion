@@ -30,16 +30,16 @@ public enum TryOpenActionPadFromItemPacket implements CustomPacketPayload {
     public static void handle(TryOpenActionPadFromItemPacket ignored, IPayloadContext context) {
         context.enqueueWork(() -> {
             var player = context.player();
-            boolean hasPlayersOnline = Optional.ofNullable(player.getServer())
+            boolean hasPlayersOnline = Optional.ofNullable(player.level().getServer())
                     .map(e -> e.getPlayerList().getPlayerCount() > 1)
                     .orElse(false);
 
-            if (!FMLEnvironment.production) {
+            if (!FMLEnvironment.isProduction()) {
                 // Bypass check in dev
                 hasPlayersOnline = true;
             }
 
-            for (var itemStack : player.getInventory().items) {
+            for (var itemStack : player.getInventory().getNonEquipmentItems()) {
                 if (itemStack.getItem() instanceof ActionPadItem) {
                     sendOpenPacket(player, hasPlayersOnline);
                     return;

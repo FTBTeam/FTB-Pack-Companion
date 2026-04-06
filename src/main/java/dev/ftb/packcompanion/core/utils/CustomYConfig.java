@@ -1,8 +1,7 @@
 package dev.ftb.packcompanion.core.utils;
 
-import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
-
-import java.util.function.Function;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record CustomYConfig(
         String dimension,
@@ -13,57 +12,20 @@ public record CustomYConfig(
         int minY,
         boolean asRadius
 ) {
-    public SNBTCompoundTag asCompound() {
-        SNBTCompoundTag compound = new SNBTCompoundTag();
-        compound.putString("dimension", dimension);
-        compound.putString("equalityCheck", equalityCheck.toString());
-        compound.putInt("x", x);
-        compound.putInt("z", z);
-        compound.putInt("minY", minY);
-        compound.putInt("range", range);
-        compound.putBoolean("asRadius", asRadius);
-        return compound;
-    }
-
-    public static CustomYConfig fromCompound(SNBTCompoundTag compound) {
-        String dimension = compound.getString("dimension");
-        int x = compound.getInt("x");
-        int z = compound.getInt("z");
-        int range = compound.getInt("range");
-        if (range <= 0) {
-            throw new RuntimeException("Invalid range for custom_y_level_chunk_positions");
-        }
-        int minY = compound.getInt("minY");
-        boolean asRadius = getOrDefault(compound, (tag) -> tag.getBoolean("asRadius"), false);
-        DimensionEqualityCheck equalityCheck = DimensionEqualityCheck.fromString(getOrDefault(compound, (SNBTCompoundTag tag) -> tag.getString("equalityCheck"), "starts_with"));
-        return new CustomYConfig(dimension, equalityCheck, x, z, range, minY, asRadius);
-    }
+    public static final Codec<CustomYConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.fieldOf("dimension").forGetter(CustomYConfig::dimension),
+            // Use enum codec type for the codec
+            Codec.STRING.xmap(DimensionEqualityCheck::valueOf, DimensionEqualityCheck::name).fieldOf("equalityCheck").forGetter(CustomYConfig::equalityCheck),
+            Codec.INT.fieldOf("x").forGetter(CustomYConfig::x),
+            Codec.INT.fieldOf("z").forGetter(CustomYConfig::z),
+            Codec.INT.fieldOf("range").forGetter(CustomYConfig::range),
+            Codec.INT.fieldOf("minY").forGetter(CustomYConfig::minY),
+            Codec.BOOL.optionalFieldOf("asRadius", false).forGetter(CustomYConfig::asRadius)
+    ).apply(instance, CustomYConfig::new));
 
     public enum DimensionEqualityCheck {
         STARTS_WITH,
         EXACT_MATCH,
-        ENDS_WITH;
-
-        public static DimensionEqualityCheck fromString(String str) {
-            try {
-                return DimensionEqualityCheck.valueOf(str.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return STARTS_WITH;
-            }
-        }
-
-
-        @Override
-        public String toString() {
-            return super.toString().toLowerCase();
-        }
-    }
-
-    private static <T> T getOrDefault(SNBTCompoundTag compoundTag, Function<SNBTCompoundTag, T> reader, T defaultValue) {
-        try {
-            return reader.apply(compoundTag);
-        } catch (Exception e) {
-            return defaultValue;
-        }
+        ENDS_WITH
     }
 }

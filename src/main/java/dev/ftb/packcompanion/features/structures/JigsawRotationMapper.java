@@ -1,10 +1,10 @@
 package dev.ftb.packcompanion.features.structures;
 
 import dev.ftb.packcompanion.config.PCServerConfig;
-import net.minecraft.ResourceLocationException;
-import net.minecraft.Util;
+import net.minecraft.IdentifierException;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -25,7 +25,7 @@ public class JigsawRotationMapper {
         }
     });
 
-    private static final Lazy<Map<ResourceLocation,Rotation>> rotationMap
+    private static final Lazy<Map<Identifier,Rotation>> rotationMap
             = Lazy.of(JigsawRotationMapper::loadRotationMap);
 
     public static Optional<Rotation> getRotationOverride(@Nullable ResourceKey<StructureTemplatePool> startPoolKey) {
@@ -33,22 +33,22 @@ public class JigsawRotationMapper {
             return Optional.empty();
         }
 
-        Rotation rot = rotationMap.get().get(startPoolKey.location());
+        Rotation rot = rotationMap.get().get(startPoolKey.identifier());
         if (rot != null) {
-            LOGGER.debug("forced rotation for structure template pool {} to {}", startPoolKey.location(), rot);
+            LOGGER.debug("forced rotation for structure template pool {} to {}", startPoolKey.identifier(), rot);
         }
         return Optional.ofNullable(rot);
     }
 
-    private static Map<ResourceLocation, Rotation> loadRotationMap() {
-        Map<ResourceLocation, Rotation> res = new HashMap<>();
+    private static Map<Identifier, Rotation> loadRotationMap() {
+        Map<Identifier, Rotation> res = new HashMap<>();
         PCServerConfig.STRUCTURE_ROTATION_OVERRIDE.get().forEach((poolStr, rotStr) -> {
             try {
-                ResourceLocation poolId = ResourceLocation.parse(poolStr);
+                Identifier poolId = Identifier.parse(poolStr);
                 Rotation rot = rotByName.get(rotStr);
                 if (rot == null) throw new IllegalArgumentException();
                 res.put(poolId, rot);
-            } catch (ResourceLocationException e) {
+            } catch (IdentifierException e) {
                 LOGGER.error("invalid template pool ID {}, skipping", poolStr);
             } catch (IllegalArgumentException e) {
                 LOGGER.error("invalid rotation {}, skipping", rotStr);

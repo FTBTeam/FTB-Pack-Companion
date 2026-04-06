@@ -2,33 +2,36 @@ package dev.ftb.packcompanion.features.actionpad;
 
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
-import dev.ftb.mods.ftblibrary.snbt.SNBT;
+import dev.ftb.mods.ftblibrary.util.Json5Ops;
+import de.marhali.json5.Json5;
+import de.marhali.json5.Json5Element;
+import de.marhali.json5.Json5Object;
 import dev.ftb.packcompanion.integrations.teams.TeamsIntegration;
-import net.minecraft.commands.Commands;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.loading.FMLPaths;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class PadActions {
-    private static PadActions INSTANCE;
+    @Nullable
+    private static PadActions INSTANCE = null;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PadActions.class);
     private static final List<PadAction> defaultDestination = List.of(
             new PadAction("ftbpackcompanion.spawn", Icons.GLOBE, Optional.empty(), Optional.empty(), Optional.of(new PadAction.CommandAction(
-                    "/spawn", Commands.LEVEL_GAMEMASTERS, false
+                    "/spawn", PermissionLevel.GAMEMASTERS.id(), false
             )), Optional.empty(), true),
             new PadAction("ftbpackcompanion.home", Icons.COMPASS, Optional.empty(), Optional.empty(), Optional.of(new PadAction.CommandAction(
-                    "/home", Commands.LEVEL_GAMEMASTERS, false
+                    "/home", PermissionLevel.GAMEMASTERS.id(), false
             )), Optional.empty(), true)
     );
 
@@ -42,42 +45,50 @@ public class PadActions {
     }
 
     private final List<PadAction> actions = new ArrayList<>();
-    private final Path destinationsFile = FMLPaths.CONFIGDIR.get().resolve("ftbpc_pad_actions.snbt");
+    private final Path destinationsFile = FMLPaths.CONFIGDIR.get().resolve("ftbpc_pad_actions.json5");
 
     public void load() {
         try {
-            var compoundTag = SNBT.tryRead(destinationsFile);
-            if (compoundTag != null) {
-                actions.clear();
-                PadAction.CODEC.listOf().parse(NbtOps.INSTANCE, compoundTag.getList("actions", CompoundTag.TAG_COMPOUND))
-                        .result()
-                        .ifPresentOrElse(
-                                actions::addAll,
-                                () -> actions.addAll(defaultDestination)
-                        );
+            if (!Files.exists(destinationsFile)) {
+                writePopulatedDefaults();
+                return;
             }
+
+            Json5 json5 = new Json5();
+            Json5Element parse = json5.parse(Files.readString(destinationsFile));
+            actions.clear();
+            PadAction.CODEC.listOf().parse(Json5Ops.INSTANCE, parse.getAsJson5Object().get("actions").getAsJson5Array())
+                    .result()
+                    .ifPresentOrElse(
+                            actions::addAll,
+                            () -> actions.addAll(defaultDestination)
+                    );
         } catch (Exception error) {
             LOGGER.error("Failed to load action pad actions, using default", error);
         } finally {
-            if (actions.isEmpty()) {
-                actions.addAll(defaultDestination);
-                // Try and write the default file
-                writeDefault();
-            }
+            writePopulatedDefaults();
+        }
+    }
+
+    private void writePopulatedDefaults() {
+        if (actions.isEmpty()) {
+            actions.addAll(defaultDestination);
+            // Try and write the default file
+            writeDefault();
         }
     }
 
     public void writeDefault() {
-        ListTag items = PadAction.CODEC.listOf().encodeStart(NbtOps.INSTANCE, defaultDestination)
+        Json5Element items = PadAction.CODEC.listOf().encodeStart(Json5Ops.INSTANCE, defaultDestination)
                 .result()
-                .map(nbt -> (ListTag) nbt)
-                .orElse(new ListTag());
+                .orElse(new Json5Object());
 
-        CompoundTag compoundTag = new CompoundTag();
-        compoundTag.put("actions", items);
+        Json5Object obj = new Json5Object();
+        obj.add("actions", items);
 
         try {
-            SNBT.tryWrite(destinationsFile, compoundTag);
+            Files.createDirectories(destinationsFile.getParent());
+            Files.writeString(destinationsFile, new Json5().serialize(obj));
         } catch (Exception error) {
             LOGGER.error("Failed to write default action pad actions", error);
         }
