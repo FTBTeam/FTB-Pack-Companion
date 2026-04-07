@@ -49,7 +49,6 @@ import java.util.function.Predicate;
 @Mod(PackCompanion.MOD_ID)
 public class PackCompanion {
     public static final String MOD_ID = "ftbpc";
-    private static final KeyMapping.Category KEY_CATEGORY = new KeyMapping.Category(PackCompanion.id("key_category"));
 
     public static final Map<ResourceKey<? extends Registry<?>>, DeferredRegister<?>> REGISTRIES = new HashMap<>();
 
@@ -172,7 +171,4 @@ public class PackCompanion {
         return createdFeatures;
     }
 
-    public static KeyMapping.Category getKeyCategory() {
-        return KEY_CATEGORY;
-    }
 }

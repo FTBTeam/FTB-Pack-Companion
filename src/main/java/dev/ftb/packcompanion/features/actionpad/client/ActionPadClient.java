@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.features.actionpad.client;
 
-import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.PackCompanionClient;
 import dev.ftb.packcompanion.features.actionpad.PadAction;
 import dev.ftb.packcompanion.features.actionpad.net.TryOpenActionPadFromItemPacket;
 import net.minecraft.client.KeyMapping;
@@ -16,7 +16,7 @@ public class ActionPadClient {
     public static final KeyMapping OPEN_ACTION_PAD_KEY = new KeyMapping(
             "ftbpackcompanion.key.open_action_pad",
             GLFW.GLFW_KEY_B,
-            PackCompanion.getKeyCategory()
+            PackCompanionClient.getKeyCategory()
     );
 
     public static void onRegisterKeyBindings(RegisterKeyMappingsEvent event) {
