@@ -1,3 +1,6 @@
 {
-  "parent": "ftbpc:block/trigger_block"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ftbpc:block/trigger_block"
+  }
 }

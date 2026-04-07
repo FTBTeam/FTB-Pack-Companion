@@ -72,8 +72,8 @@ The Forced GameRules feature allows you to set specific game rules that will be 
 
 ```json5
 {
-  "forced-game-rules": {
-    rules: {
+  misc: {
+    forced_game_rules: {
       randomTickSpeed: 3,
       doDaylightCycle: false
     }
@@ -159,7 +159,7 @@ Sometimes, specifically in no-sky dimensions, it would be preferred to disable t
 
 ```json5
 {
-    villagers: {
+    misc: {
         no_wandering_trader_invis_potions: true
     }
 }
@@ -171,10 +171,12 @@ You can disable specific toasts via the `ftbpc-client.json5` config file.
 
 ```json5
 {
+  toasts: {
     disable_advancements_toasts: true,
     disable_recipe_toasts: true,
     disable_socialinteraction_toasts: true,
     disable_tutorial_toasts: true
+  }
 }
 ```
 
@@ -184,7 +186,9 @@ You can force a new world to have a specific seed in singleplayer via the `ftbpc
 
 ```json5
 {
-    static_seed: 1234567890
+  worldgen: {
+    static_seed: 1234567890,
+  }
 }
 ```
 

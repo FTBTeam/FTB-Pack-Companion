@@ -75,15 +75,8 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     commonMavenRepos(repositories)
-
-    maven {
-        url "https://maven.latvian.dev/releases"
-        content {
-            includeGroup "dev.latvian.mods"
-            includeGroup "dev.latvian.apps"
-        }
-    }
 
     maven {
         name = "ModMaven"
@@ -92,13 +85,6 @@ repositories {
             includeGroup "mezz.jei"
         }
     }
-
-//    maven {
-//        url 'https://jitpack.io'
-//        content {
-//            includeGroup "com.github.rtyley"
-//        }
-//    }
 
     maven {
         name = "Illusive Soulworks maven"

@@ -1,10 +1,9 @@
 package dev.ftb.packcompanion.features.forcedgamemodes;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import net.minecraft.ChatFormatting;
@@ -107,7 +106,7 @@ public class ForcedGameModesFeature extends Feature.Common {
     }
 
     private void onPlayerChangeDimension(EntityTravelToDimensionEvent event) {
-        Map<String, GameType> config = PCServerConfig.DIMENSION_FORCED_GAMEMODES.get();
+        Map<String, GameType> config = PCCommonConfig.DIMENSION_FORCED_GAME_MODES.get();
         if (config.isEmpty()) {
             return;
         }
@@ -131,7 +130,7 @@ public class ForcedGameModesFeature extends Feature.Common {
             return;
         }
 
-        Map<String, GameType> config = PCServerConfig.DIMENSION_FORCED_GAMEMODES.get();
+        Map<String, GameType> config = PCCommonConfig.DIMENSION_FORCED_GAME_MODES.get();
         ForcedGameModeData data = data(player.level().getServer());
         var forcedGameMode = config.get(dimension.identifier().toString());
         if (forcedGameMode == null) {

@@ -1,11 +1,15 @@
 package dev.ftb.packcompanion.features.actionpad;
 
+import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
+import dev.ftb.mods.ftblibrary.config.value.AbstractListValue;
+import dev.ftb.mods.ftblibrary.config.value.Config;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
 import dev.ftb.mods.ftblibrary.json5.Json5Ops;
 import de.marhali.json5.Json5;
 import de.marhali.json5.Json5Element;
 import de.marhali.json5.Json5Object;
+import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.integrations.teams.TeamsIntegration;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.PermissionLevel;
@@ -22,11 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class PadActions {
-    @Nullable
-    private static PadActions INSTANCE = null;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PadActions.class);
-    private static final List<PadAction> defaultDestination = List.of(
+    private static final List<PadAction> DEFAULTS = List.of(
             new PadAction("ftbpackcompanion.spawn", Icons.GLOBE, Optional.empty(), Optional.empty(), Optional.of(new PadAction.CommandAction(
                     "/spawn", PermissionLevel.GAMEMASTERS.id(), false
             )), Optional.empty(), true),
@@ -35,94 +35,74 @@ public class PadActions {
             )), Optional.empty(), true)
     );
 
-    public static PadActions get() {
-        if (INSTANCE == null) {
-            INSTANCE = new PadActions();
-            INSTANCE.load();
-        }
+    private static final Config CONFIG = Config.create(PackCompanion.MOD_ID + "-pad-actions");
 
-        return INSTANCE;
+    public static final AbstractListValue<PadAction> ACTIONS = CONFIG.add(new AbstractListValue<PadAction>(CONFIG, "actions", DEFAULTS, PadAction.CODEC) {})
+            .comment("""
+                    The actions that should be available in the action pad.
+                    Each action can be unlocked based on the players stages, or team stages, and can run a command or teleport the player when clicked.
+                    
+                    Example:
+                    {
+                        // This can be a translation string
+                        name: "Example",
+                        icon: "minecraft:diamond", // This is any supported FTB Library icon type
+                        unlockedAt: "example_stage", // Optional stage that unlocks this action when completed
+                        teamUnlockedAt: "example_team_stage", // Optional stage that unlocks this action when completed for the players team.
+
+                        // You can only use one of these actions, not both!
+                        commandAction: { // This action runs a command when clicked
+                            command: "/example_command",
+                            executionLevel: 2, // The required permission level to run the command, default 2 (game master)
+                            executeAsServer: false // Whether the command should be run as the server (true) or the player (false, default)
+                        },
+
+                        teleportAction: { // This action teleports the player when clicked
+                            dimension: "minecraft:overworld", // The dimension to teleport the player to
+                            position: [0, 64, 0], // The position to teleport the player to
+                            rotation: [0, 0] // Optional rotation to set the players view to after teleporting
+                        },
+                    }
+                    """);
+
+    public static void register() {
+        ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".pad-actions", false);
     }
 
-    private final List<PadAction> actions = new ArrayList<>();
-    private final Path destinationsFile = FMLPaths.CONFIGDIR.get().resolve("ftbpc_pad_actions.json5");
-
-    public void load() {
-        try {
-            if (!Files.exists(destinationsFile)) {
-                writePopulatedDefaults();
-                return;
-            }
-
-            Json5 json5 = new Json5();
-            Json5Element parse = json5.parse(Files.readString(destinationsFile));
-            actions.clear();
-            PadAction.CODEC.listOf().parse(Json5Ops.INSTANCE, parse.getAsJson5Object().get("actions").getAsJson5Array())
-                    .result()
-                    .ifPresentOrElse(
-                            actions::addAll,
-                            () -> actions.addAll(defaultDestination)
-                    );
-        } catch (Exception error) {
-            LOGGER.error("Failed to load action pad actions, using default", error);
-        } finally {
-            writePopulatedDefaults();
-        }
-    }
-
-    private void writePopulatedDefaults() {
-        if (actions.isEmpty()) {
-            actions.addAll(defaultDestination);
-            // Try and write the default file
-            writeDefault();
-        }
-    }
-
-    public void writeDefault() {
-        Json5Element items = PadAction.CODEC.listOf().encodeStart(Json5Ops.INSTANCE, defaultDestination)
-                .result()
-                .orElse(new Json5Object());
-
-        Json5Object obj = new Json5Object();
-        obj.add("actions", items);
-
-        try {
-            Files.createDirectories(destinationsFile.getParent());
-            Files.writeString(destinationsFile, new Json5().serialize(obj));
-        } catch (Exception error) {
-            LOGGER.error("Failed to write default action pad actions", error);
-        }
-    }
-
-    public List<PadAction> getUnlockedActions(ServerPlayer player) {
+    public static List<PadAction> getUnlockedActions(ServerPlayer player) {
         List<PadAction> unlocked = new ArrayList<>();
-        for (PadAction action : actions) {
+        for (PadAction action : ACTIONS.get()) {
             // If no stage condition is required, always unlocked
-            if (action.unlockedAt().isEmpty() && action.teamUnlockedAt().isEmpty()) {
+            if (hasUnlocked(action, player)) {
                 unlocked.add(action);
                 continue;
-            }
-
-            // If the teams stage is present, check that first
-            if (action.teamUnlockedAt().isPresent()) {
-                if (TeamsIntegration.get().hasStage(player, action.teamUnlockedAt().get())) {
-                    unlocked.add(action);
-                    continue;
-                }
-            }
-
-            // Finally, check the normal stage condition
-            // Really, the dev should never enable both as that's messy but we don't enforce that
-            if (action.unlockedAt().isPresent()) {
-                if (StageHelper.getInstance().getProvider().has(player, action.unlockedAt().get())) {
-                    unlocked.add(action);
-                }
             }
         }
         return unlocked;
     }
 
-    public Optional<PadAction> getAction(Player player, String actionName) {
+    public static boolean hasUnlocked(PadAction action, ServerPlayer player) {
+        if (action.unlockedAt().isEmpty() && action.teamUnlockedAt().isEmpty()) {
+            return true;
+        }
+
+        // If the teams stage is present, check that first
+        if (action.teamUnlockedAt().isPresent()) {
+            if (TeamsIntegration.get().hasStage(player, action.teamUnlockedAt().get())) {
+                return true;
+            }
+        }
+
+        // Finally, check the normal stage condition
+        // Really, the dev should never enable both as that's messy but we don't enforce that
+        if (action.unlockedAt().isPresent()) {
+            return StageHelper.getInstance().getProvider().has(player, action.unlockedAt().get());
+        }
+
+        return false;
+    }
+
+    public static Optional<PadAction> getAction(Player player, String actionName) {
         return getUnlockedActions((ServerPlayer) player).stream().filter(a -> a.name().equals(actionName)).findFirst();
     }
 }

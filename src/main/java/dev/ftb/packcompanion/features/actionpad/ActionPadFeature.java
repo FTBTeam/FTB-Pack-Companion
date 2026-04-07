@@ -31,6 +31,8 @@ public class ActionPadFeature extends Feature.Common {
     public ActionPadFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
+        PadActions.register();
+
         modEventBus.addListener(this::onClientInit);
         modEventBus.addListener(this::creativeTab);
 
@@ -47,12 +49,6 @@ public class ActionPadFeature extends Feature.Common {
 
     private void onClientInit(FMLClientSetupEvent event) {
         NeoForge.EVENT_BUS.addListener(ActionPadClient::onInputEvent);
-    }
-
-    @Override
-    public void onReload(ResourceManager resourceManager) {
-        // Reload actions
-        PadActions.get().load();
     }
 
     @Override

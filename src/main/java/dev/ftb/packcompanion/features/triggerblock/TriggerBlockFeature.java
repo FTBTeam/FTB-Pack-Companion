@@ -2,6 +2,7 @@ package dev.ftb.packcompanion.features.triggerblock;
 
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
+import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
@@ -45,6 +46,7 @@ public class TriggerBlockFeature extends Feature.Common {
         translations.addBlock(TRIGGER_BLOCK, "Player Trigger");
 
         collector.addBlockStateProvider(provider -> {
+            provider.createTrivialBlock(TRIGGER_BLOCK.get(), TexturedModel.CUBE);
             provider.registerSimpleFlatItemModel(TRIGGER_BLOCK.get());
 //            provider.simpleBlock(TRIGGER_BLOCK.get());
         });

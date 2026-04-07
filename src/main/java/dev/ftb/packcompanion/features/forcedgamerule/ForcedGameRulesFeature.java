@@ -49,9 +49,9 @@ public class ForcedGameRulesFeature extends Feature.Common {
             GameRules gameRules = server.getGameRules();
             var rule = ruleHolder.get().value();
 
-            if (rule.valueClass().isInstance(Integer.class)) {
+            if (rule.valueClass().isAssignableFrom(Integer.class)) {
                 gameRules.set((GameRule<Integer>) rule, value.left().orElseThrow(), server);
-            } else if (rule.valueClass().isInstance(Boolean.class)) {
+            } else if (rule.valueClass().isAssignableFrom(Boolean.class)) {
                 gameRules.set((GameRule<Boolean>) rule, value.right().orElseThrow(), server);
             } else {
                 LOGGER.warn("Unsupported game rule type for '{}'", mapping.getKey());

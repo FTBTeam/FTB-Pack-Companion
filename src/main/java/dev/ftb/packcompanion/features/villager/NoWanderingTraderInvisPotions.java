@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.features.villager;
 
-import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.Feature;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.UseItemGoal;
@@ -18,7 +18,7 @@ public class NoWanderingTraderInvisPotions extends Feature.Server {
     }
 
     private void onEntityJoinLevel(EntityJoinLevelEvent event) {
-        if (PCServerConfig.NO_WANDERING_TRADER_INVIS_POTIONS.get()
+        if (PCCommonConfig.NO_WANDERING_TRADER_INVIS_POTIONS.get()
                 && event.getLevel() instanceof ServerLevel
                 && event.getEntity() instanceof WanderingTrader trader)
         {

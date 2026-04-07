@@ -9,23 +9,26 @@ import dev.ftb.packcompanion.PackCompanion;
 public interface PCClientConfig {
     Config CONFIG = Config.create(PackCompanion.MOD_ID + "-client");
 
-    BooleanValue DISABLE_TUTORIAL_TOASTS = CONFIG.addBoolean("disable_tutorial_toasts", true)
+    Config TOASTS = CONFIG.addGroup("toasts")
+            .comment("Settings related to in-game toasts.");
+
+    BooleanValue DISABLE_TUTORIAL_TOASTS = TOASTS.addBoolean("disable_tutorial_toasts", true)
             .comment("When enabled, toasts regarding the in-game start tutorial will be disabled.");
 
-    BooleanValue DISABLE_ADVANCEMENT_TOASTS = CONFIG.addBoolean("disable_advancements_toasts", false)
+    BooleanValue DISABLE_ADVANCEMENT_TOASTS = TOASTS.addBoolean("disable_advancements_toasts", false)
             .comment("When enabled, toasts regarding the advancement progression will be disabled.");
 
-    BooleanValue DISABLE_RECIPE_TOASTS = CONFIG.addBoolean("disable_recipe_toasts", false)
+    BooleanValue DISABLE_RECIPE_TOASTS = TOASTS.addBoolean("disable_recipe_toasts", false)
             .comment("When enabled, toasts regarding the recipe unlocks will be disabled.");
 
-    BooleanValue DISABLE_SOCIALINTERACTION_TOASTS = CONFIG.addBoolean("disable_socialinteraction_toasts", false)
+    BooleanValue DISABLE_SOCIALINTERACTION_TOASTS = TOASTS.addBoolean("disable_socialinteraction_toasts", false)
             .comment("When enabled, toasts regarding social interaction will be disabled.");
 
-    BooleanValue WORLD_USES_STATIC_SEED = CONFIG.addBoolean("world_uses_static_seed", false)
-            .comment("When enabled, the world will always use the same seed, regardless of the world name.");
+    Config WORLDGEN = CONFIG.addGroup("worldgen")
+            .comment("Settings related to world generation.");
 
-    StringValue STATIC_SEED = CONFIG.addString("static_seed", "")
-            .comment("The seed to use for the world. Only used if world_uses_static_seed is enabled.");
+    StringValue STATIC_SEED = WORLDGEN.addString("static_seed", "")
+            .comment("The seed to use for the world. Leave empty to use a random seed like vanilla.");
 
     static void init() {
         ConfigManager.getInstance().registerClientConfig(CONFIG, PackCompanion.MOD_ID + ".client");

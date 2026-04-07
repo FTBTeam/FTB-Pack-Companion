@@ -1,4 +1,4 @@
 @NullMarked
-package dev.ftb.packcompanion;
+package dev.ftb.packcompanion.integrations.iris;
 
 import org.jspecify.annotations.NullMarked;

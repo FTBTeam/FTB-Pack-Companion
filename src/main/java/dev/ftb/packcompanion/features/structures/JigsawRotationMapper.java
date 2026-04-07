@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.features.structures;
 
-import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import net.minecraft.IdentifierException;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
@@ -42,7 +42,7 @@ public class JigsawRotationMapper {
 
     private static Map<Identifier, Rotation> loadRotationMap() {
         Map<Identifier, Rotation> res = new HashMap<>();
-        PCServerConfig.STRUCTURE_ROTATION_OVERRIDE.get().forEach((poolStr, rotStr) -> {
+        PCCommonConfig.STRUCTURE_ROTATION_OVERRIDE.get().forEach((poolStr, rotStr) -> {
             try {
                 Identifier poolId = Identifier.parse(poolStr);
                 Rotation rot = rotByName.get(rotStr);

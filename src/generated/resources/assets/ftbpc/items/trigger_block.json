@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "ftbpc:item/trigger_block"
+  }
+}

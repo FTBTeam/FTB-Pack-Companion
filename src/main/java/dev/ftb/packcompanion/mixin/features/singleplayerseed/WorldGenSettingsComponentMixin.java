@@ -18,7 +18,7 @@ public class WorldGenSettingsComponentMixin {
 
     @Inject(method = "onCreate", at = @At("HEAD"))
     void onCreateFinal(CallbackInfo ci) {
-        if (PCClientConfig.WORLD_USES_STATIC_SEED.get() && !PCClientConfig.STATIC_SEED.get().isEmpty()) {
+        if (!PCClientConfig.STATIC_SEED.get().isEmpty()) {
             this.uiState.setSeed(PCClientConfig.STATIC_SEED.get());
         }
     }

@@ -61,8 +61,8 @@ public record PadAction(
     public record CommandAction(String command, int executionLevel, boolean executeAsServer) implements ActionRunner {
         public static final Codec<CommandAction> CODEC = RecordCodecBuilder.create(builder -> builder.group(
                 Codec.STRING.fieldOf("command").forGetter(CommandAction::command),
-                Codec.INT.optionalFieldOf("execution_level", PermissionLevel.GAMEMASTERS.id()).forGetter(CommandAction::executionLevel),
-                Codec.BOOL.optionalFieldOf("execute_as_server", false).forGetter(CommandAction::executeAsServer)
+                Codec.INT.optionalFieldOf("executionLevel", PermissionLevel.GAMEMASTERS.id()).forGetter(CommandAction::executionLevel),
+                Codec.BOOL.optionalFieldOf("executeAsServer", false).forGetter(CommandAction::executeAsServer)
         ).apply(builder, CommandAction::new));
 
         public static final StreamCodec<FriendlyByteBuf, CommandAction> STREAM_CODEC = StreamCodec.composite(

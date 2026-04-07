@@ -4,17 +4,15 @@ import com.google.common.base.Suppliers;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.packcompanion.PackCompanion;
-import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.Feature;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -30,7 +28,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Util;
-import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityProcessor;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -52,7 +49,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SpawnerFeature extends Feature.Server {
@@ -74,7 +69,7 @@ public class SpawnerFeature extends Feature.Server {
     public SpawnerFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
-        if (!PCServerConfig.SPAWNERS_ALLOW_RESPAWN.get()) {
+        if (!PCCommonConfig.SPAWNERS_ALLOW_RESPAWN.get()) {
             return; // Module is disabled
         }
 
@@ -94,7 +89,7 @@ public class SpawnerFeature extends Feature.Server {
 
     // Defer loading so the config and registry are initialized
     private final Supplier<List<EntityType<?>>> randomEntities = Suppliers.memoize(() -> {
-        List<String> randomEntities = PCServerConfig.SPAWNERS_USE_RANDOM_ENTITY.get();
+        List<String> randomEntities = PCCommonConfig.SPAWNERS_USE_RANDOM_ENTITY.get();
         List<EntityType<?>> entities = new ArrayList<>();
         for (String entity : randomEntities) {
             Identifier resourceLocation = Identifier.tryParse(entity);
@@ -137,7 +132,7 @@ public class SpawnerFeature extends Feature.Server {
         dataStore.brokenSpawners.add(new MobSpawnerData(pos, compound, ((ServerLevel) level).dimension()));
         dataStore.setDirty();
 
-        if (PCServerConfig.PUNISH_BREAKING_SPAWNER.get()) {
+        if (PCCommonConfig.PUNISH_BREAKING_SPAWNER.get()) {
             this.spawnPunishment((ServerPlayer) player, (Level) level, pos, compound);
         }
     }
@@ -237,7 +232,7 @@ public class SpawnerFeature extends Feature.Server {
         }
 
         Instant currentTime = Instant.now();
-        int respawnInterval = PCServerConfig.SPAWNERS_RESPAWN_INTERVAL.get();
+        int respawnInterval = PCCommonConfig.SPAWNERS_RESPAWN_INTERVAL.get();
 
         // Copy list to avoid concurrent modification
         for (MobSpawnerData spawnerData : dimensionSpawners) {
