@@ -5,10 +5,8 @@ import dev.ftb.packcompanion.config.PCClientConfig;
 import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.core.Feature;
-import dev.ftb.packcompanion.features.buffs.MobEntityBuffFeature;
 import dev.ftb.packcompanion.features.forcedgamemodes.ForcedGameModesFeature;
 import dev.ftb.packcompanion.features.forcedgamerule.ForcedGameRulesFeature;
-import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.schematic.SchematicPasteFeature;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
@@ -17,11 +15,12 @@ import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.triggerblock.TriggerBlockFeature;
 import dev.ftb.packcompanion.features.villager.NoWanderingTraderInvisPotions;
 import dev.ftb.packcompanion.integrations.Integrations;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.bus.api.IEventBus;
@@ -31,7 +30,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -50,13 +49,10 @@ import java.util.function.Predicate;
 @Mod(PackCompanion.MOD_ID)
 public class PackCompanion {
     public static final String MOD_ID = "ftbpc";
-    private static final String KEY_CATEGORY = "ftbpackcompanion.key.category";
 
     public static final Map<ResourceKey<? extends Registry<?>>, DeferredRegister<?>> REGISTRIES = new HashMap<>();
 
     private static final List<BiFunction<IEventBus, ModContainer, Feature>> FEATURES = List.of(
-            RandomNameLootFeature::new,
-            MobEntityBuffFeature::new,
             SpawnerFeature::new,
             StructuresFeature::new,
             ShaderNotice::new,
@@ -143,12 +139,12 @@ public class PackCompanion {
     }
 
     @SubscribeEvent
-    public void addReloadListeners(AddReloadListenerEvent event) {
-        event.addListener(new ServerDataReloader());
+    public void addReloadListeners(AddServerReloadListenersEvent event) {
+        event.addListener(Identifier.fromNamespaceAndPath(MOD_ID, "data_reloader"), new ServerDataReloader());
     }
 
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
     private class ServerDataReloader implements ResourceManagerReloadListener {
@@ -175,7 +171,4 @@ public class PackCompanion {
         return createdFeatures;
     }
 
-    public static String getKeyCategory() {
-        return KEY_CATEGORY;
-    }
 }

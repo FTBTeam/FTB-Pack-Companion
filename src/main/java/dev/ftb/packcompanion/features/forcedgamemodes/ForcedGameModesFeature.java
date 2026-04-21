@@ -1,10 +1,9 @@
 package dev.ftb.packcompanion.features.forcedgamemodes;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import net.minecraft.ChatFormatting;
@@ -18,6 +17,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
@@ -54,7 +55,7 @@ public class ForcedGameModesFeature extends Feature.Common {
                     .executes(this::fixPlayer)
             )
             .then(Commands.literal("bypass")
-                    .requires(c -> c.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                    .requires(c -> c.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                     .then(Commands.literal("list")
                             .executes(this::listBypassPlayers)
                     )
@@ -73,18 +74,18 @@ public class ForcedGameModesFeature extends Feature.Common {
     }
 
     private int listBypassPlayers(CommandContext<CommandSourceStack> context) {
-        Set<GameProfile> bypassPlayers = data(context.getSource().getServer()).bypassPlayers();
+        Set<NameAndId> bypassPlayers = data(context.getSource().getServer()).bypassPlayers();
         if (bypassPlayers.isEmpty()) {
             context.getSource().sendSuccess(() -> Component.translatable("ftbpackcompanion.command.bypass.no-players"), false);
             return 0;
         }
 
-        for (GameProfile profile : bypassPlayers) {
+        for (NameAndId profile : bypassPlayers) {
             context.getSource().sendSuccess(() ->
-                    Component.literal("- " + profile.getName() + " ")
+                    Component.literal("- " + profile.name() + " ")
                             .append(Component.literal("[Remove]").withStyle(Style.EMPTY
                                     .withColor(ChatFormatting.RED)
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ftbpc forcedgamemodes bypass remove " + profile.getName()))
+                                    .withClickEvent(new ClickEvent.SuggestCommand("/ftbpc forcedgamemodes bypass remove " + profile.name()))
                             ))
             , false);
         }
@@ -105,7 +106,7 @@ public class ForcedGameModesFeature extends Feature.Common {
     }
 
     private void onPlayerChangeDimension(EntityTravelToDimensionEvent event) {
-        Map<String, GameType> config = PCServerConfig.DIMENSION_FORCED_GAMEMODES.get();
+        Map<String, GameType> config = PCCommonConfig.DIMENSION_FORCED_GAME_MODES.get();
         if (config.isEmpty()) {
             return;
         }
@@ -116,7 +117,7 @@ public class ForcedGameModesFeature extends Feature.Common {
         }
 
         // Don't change peoples gamemode if they are in the bypass list
-        if (data(player.server).bypassPlayers().contains(player.getGameProfile())) {
+        if (data(player.level().getServer()).bypassPlayers().contains(player.getGameProfile())) {
             return;
         }
 
@@ -129,9 +130,9 @@ public class ForcedGameModesFeature extends Feature.Common {
             return;
         }
 
-        Map<String, GameType> config = PCServerConfig.DIMENSION_FORCED_GAMEMODES.get();
-        ForcedGameModeData data = data(player.server);
-        var forcedGameMode = config.get(dimension.location().toString());
+        Map<String, GameType> config = PCCommonConfig.DIMENSION_FORCED_GAME_MODES.get();
+        ForcedGameModeData data = data(player.level().getServer());
+        var forcedGameMode = config.get(dimension.identifier().toString());
         if (forcedGameMode == null) {
             // Push the player back to their original gamemode if they are not in a forced gamemode dimension
             var previousGameMode = data.removePreviousGameMode(player.getUUID());

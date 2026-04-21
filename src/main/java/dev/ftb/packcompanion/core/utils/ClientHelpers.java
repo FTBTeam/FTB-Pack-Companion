@@ -7,7 +7,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 
 public class ClientHelpers {
     public static boolean clientIsSurvival() {
-        if (FMLEnvironment.dist != Dist.CLIENT) {
+        if (FMLEnvironment.getDist() != Dist.CLIENT) {
             throw new IllegalStateException("This method can only be called on the client side.");
         }
 

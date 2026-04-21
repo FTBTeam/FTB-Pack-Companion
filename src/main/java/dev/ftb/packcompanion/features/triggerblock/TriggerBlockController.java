@@ -48,7 +48,7 @@ public enum TriggerBlockController {
 
         playersInTriggers.put(key, Instant.now());
         if (triggerBlockEntity.ignorePlayersWithTag() != null) {
-            if (player.getTags().contains(triggerBlockEntity.ignorePlayersWithTag())) {
+            if (player.entityTags().contains(triggerBlockEntity.ignorePlayersWithTag())) {
                 return;
             }
         }

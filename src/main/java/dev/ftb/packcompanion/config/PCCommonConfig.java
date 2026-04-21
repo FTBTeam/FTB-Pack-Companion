@@ -1,57 +1,84 @@
 package dev.ftb.packcompanion.config;
 
 import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
-import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
-import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
-import dev.ftb.mods.ftblibrary.snbt.config.StringValue;
+import dev.ftb.mods.ftblibrary.config.value.*;
 import dev.ftb.packcompanion.PackCompanion;
-import dev.ftb.packcompanion.config.values.ChunkPosCustomYHashValue;
 import dev.ftb.packcompanion.config.values.GameRuleMapping;
-import dev.ftb.packcompanion.config.values.SparseStructuresConfig;
-import dev.ftb.packcompanion.config.values.SparseStructuresValue;
+import net.minecraft.world.level.GameType;
 
 import java.util.*;
 
 public interface PCCommonConfig {
-    SNBTConfig CONFIG = SNBTConfig.create(PackCompanion.MOD_ID + "-common");
+    Config CONFIG = Config.create(PackCompanion.MOD_ID + "-common");
 
-    BooleanValue BREAK_LIGHT_SOURCES_NEAR_SPAWNERS = CONFIG.addBoolean("break_light_sources_near_spawners", false)
+    //#region Spawners
+    Config SPAWNERS = CONFIG.addGroup("spawners")
+            .comment("Settings related to mob spawners.");
+
+    BooleanValue BREAK_LIGHT_SOURCES_NEAR_SPAWNERS = SPAWNERS
+            .addBoolean("break_light_sources_near_spawners", false)
             .comment("When enabled, light sources near spawners will be broken to allow for mob spawning.");
 
-    BooleanValue IGNORE_LIGHT_LEVEL_FOR_SPAWNERS = CONFIG.addBoolean("ignore_light_level_for_spawners", false)
+    BooleanValue IGNORE_LIGHT_LEVEL_FOR_SPAWNERS = SPAWNERS
+            .addBoolean("ignore_light_level_for_spawners", false)
             .comment("When enabled, the light level around spawners will be ignored for mob spawning.");
 
-    BooleanValue REMOVE_CONCENTRIC_RING_PLACEMENT_BIAS = CONFIG.addBoolean("remove_concentric_ring_placement_bias", false)
-            .comment("When enabled, the random bias applied to concentric ring distances is removed");
+    BooleanValue SPAWNERS_ALLOW_RESPAWN = SPAWNERS
+            .addBoolean("allow_respawn", false)
+            .comment("When enabled, broken spawner blocks will be remembered and will respawn at a given interval.");
 
-    SparseStructuresValue SPARSE_STRUCTURES = CONFIG.add(new SparseStructuresValue(CONFIG, "sparse_structures", SparseStructuresConfig.DEFAULT));
+    IntValue SPAWNERS_RESPAWN_INTERVAL = SPAWNERS
+            .addInt("respawn_interval", 60, 0, 24 * 60)
+            .comment("The interval in minutes at which spawners will respawn.");
 
-    SNBTConfig SHADERS_NOTICE = CONFIG.addGroup("shaders_notice");
+    StringListValue SPAWNERS_USE_RANDOM_ENTITY = SPAWNERS
+            .addStringList("random_entity", new ArrayList<>())
+            .comment("A list of entity types that will be used to replace broken spawners. Set to an empty list to disable.");
 
-    StringValue SHADER_PACK_TO_USE = SHADERS_NOTICE.addString("shader_pack_to_use", "")
+    BooleanValue PUNISH_BREAKING_SPAWNER = SPAWNERS
+            .addBoolean("punish_for_breaking_spawners", false)
+            .comment("Apply a punishment effect when a player breaks a spawner.");
+    //#endregion
+
+    //#region Shaders notice
+    Config SHADERS_NOTICE = CONFIG.addGroup("shaders_notice");
+
+    StringValue SHADER_PACK_TO_USE = SHADERS_NOTICE
+            .addString("shader_pack_to_use", "")
             .comment("The shader pack to use when enabling shaders. Leave empty to use the default shader pack / first available shader pack in the list");
 
-    BooleanValue SHOW_ON_START = SHADERS_NOTICE.addBoolean("show_on_start", false)
+    BooleanValue SHOW_ON_START = SHADERS_NOTICE
+            .addBoolean("show_on_start", false)
             .comment("When enabled, the shaders notice will be shown on world start if shaders are included in the pack.");
+    //#endregion
 
-    SNBTConfig INTEGRATIONS = CONFIG.addGroup("integrations");
+    Config WORLDGEN = CONFIG.addGroup("worldgen")
+            .comment("Settings related to world generation.");
 
-    SNBTConfig FTB_CHUNKS = INTEGRATIONS.addGroup("ftb_chunks")
-            .comment("Configuration options for the FTB Chunks mod integration. Only effective if FTB Chunks is installed.");
+    StringMapValue STRUCTURE_ROTATION_OVERRIDE = WORLDGEN.add(new StringMapValue(WORLDGEN, "structure_rotation_override", new HashMap<>()))
+            .comment("Applies to structures of type 'minecraft:jigsaw' only",
+                    "Maps template pool ID's to a forced rotation for that pool: one of 'none', 'clockwise_90', '180', 'counterclockwise_90'");
 
-    ChunkPosCustomYHashValue CUSTOM_Y_LEVEL_CHUNK_POSITIONS = FTB_CHUNKS.add(new ChunkPosCustomYHashValue(
-            FTB_CHUNKS,
-            "custom_y_level_chunk_positions",
-            new ArrayList<>()
-    ).comment("Custom min-y level list for specific block locations within a range from the center, per dimension."));
+    Config MISC = CONFIG.addGroup("misc")
+            .comment("Miscellaneous settings that don't fit in other categories.");
 
-    SNBTConfig FORCED_GAME_RULES = CONFIG.addGroup("forced-game-rules");
+    BooleanValue NO_WANDERING_TRADER_INVIS_POTIONS = MISC.addBoolean("no_wandering_trader_invis_potions", false)
+            .comment("If true, Wandering Traders will no longer drink invisibility potions at night",
+                    "(or milk buckets to remove their invisibility when it's day)");
 
-    GameRuleMapping GAME_RULE_MAPPING = FORCED_GAME_RULES.add(new GameRuleMapping(
-            FORCED_GAME_RULES,
-            "rules",
-            Map.of()
-    ).comment("Game rules that are forced on the server. The keys must be valid game rule IDs."));
+    AbstractMapValue<GameType> DIMENSION_FORCED_GAME_MODES = MISC.add(new AbstractMapValue<>(
+            MISC,
+            "dimension_forced_gamemodes",
+            new HashMap<>(),
+            GameType.CODEC
+    ) {}.comment("A mapping of dimension IDs to forced game modes. Players entering the dimension will have their game mode changed accordingly."));
+
+    GameRuleMapping GAME_RULE_MAPPING = MISC.add(new GameRuleMapping(
+            MISC,
+            "forced_game_rules"
+    )
+            .excludedFromGui()
+            .comment("Game rules that are forced on the server. The keys must be valid game rule IDs."));
 
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);

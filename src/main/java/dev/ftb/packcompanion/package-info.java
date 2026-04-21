@@ -1,4 +1,4 @@
-@ParametersAreNonnullByDefault
+@NullMarked
 package dev.ftb.packcompanion;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -1,23 +1,23 @@
 package dev.ftb.packcompanion.features.actionpad.client;
 
+import dev.ftb.mods.ftblibrary.client.gui.SimpleToast;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.screens.AbstractButtonListScreen;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.ui.SimpleTextButton;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
-import dev.ftb.mods.ftblibrary.ui.misc.SimpleToast;
-import dev.ftb.packcompanion.core.utils.NameAndUuid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.util.Mth;
 
 import java.util.List;
 
 public class ActionTPAScreen extends AbstractButtonListScreen {
-    private final List<NameAndUuid> users;
+    private final List<NameAndId> users;
 
-    public ActionTPAScreen(List<NameAndUuid> users) {
+    public ActionTPAScreen(List<NameAndId> users) {
         super();
 
         this.showBottomPanel(false);
@@ -30,7 +30,7 @@ public class ActionTPAScreen extends AbstractButtonListScreen {
     @Override
     public boolean onInit() {
         int max = getTheme().getStringWidth(getTitle());
-        for (NameAndUuid user : users) {
+        for (NameAndId user : users) {
             max = Math.max(max, getTheme().getStringWidth(Component.translatable(user.name())) + 20);
         }
 

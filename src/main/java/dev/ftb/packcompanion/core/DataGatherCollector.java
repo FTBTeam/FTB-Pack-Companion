@@ -1,11 +1,11 @@
 package dev.ftb.packcompanion.core;
 
 import dev.ftb.packcompanion.PackCompanionDataGen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ import java.util.function.Consumer;
 public class DataGatherCollector {
     private final TranslationCollector translationCollector = new TranslationCollector();
 
-    private final List<Consumer<BlockStateProvider>> blockStateProviders = new ArrayList<>();
-    private final List<Consumer<ItemModelProvider>> itemModelProviders = new ArrayList<>();
+    private final List<Consumer<BlockModelGenerators>> blockStateProviders = new ArrayList<>();
+    private final List<Consumer<ItemModelGenerators>> itemModelProviders = new ArrayList<>();
     private final List<Consumer<PackCompanionDataGen.ItemTagGen>> itemTagProviders = new ArrayList<>();
     private final List<Consumer<PackCompanionDataGen.BlockTagGen>> blockTagProviders = new ArrayList<>();
 
@@ -26,11 +26,11 @@ public class DataGatherCollector {
         return translationCollector;
     }
 
-    public List<Consumer<BlockStateProvider>> blockStateProviders() {
+    public List<Consumer<BlockModelGenerators>> blockStateProviders() {
         return blockStateProviders;
     }
 
-    public List<Consumer<ItemModelProvider>> itemModelProviders() {
+    public List<Consumer<ItemModelGenerators>> itemModelProviders() {
         return itemModelProviders;
     }
 
@@ -42,11 +42,11 @@ public class DataGatherCollector {
         return blockTagProviders;
     }
 
-    public void addBlockStateProvider(Consumer<BlockStateProvider> provider) {
+    public void addBlockStateProvider(Consumer<BlockModelGenerators> provider) {
         blockStateProviders.add(provider);
     }
 
-    public void addItemModelProvider(Consumer<ItemModelProvider> provider) {
+    public void addItemModelProvider(Consumer<ItemModelGenerators> provider) {
         itemModelProviders.add(provider);
     }
 
@@ -66,13 +66,13 @@ public class DataGatherCollector {
         }
 
         public void addBlock(DeferredHolder<Block, ? extends Block> blockHolder, String name) {
-            ResourceLocation resourceKey = blockHolder.getKey().location();
+            Identifier resourceKey = blockHolder.getKey().identifier();
             String key = "block." + resourceKey.getNamespace() + "." + resourceKey.getPath();
             add(key, name);
         }
 
         public void addItem(DeferredHolder<Item, ? extends Item> item, String value) {
-            ResourceLocation resourceKey = item.getKey().location();
+            Identifier resourceKey = item.getKey().identifier();
             String key = "item." + resourceKey.getNamespace() + "." + resourceKey.getPath();
             add(key, value);
         }

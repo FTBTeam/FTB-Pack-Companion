@@ -1,6 +1,6 @@
 {
   "entities": [
-    "minecraft:player"
+    "#curios:player_like"
   ],
   "slots": [
     "curio"

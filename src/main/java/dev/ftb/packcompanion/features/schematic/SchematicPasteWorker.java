@@ -1,7 +1,8 @@
 package dev.ftb.packcompanion.features.schematic;
 
 import com.mojang.datafixers.util.Either;
-import net.minecraft.Util;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,14 +13,18 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -27,21 +32,29 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SchematicPasteWorker {
+    public static final Codec<SchematicPasteWorker> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Identifier.CODEC.fieldOf("schematic").forGetter(w -> w.location),
+            Identifier.CODEC.fieldOf("dimensionId").forGetter(w -> w.dimensionId),
+            BlockPos.CODEC.fieldOf("basePos").forGetter(w -> w.basePos),
+            Codec.INT.fieldOf("speed").forGetter(w -> w.blocksPerTick),
+            BlockPos.CODEC.fieldOf("currentPos").forGetter(w -> w.currentPos)
+    ).apply(instance, SchematicPasteWorker::new));
+
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
-    private final ResourceLocation location;
+    private final Identifier location;
     private final BlockPos basePos;
     private final int blocksPerTick;  // blocks per tick
     private final BlockPos.MutableBlockPos currentPos;
     @Nullable
     private final CommandSourceStack sourceStack;
-    private ResourceLocation dimensionId;
+    private Identifier dimensionId;
     private ServerLevel level;
     private SchematicData data;
     private State state;
     private CompletableFuture<Void> future;
     private String terminationMessage = "";
 
-    public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, ResourceLocation location, Either<ServerLevel,ResourceLocation> levelOrDimensionId, BlockPos basePos, int blocksPerTick) {
+    public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, Identifier location, Either<ServerLevel,Identifier> levelOrDimensionId, BlockPos basePos, int blocksPerTick, BlockPos.MutableBlockPos currentPos) {
         this.sourceStack = sourceStack;
         this.location = location;
         this.basePos = basePos;
@@ -49,37 +62,45 @@ public class SchematicPasteWorker {
         levelOrDimensionId
                 .ifLeft(level -> {
                     this.level = level;
-                    this.dimensionId = level.dimension().location();
+                    this.dimensionId = level.dimension().identifier();
                 })
                 .ifRight(dimId -> this.dimensionId = dimId);
         state = State.INIT;
-        currentPos = BlockPos.ZERO.mutable();
+        this.currentPos = currentPos;
     }
 
-    public static Optional<SchematicPasteWorker> fromNBT(Tag tag) {
-        if (tag instanceof CompoundTag c) {
-            SchematicPasteWorker worker = new SchematicPasteWorker(
-                    null,
-                    ResourceLocation.tryParse(c.getString("schematic")),
-                    Either.right(ResourceLocation.tryParse(c.getString("dimensionId"))),
-                    NbtUtils.readBlockPos(c, "basePos").orElse(BlockPos.ZERO),
-                    c.getInt("speed")
-            );
-            worker.currentPos.set(NbtUtils.readBlockPos(c, "currentPos").orElse(BlockPos.ZERO).mutable());
-            return Optional.of(worker);
-        }
-        return Optional.empty();
+    public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, Identifier location, Either<ServerLevel,Identifier> levelOrDimensionId, BlockPos basePos, int blocksPerTick) {
+        this(sourceStack, location, levelOrDimensionId, basePos, blocksPerTick, BlockPos.ZERO.mutable());
     }
 
-    public Tag saveNBT() {
-        return Util.make(new CompoundTag(), tag -> {
-            tag.putString("schematic", location.toString());
-            tag.putString("dimensionId", dimensionId.toString());
-            tag.put("basePos", NbtUtils.writeBlockPos(basePos));
-            tag.putInt("speed", blocksPerTick);
-            tag.put("currentPos", NbtUtils.writeBlockPos(currentPos));
-        });
+    public SchematicPasteWorker(Identifier location, Identifier dimensionId, BlockPos basePos, int blocksPerTick, BlockPos currentPos) {
+        this(null, location, Either.right(dimensionId), basePos, blocksPerTick, currentPos.mutable());
     }
+
+//    public static Optional<SchematicPasteWorker> fromNBT(Tag tag) {
+//        if (tag instanceof CompoundTag c) {
+//            SchematicPasteWorker worker = new SchematicPasteWorker(
+//                    null,
+//                    Identifier.tryParse(c.getString("schematic")),
+//                    Either.right(Identifier.tryParse(c.getString("dimensionId"))),
+//                    NbtUtils.readBlockPos(c, "basePos").orElse(BlockPos.ZERO),
+//                    c.getInt("speed")
+//            );
+//            worker.currentPos.set(NbtUtils.readBlockPos(c, "currentPos").orElse(BlockPos.ZERO).mutable());
+//            return Optional.of(worker);
+//        }
+//        return Optional.empty();
+//    }
+//
+//    public Tag saveNBT() {
+//        return Util.make(new CompoundTag(), tag -> {
+//            tag.putString("schematic", location.toString());
+//            tag.putString("dimensionId", dimensionId.toString());
+//            tag.put("basePos", NbtUtils.writeBlockPos(basePos));
+//            tag.putInt("speed", blocksPerTick);
+//            tag.put("currentPos", NbtUtils.writeBlockPos(currentPos));
+//        });
+//    }
 
     public void tick(MinecraftServer server) {
         if (state == State.INIT) {
@@ -100,7 +121,8 @@ public class SchematicPasteWorker {
                 data.getBlockEntityDataAt(currentPos).ifPresent(beData -> {
                     BlockEntity be = level.getBlockEntity(destPos);
                     if (be != null) {
-                        be.loadWithComponents(beData, server.registryAccess());
+                        ValueInput valueInput = TagValueInput.create(ProblemReporter.DISCARDING, server.registryAccess(), beData);
+                        be.loadWithComponents(valueInput);
                     }
                 });
                 advanceCurrentPos();
@@ -117,7 +139,7 @@ public class SchematicPasteWorker {
             if (currentPos.getZ() >= data.getLength()) {
                 currentPos.setZ(0);
                 currentPos.move(Direction.UP); // pos Y
-                if (currentPos.getY() >= data.getHeight() || currentPos.getY() >= level.getMaxBuildHeight()) {
+                if (currentPos.getY() >= data.getHeight() || currentPos.getY() >= level.getMaxY()) {
                     state = State.FINISHED;
                 }
             }
@@ -145,11 +167,11 @@ public class SchematicPasteWorker {
         return state;
     }
 
-    public ResourceLocation getDimensionId() {
+    public Identifier getDimensionId() {
         return dimensionId;
     }
 
-    public ResourceLocation makeKey() {
+    public Identifier makeKey() {
         return location.withSuffix("_" + basePos.getX() + "_" + basePos.getY() + "_" + basePos.getZ());
     }
 

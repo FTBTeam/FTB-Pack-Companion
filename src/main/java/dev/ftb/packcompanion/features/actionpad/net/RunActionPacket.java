@@ -26,7 +26,9 @@ public record RunActionPacket(String actionName) implements CustomPacketPayload 
     public static void handle(RunActionPacket packet, IPayloadContext context) {
         if (context.player() instanceof ServerPlayer serverPlayer) {
             context.enqueueWork(() ->
-                    PadActions.get().getAction(serverPlayer, packet.actionName)
+                    PadActions.getAction(serverPlayer, packet.actionName)
+                            // Ensure the player has actually unlocked the action.
+                            .filter(e -> PadActions.hasUnlocked(e, serverPlayer))
                             .flatMap(action -> action.commandAction().map(ActionRunner::asActionRunner)
                                     .or(() -> action.teleportAction().map(ActionRunner::asActionRunner))
                             )

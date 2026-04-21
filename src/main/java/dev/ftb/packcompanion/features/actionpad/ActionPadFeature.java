@@ -5,7 +5,9 @@ import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.actionpad.client.ActionPadClient;
 import dev.ftb.packcompanion.features.actionpad.net.*;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
@@ -22,17 +24,19 @@ import top.theillusivec4.curios.api.CuriosTags;
 
 public class ActionPadFeature extends Feature.Common {
     private static final DeferredRegister<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
-    public static final DeferredHolder<Item, ActionPadItem> ACTION_PAD = ITEM_REGISTRY.register("action_pad", () ->
-            new ActionPadItem(new Item.Properties().stacksTo(1))
+    public static final DeferredHolder<Item, ActionPadItem> ACTION_PAD = ITEM_REGISTRY.register("action_pad", (v) ->
+            new ActionPadItem(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, v)))
     );
 
     public ActionPadFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
+        PadActions.register();
+
         modEventBus.addListener(this::onClientInit);
         modEventBus.addListener(this::creativeTab);
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             modEventBus.addListener(ActionPadClient::onRegisterKeyBindings);
         }
     }
@@ -45,12 +49,6 @@ public class ActionPadFeature extends Feature.Common {
 
     private void onClientInit(FMLClientSetupEvent event) {
         NeoForge.EVENT_BUS.addListener(ActionPadClient::onInputEvent);
-    }
-
-    @Override
-    public void onReload(ResourceManager resourceManager) {
-        // Reload actions
-        PadActions.get().load();
     }
 
     @Override
@@ -77,7 +75,8 @@ public class ActionPadFeature extends Feature.Common {
         translations.prefixed("key.open_action_pad", "Open Action Pad");
 
         collector.addItemModelProvider(provider -> {
-            provider.basicItem(ACTION_PAD.get());
+            provider.generateFlatItem(ACTION_PAD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+//            provider.basicItem(ACTION_PAD.get());
         });
 
         collector.addItemTagProvider(provider -> {

@@ -5,6 +5,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class TriggerBlockEntity extends BlockEntity {
     private String name = "unknown";
@@ -15,23 +17,19 @@ public class TriggerBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putString("name", name);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putString("name", name);
         if (ignorePlayersWithTag != null && !ignorePlayersWithTag.isEmpty()) {
-            tag.putString("ignoreTag", ignorePlayersWithTag);
+            output.putString("ignoreTag", ignorePlayersWithTag);
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains("name")) {
-            name = tag.getString("name");
-        }
-        if (tag.contains("ignoreTag")) {
-            ignorePlayersWithTag = tag.getString("ignoreTag");
-        }
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        input.getString("name").ifPresent(n -> this.name = n);
+        input.getString("ignoreTag").ifPresent(t -> this.ignorePlayersWithTag = t);
     }
 
     public String name() {

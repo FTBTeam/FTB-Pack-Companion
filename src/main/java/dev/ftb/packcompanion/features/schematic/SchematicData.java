@@ -23,9 +23,10 @@ class SchematicData {
     private final Map<BlockPos, CompoundTag> blockEntityData = new HashMap<>();
 
     public static SchematicData load(HolderLookup.RegistryLookup<Block> lookup, CompoundTag tag) throws IOException {
-        if (tag.contains("Schematic") && tag.getCompound("Schematic").getInt("Version") == 3) {
-            return new SchematicData(lookup, tag.getCompound("Schematic"), 3);
-        } else if (tag.getInt("Version") == 2) {
+        Optional<CompoundTag> schematic = tag.getCompound("Schematic");
+        if (schematic.isPresent() && schematic.get().getIntOr("Version", -1) == 3) {
+            return new SchematicData(lookup, schematic.get(), 3);
+        } else if (tag.getIntOr("Version", -1) == 2) {
             return new SchematicData(lookup, tag, 2);
         } else {
             throw new IOException("Unknown schematic format");
@@ -33,21 +34,21 @@ class SchematicData {
     }
 
     private SchematicData(HolderLookup.RegistryLookup<Block> lookup, CompoundTag tag, int version) throws IOException {
-        height = tag.getInt("Height");
-        length = tag.getInt("Length");
-        width = tag.getInt("Width");
+        height = tag.getInt("Height").orElseThrow();
+        length = tag.getInt("Length").orElseThrow();
+        width = tag.getInt("Width").orElseThrow();
         buffer = new BlockState[width][height][length];
 
         if (version == 2) {
-            BlockState[] statePalette = loadPalette(lookup, tag.getInt("PaletteMax"), tag.getCompound("Palette"));
-            loadBlockData(tag.getByteArray("BlockData"), statePalette);
-            loadBlockEntityData(tag.getList("BlockEntities", Tag.TAG_COMPOUND), "Extra");
+            BlockState[] statePalette = loadPalette(lookup, tag.getInt("PaletteMax").orElseThrow(), tag.getCompound("Palette").orElseThrow());
+            loadBlockData(tag.getByteArray("BlockData").orElseThrow(), statePalette);
+            loadBlockEntityData(tag.getListOrEmpty("BlockEntities"), "Extra");
         } else if (version == 3) {
-            CompoundTag blockTag = tag.getCompound("Blocks");
-            CompoundTag palette = blockTag.getCompound("Palette");
+            CompoundTag blockTag = tag.getCompound("Blocks").orElseThrow();
+            CompoundTag palette = blockTag.getCompound("Palette").orElseThrow();
             BlockState[] statePalette = loadPalette(lookup, palette.size(), palette);
-            loadBlockData(blockTag.getByteArray("Data"), statePalette);
-            loadBlockEntityData(blockTag.getList("BlockEntities", Tag.TAG_COMPOUND), "Data");
+            loadBlockData(blockTag.getByteArray("Data").orElseThrow(), statePalette);
+            loadBlockEntityData(blockTag.getListOrEmpty("BlockEntities"), "Data");
         } else {
             throw new IOException("Unsupported schematic version " + version);
         }
@@ -71,26 +72,32 @@ class SchematicData {
 
     private void loadBlockEntityData(ListTag tag, String dataKey) {
         for (int i = 0; i < tag.size(); i++) {
-            CompoundTag el = tag.getCompound(i);
-            var posTag = el.getIntArray("Pos");
-            if (posTag.length == 3) {
-                blockEntityData.put(new BlockPos(posTag[0], posTag[1], posTag[2]), el.getCompound(dataKey));
+            Optional<CompoundTag> el = tag.getCompound(i);
+            if (el.isEmpty()) {
+                continue;
+            }
+
+            var posTag = el.get().getIntArray("Pos");
+            if (posTag.isPresent() && posTag.get().length == 3) {
+                var pos = posTag.get();
+                blockEntityData.put(new BlockPos(pos[0], pos[1], pos[2]), el.get().getCompoundOrEmpty(dataKey));
             }
         }
     }
 
     private BlockState[] loadPalette(HolderLookup.RegistryLookup<Block> lookup, int paletteMax, CompoundTag palTag) {
         BlockState[] statePalette = new BlockState[paletteMax];
-        for (String key : palTag.getAllKeys()) {
+        for (Map.Entry<String, Tag> entry : palTag.entrySet()) {
+            var key = entry.getKey();
             try {
                 var state = BlockStateParser.parseForBlock(lookup, key, false).blockState();
-                statePalette[palTag.getInt(key)] = state;
+                statePalette[palTag.getIntOr(key, 0)] = state;
             } catch (CommandSyntaxException e) {
                 SchematicPasteManager.LOGGER.error("invalid blockstate {}", key);
-                statePalette[palTag.getInt(key)] = Blocks.AIR.defaultBlockState();
+                statePalette[palTag.getIntOr(key, 0)] = Blocks.AIR.defaultBlockState();
             } catch (IllegalArgumentException e) {
-                SchematicPasteManager.LOGGER.error("invalid palette index {}", palTag.getInt(key));
-                statePalette[palTag.getInt(key)] = Blocks.AIR.defaultBlockState();
+                SchematicPasteManager.LOGGER.error("invalid palette index {}", palTag.getIntOr(key, 0));
+                statePalette[palTag.getIntOr(key, 0)] = Blocks.AIR.defaultBlockState();
             }
         }
         return statePalette;

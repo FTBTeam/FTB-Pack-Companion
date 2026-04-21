@@ -3,8 +3,10 @@ package dev.ftb.packcompanion.core.utils;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.players.NameAndId;
 import org.joml.Vector2f;
 
 public class ExtraCodecs {
@@ -17,5 +19,11 @@ public class ExtraCodecs {
             ByteBufCodecs.FLOAT, v -> v.x,
             ByteBufCodecs.FLOAT, v -> v.y,
             Vector2f::new
+    );
+
+    public static final StreamCodec<ByteBuf, NameAndId> NAME_AND_ID_STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC, NameAndId::id,
+            ByteBufCodecs.STRING_UTF8, NameAndId::name,
+            NameAndId::new
     );
 }

@@ -4,31 +4,33 @@ import com.google.common.base.Suppliers;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.ftb.packcompanion.config.PCServerConfig;
+import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.config.PCCommonConfig;
 import dev.ftb.packcompanion.core.Feature;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityProcessor;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
@@ -39,12 +41,15 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +59,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class SpawnerFeature extends Feature.Server {
@@ -65,7 +70,7 @@ public class SpawnerFeature extends Feature.Server {
     public SpawnerFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
-        if (!PCServerConfig.SPAWNERS_ALLOW_RESPAWN.get()) {
+        if (!PCCommonConfig.SPAWNERS_ALLOW_RESPAWN.get()) {
             return; // Module is disabled
         }
 
@@ -85,25 +90,25 @@ public class SpawnerFeature extends Feature.Server {
 
     // Defer loading so the config and registry are initialized
     private final Supplier<List<EntityType<?>>> randomEntities = Suppliers.memoize(() -> {
-        List<String> randomEntities = PCServerConfig.SPAWNERS_USE_RANDOM_ENTITY.get();
+        List<String> randomEntities = PCCommonConfig.SPAWNERS_USE_RANDOM_ENTITY.get();
         List<EntityType<?>> entities = new ArrayList<>();
         for (String entity : randomEntities) {
-            ResourceLocation resourceLocation = ResourceLocation.tryParse(entity);
+            Identifier resourceLocation = Identifier.tryParse(entity);
             if (resourceLocation == null) {
                 continue;
             }
 
-            EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(resourceLocation);
-            if (entityType == EntityType.PIG && !entity.endsWith("pig")) {
-                continue; // Failed as the registry default is pig
+            Optional<Holder.Reference<EntityType<?>>> entityType = BuiltInRegistries.ENTITY_TYPE.get(resourceLocation);
+            if (entityType.isEmpty()) {
+                continue;
             }
 
-            entities.add(entityType);
+            entities.add(entityType.get().value());
         }
         return entities;
     });
 
-    public void onBlockBroken(BlockEvent.BreakEvent event) {
+    public void onBlockBroken(BreakBlockEvent event) {
         var level = event.getLevel();
         var state = event.getState();
         var pos = event.getPos();
@@ -128,7 +133,7 @@ public class SpawnerFeature extends Feature.Server {
         dataStore.brokenSpawners.add(new MobSpawnerData(pos, compound, ((ServerLevel) level).dimension()));
         dataStore.setDirty();
 
-        if (PCServerConfig.PUNISH_BREAKING_SPAWNER.get()) {
+        if (PCCommonConfig.PUNISH_BREAKING_SPAWNER.get()) {
             this.spawnPunishment((ServerPlayer) player, (Level) level, pos, compound);
         }
     }
@@ -139,7 +144,7 @@ public class SpawnerFeature extends Feature.Server {
             return;
         }
 
-        SpawnData spawnData = SpawnData.CODEC.parse(NbtOps.INSTANCE, compound.getCompound("SpawnData")).resultOrPartial((string) -> {
+        SpawnData spawnData = SpawnData.CODEC.parse(NbtOps.INSTANCE, compound.getCompoundOrEmpty("SpawnData")).resultOrPartial((string) -> {
             LOGGER.warn("Invalid SpawnData: {}", string);
         }).orElseGet(SpawnData::new);
 
@@ -159,7 +164,7 @@ public class SpawnerFeature extends Feature.Server {
         toCheck.add(spawnerPos);
 
         while(!toCheck.isEmpty()) {
-            BlockPos currentPos = toCheck.remove(0);
+            BlockPos currentPos = toCheck.removeFirst();
             BlockState currentState = level.getBlockState(currentPos);
             if (currentState.isAir() || currentState.canBeReplaced() || currentState.getBlock() == Blocks.SPAWNER) {
                 airBlocks.add(currentPos);
@@ -180,17 +185,17 @@ public class SpawnerFeature extends Feature.Server {
         }
 
         List<BlockPos> alreadyTaken = new ArrayList<>();
-        int mobsToSpawn = level.random.nextInt(2, 8); // 2-8 mobs
+        int mobsToSpawn = level.getRandom().nextInt(2, 8); // 2-8 mobs
         int tries = 0;
         while (++tries < 15 && alreadyTaken.size() < mobsToSpawn) {
-            BlockPos randomPos = validBlocks.get(level.random.nextInt(validBlocks.size()));
+            BlockPos randomPos = validBlocks.get(level.getRandom().nextInt(validBlocks.size()));
             if (alreadyTaken.contains(randomPos)) {
                 continue;
             }
 
             alreadyTaken.add(randomPos);
 
-            Entity entity = EntityType.loadEntityRecursive(entityCompound, level, Function.identity());
+            Entity entity = EntityType.loadEntityRecursive(entityCompound, level, EntitySpawnReason.COMMAND, EntityProcessor.NOP);
             if (entity == null) {
                 continue;
             }
@@ -198,14 +203,14 @@ public class SpawnerFeature extends Feature.Server {
             entity.setPos(randomPos.getX() + 0.5, randomPos.getY(), randomPos.getZ() + 0.5);
             level.addFreshEntity(entity);
             var sound = BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR);
-            player.connection.send(new ClientboundSoundPacket(sound, SoundSource.AMBIENT, randomPos.getX(), randomPos.getY(), randomPos.getZ(), .3f, .4f, level.random.nextInt()));
+            player.connection.send(new ClientboundSoundPacket(sound, SoundSource.AMBIENT, randomPos.getX(), randomPos.getY(), randomPos.getZ(), .3f, .4f, level.getRandom().nextInt()));
         }
 
     }
 
     private void onServerTick(LevelTickEvent event) {
         var serverLevel = event.getLevel();
-        if (event.getLevel().isClientSide) {
+        if (event.getLevel().isClientSide()) {
             return;
         }
 
@@ -228,7 +233,7 @@ public class SpawnerFeature extends Feature.Server {
         }
 
         Instant currentTime = Instant.now();
-        int respawnInterval = PCServerConfig.SPAWNERS_RESPAWN_INTERVAL.get();
+        int respawnInterval = PCCommonConfig.SPAWNERS_RESPAWN_INTERVAL.get();
 
         // Copy list to avoid concurrent modification
         for (MobSpawnerData spawnerData : dimensionSpawners) {
@@ -260,16 +265,17 @@ public class SpawnerFeature extends Feature.Server {
                 if (randomEntities.size() == 1) {
                     foundEntity = randomEntities.get(0);
                 } else {
-                    foundEntity = randomEntities.get(serverLevel.random.nextInt(randomEntities.size()));
+                    foundEntity = randomEntities.get(serverLevel.getRandom().nextInt(randomEntities.size()));
                 }
 
                 var entityCompound = Util.make(new CompoundTag(), tag -> tag.put("entity",
-                        Util.make(new CompoundTag(), entityTag -> entityTag.putString("id", Objects.requireNonNull(foundEntity.builtInRegistryHolder().key().location()).toString()))));
+                        Util.make(new CompoundTag(), entityTag -> entityTag.putString("id", Objects.requireNonNull(foundEntity.builtInRegistryHolder().key().identifier()).toString()))));
 
                 compound.put("SpawnData", entityCompound);
             }
 
-            spawnerBlockEntity.loadWithComponents(compound, serverLevel.registryAccess());
+            ValueInput valueInput = TagValueInput.create(ProblemReporter.DISCARDING, serverLevel.registryAccess(), compound);
+            spawnerBlockEntity.loadWithComponents(valueInput);
             spawnerBlockEntity.setChanged();
             dataStore.brokenSpawners.remove(spawnerData);
             dataStore.setDirty();
@@ -311,30 +317,29 @@ public class SpawnerFeature extends Feature.Server {
     }
 
     public static class DataStore extends SavedData {
-        private final List<MobSpawnerData> brokenSpawners = new ArrayList<>();
+        private static final Codec<DataStore> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                MobSpawnerData.CODEC.listOf().fieldOf("broken_spawners")
+                        .forGetter(data -> data.brokenSpawners)
+        ).apply(instance, DataStore::new));
 
-        private DataStore() {}
+        private static final SavedDataType<DataStore> TYPE = new SavedDataType<>(
+                PackCompanion.id("spawner-manager"),
+                DataStore::new,
+                CODEC
+        );
 
-        private static DataStore load(CompoundTag tag, HolderLookup.Provider provider) {
-            if (!tag.contains("broken_spawners")) {
-                return new DataStore();
-            }
+        private final List<MobSpawnerData> brokenSpawners;
 
-            var ds = new DataStore();
-            ds.brokenSpawners.addAll(MobSpawnerData.CODEC.listOf().parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("broken_spawners"))).result().orElse(new ArrayList<>()));
-            return ds;
+        private DataStore() {
+            this.brokenSpawners = new ArrayList<>();
+        }
+
+        private DataStore(List<MobSpawnerData> brokenSpawners) {
+            this.brokenSpawners = new ArrayList<>(brokenSpawners);
         }
 
         public static DataStore create(MinecraftServer server) {
-            return server.overworld().getDataStorage()
-                    .computeIfAbsent(new SavedData.Factory<>(DataStore::new, DataStore::load, DataFixTypes.SAVED_DATA_COMMAND_STORAGE), "ftbpc-spawner-manager");
-        }
-
-        @Override
-        @NotNull
-        public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
-            compoundTag.put("broken_spawners", MobSpawnerData.CODEC.listOf().encodeStart(NbtOps.INSTANCE, brokenSpawners).result().orElse(new CompoundTag()));
-            return compoundTag;
+            return server.overworld().getDataStorage().computeIfAbsent(TYPE);
         }
 
         public List<MobSpawnerData> getBrokenSpawners() {
