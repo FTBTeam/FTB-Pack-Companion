@@ -48,6 +48,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class SpawnerFeature extends Feature.Server {
         return entities;
     });
 
-    public void onBlockBroken(BlockEvent.BreakEvent event) {
+    public void onBlockBroken(BreakBlockEvent event) {
         var level = event.getLevel();
         var state = event.getState();
         var pos = event.getPos();

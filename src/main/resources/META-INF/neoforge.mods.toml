@@ -1,11 +1,11 @@
 modLoader = "javafml"
-loaderVersion = "${loader_version_range}"
+loaderVersion = "${neoforge_loader_version}"
 license = "All Rights Reserved"
 
 [[mods]]
 modId = "${mod_id}"
 version = "${version}"
-displayName = "${mod_name}"
+displayName = "FTB Pack Companion"
 #logoFile = "logo.png"
 authors = "FTB Team"
 description = '''
@@ -13,16 +13,23 @@ A Modpack developers best friend
 '''
 
 [[dependencies.${mod_id}]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
 modId = "neoforge"
 mandatory = true
-versionRange = "${mod_loader_range}"
+versionRange = "${neoforge_version_range}"
 ordering = "NONE"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId = "ftblibrary"
 required = true
-versionRange = "[${ftblibraryversion},)"
+versionRange = "${ftb_library_version_range}"
 ordering = "AFTER"
 side = "BOTH"
 

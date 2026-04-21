@@ -2,8 +2,8 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    alias(libs.plugins.moddev)
-    alias(libs.plugins.modpublish)
+    id "net.neoforged.moddev" version "2.0.141"
+    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -25,7 +25,7 @@ base {
 }
 
 neoForge {
-    version = "${libs.versions.neoforge.get()}"
+    version = neoforge_version
 
     runs {
         configureEach {
@@ -93,15 +93,14 @@ repositories {
 }
 
 dependencies {
-    implementation libs.ftblibrary
-    implementation libs.ftbchunks
-    implementation libs.ftbteams
+    implementation "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"
+    implementation "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
 
-    compileOnly libs.curios
-    runtimeOnly libs.curios
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
-    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${libs.versions.jei.get()}"
-    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${libs.versions.jei.get()}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
 //    implementation "curse.maven:fancymenu-367706:6408877"
 //    runtimeOnly "curse.maven:konkrete-410295:5453385"
@@ -144,12 +143,14 @@ tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
             version: version,
             mod_id: mod_id,
-            mod_name: mod_name,
-            pack_format: pack_format,
-            loader_version_range: loader_version_range,
-            ftblibraryversion: libs.versions.ftblibrary.get(),
-            // 99.9% of the time we're only going to target a very vague version of neoforge so this is fine.
-            mod_loader_range: mod_loader_range.replace("\${mc_base}", normalisedMcVersion(project)), // Replace the version in the mod loader range
+            minecraft_version_range: minecraft_version_range,
+            neoforge_loader_version: neoforge_loader_version,
+            minecraft_version: minecraft_version,
+            supported_minecraft_versions: supported_minecraft_versions,
+            neoforge_version: neoforge_version,
+            neoforge_version_range: neoforge_version_range,
+            ftb_library_version_range: ftb_library_version_range,
+            ftb_teams_version_range: ftb_teams_version_range
     ]
 
     inputs.properties replaceProperties
