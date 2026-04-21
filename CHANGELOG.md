@@ -5,6 +5,11 @@
 ### Changed
 * Ported to `26.1.2`
 
+## [26.1.2.1-beta]
+
+### Changed
+* Ported to `26.1.2` pre `NeoForge 22-beta`
+
 ## [21.1.17]
 
 ### Added
