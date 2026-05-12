@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.18]
+
+### Added
+
+- When Immersive Engineering is present, Pillagers spawning with a railgun will have it replaced with a vanilla crossbow to prevent the crash caused by pillagers firing railguns. Toggle via `raiders.block_railguns_when_ie_present` in the server config.
+
 ## [21.1.17]
 
 ### Added
