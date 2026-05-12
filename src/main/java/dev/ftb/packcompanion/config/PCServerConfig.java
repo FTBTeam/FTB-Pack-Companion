@@ -48,6 +48,11 @@ public interface PCServerConfig {
             .comment("If true, Wandering Traders will no longer drink invisibility potions at night",
                     "(or milk buckets to remove their invisibility when it's day)");
 
+    SNBTConfig RAIDERS = CONFIG.addGroup("raiders");
+    BooleanValue BLOCK_RAIDER_RAILGUNS = RAIDERS.addBoolean("block_railguns_when_ie_present", true)
+            .comment("If true, Pillagers spawning with an Immersive Engineering railgun will have it replaced with a vanilla crossbow.",
+                    "Prevents the hard crash caused when a pillager fires a railgun. Only active when Immersive Engineering is loaded.");
+
     AbstractMapValue.CodecBased<GameType> DIMENSION_FORCED_GAMEMODES = CONFIG.add(new AbstractMapValue.CodecBased<>(
             CONFIG,
             "dimension_forced_gamemodes",
