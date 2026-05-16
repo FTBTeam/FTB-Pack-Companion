@@ -61,7 +61,19 @@ public record PackCompanionDataGen(PackCompanion modInstance) {
 
         @Override
         protected void addTranslations() {
+            prefixed("fancymenu.hourless.name", "Hour Less Than");
+            prefixed("fancymenu.hourless.description", "Checks if the users current hour is less than the specified value.\nThe value must be a number between 0 and 23, representing the hour in 24-hour format.");
+
+            prefixed("fancymenu.hourgreater.name", "Hour Greater Than");
+            prefixed("fancymenu.hourgreater.description", "Checks if the users current hour is greater than the specified value.\nThe value must be a number between 0 and 23, representing the hour in 24-hour format.");
+
+            prefixed("fancymenu.hour.value.name", "Hour (0-23)");
+
             collector.translationCollector().translations().forEach(this::add);
+        }
+
+        private void prefixed(String key, String value) {
+            add(PackCompanion.MOD_ID + "." + key, value);
         }
     }
 
