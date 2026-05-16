@@ -1,5 +1,9 @@
 # Changelog
 
+## [21.1.18]
+
+- Updated `fancymenu` to `3.9.0+` which is a breaking change with its previous versions.
+
 ## [21.1.17]
 
 ### Added

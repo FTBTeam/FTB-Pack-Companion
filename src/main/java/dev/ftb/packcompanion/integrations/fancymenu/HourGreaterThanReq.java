@@ -1,15 +1,16 @@
 package dev.ftb.packcompanion.integrations.fancymenu;
 
-import de.keksuccino.fancymenu.customization.loadingrequirement.LoadingRequirement;
+import de.keksuccino.fancymenu.customization.requirement.Requirement;
 import de.keksuccino.fancymenu.util.rendering.ui.screen.texteditor.TextEditorFormattingRule;
 import dev.ftb.packcompanion.PackCompanion;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalTime;
 import java.util.List;
 
-public class HourGreaterThanReq extends LoadingRequirement {
+public class HourGreaterThanReq extends Requirement {
     public HourGreaterThanReq() {
         super(PackCompanion.id("hour_greater_than").toString().replace(":", "_"));
     }
@@ -31,14 +32,13 @@ public class HourGreaterThanReq extends LoadingRequirement {
     }
 
     @Override
-    public @NotNull String getDisplayName() {
-        return "Hour Greater Than";
+    public @NotNull Component getDisplayName() {
+        return Component.translatable("ftbpc.fancymenu.hourgreater.name");
     }
 
     @Override
-    public @Nullable List<String> getDescription() {
-        return List.of("Checks if the users current hour is greater than the specified value.",
-                "The value must be a number between 0 and 23, representing the hour in 24-hour format.");
+    public @Nullable Component getDescription() {
+        return Component.translatable("ftbpc.fancymenu.hourgreater.description");
     }
 
     @Override
@@ -47,8 +47,8 @@ public class HourGreaterThanReq extends LoadingRequirement {
     }
 
     @Override
-    public @Nullable String getValueDisplayName() {
-        return "Hour (0-23)";
+    public @Nullable Component getValueDisplayName() {
+        return Component.translatable("ftbpc.fancymenu.hour.value.name");
     }
 
     @Override
