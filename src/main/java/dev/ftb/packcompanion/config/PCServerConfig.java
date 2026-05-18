@@ -43,6 +43,30 @@ public interface PCServerConfig {
             .comment("Maximum number of blocks/tick that can be pasted, divided equally among all current paste workers",
                     "A value of 0 indicates no limit");
 
+    BooleanValue SCHEMATIC_SEAL_PERIMETER = SCHEMATICS.addBoolean("seal_perimeter", true)
+            .comment("If true, before pasting begins the worker wraps the schematic bounding box in a 1-block-thick",
+                    "shell of bedrock. This prevents water/lava/falling-blocks from neighbouring terrain flowing into",
+                    "the in-progress paste while it runs (chunk-by-chunk pastes can take many minutes).");
+
+    BooleanValue SCHEMATIC_CLEANUP_FLUIDS = SCHEMATICS.addBoolean("cleanup_fluids", true)
+            .comment("If true, after paste finishes the worker scans the schematic bounding box and replaces any",
+                    "water/lava found at positions where the schematic itself contained air. This mops up fluid that",
+                    "leaked in during paste. Has no effect on cells where the schematic intentionally placed fluid.");
+
+    BooleanValue SCHEMATIC_CLEANUP_FALLING_BLOCKS = SCHEMATICS.addBoolean("cleanup_falling_blocks", false)
+            .comment("If true, the post-paste cleanup also removes sand/gravel/concrete-powder etc. that fell in from",
+                    "above the bounding box. Disabled by default since some schematics use falling blocks deliberately.");
+
+    BooleanValue SCHEMATIC_REMOVE_SHELL_AFTER_PASTE = SCHEMATICS.addBoolean("remove_shell_after_paste", true)
+            .comment("If true, the bedrock shell from seal_perimeter is removed during cleanup (replaced with air).",
+                    "If false, the shell remains permanently — fully bulletproof against later fluid intrusion but",
+                    "visible as a bedrock cage around the structure.");
+
+    IntValue SCHEMATIC_CLEANUP_SCAN_MULTIPLIER = SCHEMATICS.addInt("cleanup_scan_multiplier", 20, 1, 1000)
+            .comment("Cleanup scans many cells per tick but writes few (most cells are schematic-solid and skip).",
+                    "This multiplier sets how many cells are scanned per paste-budget unit. 20 means a 200 blocks/tick",
+                    "paste rate scans 4000 cells/tick during cleanup. Raise for faster cleanup, lower for less tick load.");
+
     AbstractMapValue.CodecBased<GameType> DIMENSION_FORCED_GAMEMODES = CONFIG.add(new AbstractMapValue.CodecBased<>(
             CONFIG,
             "dimension_forced_gamemodes",
