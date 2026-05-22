@@ -6,6 +6,7 @@ import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -36,7 +37,7 @@ import java.util.function.Consumer;
 
 public class SchematicPasteWorker {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
-    private static final BlockState SHELL_STATE = Blocks.BEDROCK.defaultBlockState();
+    private static final String DEFAULT_SHELL_BLOCK_ID = "minecraft:barrier";
 
     private final ResourceLocation location;
     private final BlockPos basePos;
@@ -67,6 +68,9 @@ public class SchematicPasteWorker {
     private boolean cleanupFallingEnabled;
     private boolean removeShell;
     private int cleanupScanMultiplier;
+    private String shellBlockId;
+    private BlockState shellState;
+    private int shellFace;
 
     public SchematicPasteWorker(@Nullable CommandSourceStack sourceStack, ResourceLocation location, Either<ServerLevel,ResourceLocation> levelOrDimensionId, BlockPos basePos, int speed, boolean perTick) {
         this.sourceStack = sourceStack;
@@ -102,6 +106,7 @@ public class SchematicPasteWorker {
             worker.cleanupFallingEnabled = c.getBoolean("cleanupFallingEnabled");
             worker.removeShell = c.getBoolean("removeShell");
             worker.cleanupScanMultiplier = c.contains("cleanupScanMultiplier") ? c.getInt("cleanupScanMultiplier") : 20;
+            worker.shellBlockId = c.contains("shellBlockId") ? c.getString("shellBlockId") : DEFAULT_SHELL_BLOCK_ID;
             worker.configSnapshotLoaded = true;
             return Optional.of(worker);
         }
@@ -125,6 +130,7 @@ public class SchematicPasteWorker {
             tag.putBoolean("cleanupFallingEnabled", cleanupFallingEnabled);
             tag.putBoolean("removeShell", removeShell);
             tag.putInt("cleanupScanMultiplier", cleanupScanMultiplier);
+            if (shellBlockId != null) tag.putString("shellBlockId", shellBlockId);
         });
     }
 
@@ -153,7 +159,9 @@ public class SchematicPasteWorker {
                     cleanupFallingEnabled = PCServerConfig.SCHEMATIC_CLEANUP_FALLING_BLOCKS.get();
                     removeShell = PCServerConfig.SCHEMATIC_REMOVE_SHELL_AFTER_PASTE.get();
                     cleanupScanMultiplier = PCServerConfig.SCHEMATIC_CLEANUP_SCAN_MULTIPLIER.get();
+                    shellBlockId = PCServerConfig.SCHEMATIC_SHELL_BLOCK.get();
                 }
+                shellState = resolveShellState(shellBlockId);
                 state = State.LOADING;
                 loadSchematicDataAsync(server);
             }
@@ -307,9 +315,8 @@ public class SchematicPasteWorker {
     }
 
     private void beginShellChunk(ChunkPos cp) {
-        beginPhaseChunk(cp, basePos.getX() - 1, basePos.getX() + data.getWidth(),
-                basePos.getY() - 1, basePos.getY() + data.getHeight(),
-                basePos.getZ() - 1, basePos.getZ() + data.getLength());
+        shellFace = 0;
+        setupShellFace(cp);
     }
 
     private void tickShell(int globalLimit) {
@@ -317,21 +324,122 @@ public class SchematicPasteWorker {
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         while (placed < blocksPerTick && placed < globalLimit) {
             if (!phaseChunkActive) return;
-            cursor.set(phaseCurX, phaseCurY, phaseCurZ);
-            if (isOnShellLayer(phaseCurX, phaseCurY, phaseCurZ)) {
-                level.setBlock(cursor, SHELL_STATE, Block.UPDATE_CLIENTS);
-                placed++;
-            }
-            if (!advanceWithinPhaseChunk()) {
-                finishCurrentChunk(false);
-                if (chunkQueue.isEmpty()) {
-                    advancePhase();
-                } else {
-                    state = State.SEAL_PRELOAD;
-                }
+            if (shellFace >= 6) {
+                finishShellChunk();
                 return;
             }
+            cursor.set(phaseCurX, phaseCurY, phaseCurZ);
+            level.setBlock(cursor, shellState, Block.UPDATE_CLIENTS);
+            placed++;
+            if (!advanceWithinPhaseChunk()) {
+                shellFace++;
+                ChunkPos cp = chunkQueue.peek();
+                if (cp == null || !setupShellFace(cp)) {
+                    finishShellChunk();
+                    return;
+                }
+            }
         }
+    }
+
+    private void finishShellChunk() {
+        finishCurrentChunk(false);
+        if (chunkQueue.isEmpty()) {
+            advancePhase();
+        } else {
+            state = State.SEAL_PRELOAD;
+        }
+    }
+
+    private boolean setupShellFace(ChunkPos cp) {
+        int boxMinX = basePos.getX() - 1;
+        int boxMaxX = basePos.getX() + data.getWidth();
+        int boxMinY = basePos.getY() - 1;
+        int boxMaxY = basePos.getY() + data.getHeight();
+        int boxMinZ = basePos.getZ() - 1;
+        int boxMaxZ = basePos.getZ() + data.getLength();
+
+        int cMinX = Math.max(cp.x * 16, boxMinX);
+        int cMaxX = Math.min(cp.x * 16 + 15, boxMaxX);
+        int cMinZ = Math.max(cp.z * 16, boxMinZ);
+        int cMaxZ = Math.min(cp.z * 16 + 15, boxMaxZ);
+
+        int worldMinY = level.getMinBuildHeight();
+        int worldMaxY = level.getMaxBuildHeight() - 1;
+        int wallMinY = Math.max(boxMinY + 1, worldMinY);
+        int wallMaxY = Math.min(boxMaxY - 1, worldMaxY);
+
+        while (shellFace < 6) {
+            boolean ok = false;
+            switch (shellFace) {
+                case 0 -> {
+                    if (boxMinY >= worldMinY && boxMinY <= worldMaxY) {
+                        setPhaseBounds(cMinX, cMaxX, boxMinY, boxMinY, cMinZ, cMaxZ);
+                        ok = true;
+                    }
+                }
+                case 1 -> {
+                    if (boxMaxY >= worldMinY && boxMaxY <= worldMaxY) {
+                        setPhaseBounds(cMinX, cMaxX, boxMaxY, boxMaxY, cMinZ, cMaxZ);
+                        ok = true;
+                    }
+                }
+                case 2 -> {
+                    if (boxMinZ >= cMinZ && boxMinZ <= cMaxZ && wallMinY <= wallMaxY) {
+                        setPhaseBounds(cMinX, cMaxX, wallMinY, wallMaxY, boxMinZ, boxMinZ);
+                        ok = true;
+                    }
+                }
+                case 3 -> {
+                    if (boxMaxZ >= cMinZ && boxMaxZ <= cMaxZ && wallMinY <= wallMaxY) {
+                        setPhaseBounds(cMinX, cMaxX, wallMinY, wallMaxY, boxMaxZ, boxMaxZ);
+                        ok = true;
+                    }
+                }
+                case 4 -> {
+                    if (boxMinX >= cMinX && boxMinX <= cMaxX && wallMinY <= wallMaxY) {
+                        int innerMinZ = Math.max(boxMinZ + 1, cMinZ);
+                        int innerMaxZ = Math.min(boxMaxZ - 1, cMaxZ);
+                        if (innerMinZ <= innerMaxZ) {
+                            setPhaseBounds(boxMinX, boxMinX, wallMinY, wallMaxY, innerMinZ, innerMaxZ);
+                            ok = true;
+                        }
+                    }
+                }
+                case 5 -> {
+                    if (boxMaxX >= cMinX && boxMaxX <= cMaxX && wallMinY <= wallMaxY) {
+                        int innerMinZ = Math.max(boxMinZ + 1, cMinZ);
+                        int innerMaxZ = Math.min(boxMaxZ - 1, cMaxZ);
+                        if (innerMinZ <= innerMaxZ) {
+                            setPhaseBounds(boxMaxX, boxMaxX, wallMinY, wallMaxY, innerMinZ, innerMaxZ);
+                            ok = true;
+                        }
+                    }
+                }
+            }
+            if (ok) return true;
+            shellFace++;
+        }
+        return false;
+    }
+
+    private void setPhaseBounds(int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {
+        phaseMinX = minX; phaseMaxX = maxX;
+        phaseMinY = minY; phaseMaxY = maxY;
+        phaseMinZ = minZ; phaseMaxZ = maxZ;
+        phaseCurX = minX; phaseCurY = minY; phaseCurZ = minZ;
+    }
+
+    private BlockState resolveShellState(String id) {
+        ResourceLocation loc = id != null ? ResourceLocation.tryParse(id) : null;
+        if (loc != null) {
+            Block block = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
+            if (block != null && block != Blocks.AIR) {
+                return block.defaultBlockState();
+            }
+        }
+        SchematicPasteManager.LOGGER.warn("invalid schematic shell_block '{}', falling back to {}", id, DEFAULT_SHELL_BLOCK_ID);
+        return Blocks.BARRIER.defaultBlockState();
     }
 
     private boolean isOnShellLayer(int wx, int wy, int wz) {
@@ -406,9 +514,9 @@ public class SchematicPasteWorker {
     private boolean isCleanupTarget(int wx, int wy, int wz, BlockState worldState) {
         boolean onShell = isOnShellLayer(wx, wy, wz);
         if (onShell) {
-            return worldState.is(SHELL_STATE.getBlock());
+            return worldState.is(shellState.getBlock());
         }
-        if (sealEnabled && removeShell && worldState.is(SHELL_STATE.getBlock())) {
+        if (sealEnabled && removeShell && worldState.is(shellState.getBlock())) {
             return true;
         }
         if (cleanupFluidsEnabled && (worldState.is(Blocks.WATER) || worldState.is(Blocks.LAVA))) {

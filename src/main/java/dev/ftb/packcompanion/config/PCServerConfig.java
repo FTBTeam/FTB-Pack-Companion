@@ -6,6 +6,7 @@ import dev.ftb.mods.ftblibrary.snbt.config.DoubleValue;
 import dev.ftb.mods.ftblibrary.snbt.config.IntValue;
 import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
 import dev.ftb.mods.ftblibrary.snbt.config.StringListValue;
+import dev.ftb.mods.ftblibrary.snbt.config.StringValue;
 import dev.ftb.packcompanion.api.PackCompanionAPI;
 import dev.ftb.packcompanion.config.values.AbstractMapValue;
 import net.minecraft.server.MinecraftServer;
@@ -45,8 +46,13 @@ public interface PCServerConfig {
 
     BooleanValue SCHEMATIC_SEAL_PERIMETER = SCHEMATICS.addBoolean("seal_perimeter", true)
             .comment("If true, before pasting begins the worker wraps the schematic bounding box in a 1-block-thick",
-                    "shell of bedrock. This prevents water/lava/falling-blocks from neighbouring terrain flowing into",
-                    "the in-progress paste while it runs (chunk-by-chunk pastes can take many minutes).");
+                    "shell of the configured shell_block. This prevents water/lava/falling-blocks from neighbouring",
+                    "terrain flowing into the in-progress paste while it runs (chunk-by-chunk pastes can take many minutes).");
+
+    StringValue SCHEMATIC_SHELL_BLOCK = SCHEMATICS.addString("shell_block", "minecraft:barrier")
+            .comment("Block ID used for the perimeter shell when seal_perimeter is enabled. Defaults to barrier so the",
+                    "shell is invisible in-game; bedrock is another common choice if you want it visible/indestructible.",
+                    "Must be a valid block resource location; falls back to barrier if the block can't be resolved.");
 
     BooleanValue SCHEMATIC_CLEANUP_FLUIDS = SCHEMATICS.addBoolean("cleanup_fluids", true)
             .comment("If true, after paste finishes the worker scans the schematic bounding box and replaces any",
@@ -58,9 +64,9 @@ public interface PCServerConfig {
                     "above the bounding box. Disabled by default since some schematics use falling blocks deliberately.");
 
     BooleanValue SCHEMATIC_REMOVE_SHELL_AFTER_PASTE = SCHEMATICS.addBoolean("remove_shell_after_paste", true)
-            .comment("If true, the bedrock shell from seal_perimeter is removed during cleanup (replaced with air).",
+            .comment("If true, the shell from seal_perimeter is removed during cleanup (replaced with air).",
                     "If false, the shell remains permanently — fully bulletproof against later fluid intrusion but",
-                    "visible as a bedrock cage around the structure.");
+                    "visible/tangible depending on the chosen shell_block.");
 
     IntValue SCHEMATIC_CLEANUP_SCAN_MULTIPLIER = SCHEMATICS.addInt("cleanup_scan_multiplier", 20, 1, 1000)
             .comment("Cleanup scans many cells per tick but writes few (most cells are schematic-solid and skip).",
