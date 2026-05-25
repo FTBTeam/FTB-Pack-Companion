@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.78'
+    id 'net.neoforged.moddev' version '2.0.141'
     id "me.modmuss50.mod-publish-plugin" version "0.8.3"
 }
 
@@ -133,7 +133,7 @@ repositories {
 dependencies {
     implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}")
 
-    implementation "curse.maven:fancymenu-367706:6408877"
+    implementation "curse.maven:fancymenu-367706:8089432"
     runtimeOnly "curse.maven:konkrete-410295:5453385"
     runtimeOnly "curse.maven:melody-938643:5453382"
 
@@ -225,7 +225,7 @@ publishMods {
     def CFToken = providers.environmentVariable("CURSEFORGE_KEY");
 
     dryRun = !CFToken.isPresent()
-    displayName = "[NEOFORGE] ${mod_name} ${project.version}"
+    displayName = "${mod_name} NeoForge ${project.version}"
     modLoaders.add("neoforge")
 
     changelog = createChangelog(project)

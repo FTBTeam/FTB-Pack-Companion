@@ -1,10 +1,10 @@
 package dev.ftb.packcompanion.integrations.fancymenu;
 
-import de.keksuccino.fancymenu.customization.loadingrequirement.LoadingRequirementRegistry;
+import de.keksuccino.fancymenu.customization.requirement.RequirementRegistry;
 
 public class FancyMenuIntegration {
     public static void init() {
-        LoadingRequirementRegistry.register(new HourGreaterThanReq());
-        LoadingRequirementRegistry.register(new HourLessThanReq());
+        RequirementRegistry.register(new HourGreaterThanReq());
+        RequirementRegistry.register(new HourLessThanReq());
     }
 }

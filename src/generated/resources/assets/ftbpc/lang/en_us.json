@@ -17,5 +17,10 @@
   "ftbpackcompanion.shaders_notice.title": "Would you like to use shaders?",
   "ftbpackcompanion.spawn": "Spawn",
   "ftbpackcompanion.tpa": "Request Teleport",
+  "ftbpc.fancymenu.hour.value.name": "Hour (0-23)",
+  "ftbpc.fancymenu.hourgreater.description": "Checks if the users current hour is greater than the specified value.\nThe value must be a number between 0 and 23, representing the hour in 24-hour format.",
+  "ftbpc.fancymenu.hourgreater.name": "Hour Greater Than",
+  "ftbpc.fancymenu.hourless.description": "Checks if the users current hour is less than the specified value.\nThe value must be a number between 0 and 23, representing the hour in 24-hour format.",
+  "ftbpc.fancymenu.hourless.name": "Hour Less Than",
   "item.ftbpc.action_pad": "Action Pad"
 }
