@@ -8,7 +8,8 @@
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
     "features.performance.TagCollectorMixin",
-    "features.singleplayerseed.WorldGenSettingsComponentMixin"
+    "features.singleplayerseed.WorldGenSettingsComponentMixin",
+    "fixes.SoundEngineMixin"
   ],
   "mixins": [
     "features.performance.ReloadableServerResourcesMixin",
