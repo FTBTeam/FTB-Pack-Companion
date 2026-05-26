@@ -1,6 +1,17 @@
 # Changelog
 
+## [21.1.19]
+
+### Added
+- Added a SoundEngine mixin to stop tickingSounds accumulating when a category is muted
+- Replace pillager IE Railguns with crossbows when Immersive Engineering is loaded to prevent crash
+
+### Fixed
+- Fixed regression with `fancymenu`
+
 ## [21.1.18]
+
+### Changed
 
 - Updated `fancymenu` to `3.9.0+` which is a breaking change with its previous versions.
 
