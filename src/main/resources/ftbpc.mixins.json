@@ -12,6 +12,7 @@
     "fixes.SoundEngineMixin"
   ],
   "mixins": [
+    "features.accessor.StructureTemplateMixin",
     "features.performance.ReloadableServerResourcesMixin",
     "features.sparsestructures.RegistryDataLoaderMixin",
     "features.spawners.SpawnDataMixin",
