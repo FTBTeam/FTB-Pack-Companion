@@ -1,5 +1,13 @@
 # Changelog
 
+## [21.1.20]
+
+### Added
+* A new item that can act as a single use "Structure placer", creatively called a Structure placer
+  * This can use any valid structures `/give Dev ftbpc:structure_placer[ftbpc:structure_id="minecraft:pillager_outpost/watchtower"]`
+  * This item will show an in-world render of the structure it will place as well as validate space to place.
+  * The idea of this item is that they are named and setup by pack developers.
+
 ## [21.1.19]
 
 ### Added
