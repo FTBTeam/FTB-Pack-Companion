@@ -67,7 +67,7 @@ public class PackCompanion {
             ActionPadFeature::new,
             ForcedGameRulesFeature::new,
             ForcedGameModesFeature::new,
-            NoRaiderRailgunFeature::new
+            NoRaiderRailgunFeature::new,
             SchematicPasteFeature::new,
             StructurePlacerFeature::new
     );
