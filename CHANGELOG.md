@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [20.1.6]
+
+### Added
+* Improved to schema system
+  * Pastes now seal the schematic area in a temporary shell (seal_perimeter, shell_block) to stop fluids/falling blocks leaking in mid-paste.
+  * After pasting, leaked fluids are cleaned up automatically (cleanup_fluids); falling blocks can optionally be cleaned too (cleanup_falling_blocks).
+  * Shell is removed after paste by default, or can be kept permanently (remove_shell_after_paste).
+  * Cleanup scan speed is tunable via cleanup_scan_multiplier.
+
 ## [20.1.5]
 
 ### Added
