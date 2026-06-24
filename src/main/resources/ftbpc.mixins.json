@@ -9,6 +9,7 @@
     "features.singleplayerseed.WorldGenSettingsComponentMixin"
   ],
   "mixins": [
+    "features.accessor.StructureTemplateMixin",
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
     "features.structurerotation.JigsawPlacementMixin"
