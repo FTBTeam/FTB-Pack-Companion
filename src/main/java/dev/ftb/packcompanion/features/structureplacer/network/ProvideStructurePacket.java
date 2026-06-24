@@ -4,12 +4,13 @@ import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.structureplacer.PlacerItem;
 import dev.ftb.packcompanion.features.structureplacer.ProcessedStructureTemplate;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -17,13 +18,13 @@ import java.util.Optional;
 
 // From server to client, handled on the client
 public record ProvideStructurePacket(
-        ResourceLocation id,
+        Identifier id,
         Optional<CompoundTag> structure
 ) implements CustomPacketPayload {
     public static final Type<ProvideStructurePacket> TYPE = new Type<>(PackCompanion.id("provide_structure"));
 
     public static final StreamCodec<FriendlyByteBuf, ProvideStructurePacket> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC, ProvideStructurePacket::id,
+        Identifier.STREAM_CODEC, ProvideStructurePacket::id,
         ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG), ProvideStructurePacket::structure,
         ProvideStructurePacket::new
     );
@@ -41,14 +42,14 @@ public record ProvideStructurePacket(
                 return; // ffs. stop changing slots you bit**
             }
 
-            ResourceLocation resourceLocation = packet.id;
+            Identifier resourceLocation = packet.id;
             if (packet.structure().isEmpty()) {
                 placerItem.failedToLoad(resourceLocation);
                 return;
             }
 
             var parsedStructure = new StructureTemplate();
-            parsedStructure.load(BuiltInRegistries.BLOCK.asLookup(), packet.structure().get());
+            parsedStructure.load(context.player().level().holderLookup(Registries.BLOCK), packet.structure().get());
 
             placerItem.setStructure(new ProcessedStructureTemplate(resourceLocation, parsedStructure));
         });

@@ -3,10 +3,10 @@ package dev.ftb.packcompanion.features.structureplacer;
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -28,19 +28,19 @@ import java.util.Optional;
 import java.util.Set;
 
 public class PlacerItem extends Item {
-    private static final Map<ResourceLocation, @Nullable ProcessedStructureTemplate> clientStructureCache = new HashMap<>();
-    private static final Set<ResourceLocation> requestedStructures = new HashSet<>();
-    private static final Map<ResourceLocation, Instant> requestTimestamps = new HashMap<>();
+    private static final Map<Identifier, @Nullable ProcessedStructureTemplate> clientStructureCache = new HashMap<>();
+    private static final Set<Identifier> requestedStructures = new HashSet<>();
+    private static final Map<Identifier, Instant> requestTimestamps = new HashMap<>();
 
     public PlacerItem(Properties properties) {
         super(properties);
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         var itemStack = player.getItemInHand(usedHand);
         if (level.isClientSide()) {
-            return InteractionResultHolder.pass(itemStack);
+            return InteractionResult.PASS;
         }
 
         getStructureServer(itemStack, level).ifPresent(structure -> {
@@ -154,7 +154,7 @@ public class PlacerItem extends Item {
             requestTimestamps.put(structureId, Instant.now());
         }
 
-        PacketDistributor.sendToServer(new RequestStructurePacket(structureId));
+        ClientPacketDistributor.sendToServer(new RequestStructurePacket(structureId));
         return Optional.empty();
     }
 
@@ -163,17 +163,17 @@ public class PlacerItem extends Item {
         clientStructureCache.put(parsedStructure.getId(), parsedStructure);
     }
 
-    public void failedToLoad(ResourceLocation resourceLocation) {
+    public void failedToLoad(Identifier resourceLocation) {
         clientStructureCache.put(resourceLocation, null);
         requestedStructures.remove(resourceLocation);
     }
 
     @Nullable
-    public static ResourceLocation getStructureIdFromItem(ItemStack stack) {
+    public static Identifier getStructureIdFromItem(ItemStack stack) {
         return stack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT_TYPE.get());
     }
 
-    public static void setStructureId(ResourceLocation structureId, ItemStack stack) {
+    public static void setStructureId(Identifier structureId, ItemStack stack) {
         stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT_TYPE.get(), structureId);
     }
 }

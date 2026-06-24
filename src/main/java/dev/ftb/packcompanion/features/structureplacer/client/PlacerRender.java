@@ -7,9 +7,14 @@ import dev.ftb.packcompanion.features.structureplacer.ProcessedStructureTemplate
 import dev.ftb.packcompanion.mixin.features.accessor.StructureTemplateMixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -27,11 +32,7 @@ import java.util.Optional;
 public class PlacerRender {
     private static final MemorisedValue<BlockPos, Boolean> canBuild = new MemorisedValue<>();
 
-    public static void renderPlacerPreview(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            return;
-        }
-
+    public static void renderPlacerPreview(RenderLevelStageEvent.AfterTranslucentParticles event) {
         var player = Minecraft.getInstance().player;
         var level = Minecraft.getInstance().level;
         if (player == null || level == null) {
@@ -72,11 +73,11 @@ public class PlacerRender {
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
 
-        var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        poseStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
+        var camera = event.getLevelRenderState().cameraRenderState.pos;
+        poseStack.translate(-camera.x(), -camera.y(), -camera.z());
 
         var source = Minecraft.getInstance().renderBuffers().bufferSource();
-        var render = source.getBuffer(RenderType.LINES);
+        var render = source.getBuffer(RenderTypes.LINES);
 
         Rotation rotation = PlacerItem.rotationFromPlayerAxis(player);
 
@@ -94,17 +95,31 @@ public class PlacerRender {
                 })
                 .noneMatch(state -> !state.isAir() && !state.canBeReplaced()));
 
+        int color = ARGB.colorFromFloat(1F, 0F, 1F, 0F); // Green for can build
+        if (!canBuildHere) {
+            color = ARGB.colorFromFloat(1F, 1F, 0F, 0F); // Red for cannot build
+        }
+
+        SubmitNodeStorage submitNodeStorage = Minecraft.getInstance().gameRenderer.getSubmitNodeStorage();
+
         // Render the outline.
-        LevelRenderer.renderVoxelShape(
+        ShapeRenderer.renderShape(
                 event.getPoseStack(),
                 render,
                 Shapes.create(new AABB(boundingBox.minX(), boundingBox.minY(), boundingBox.minZ(),
                         boundingBox.maxX() + 1, boundingBox.maxY() + 1 , boundingBox.maxZ() + 1)),
                 shiftedLookingAt.getX(), shiftedLookingAt.getY(),
                 shiftedLookingAt.getZ(),
-                canBuildHere ? 0.0f : 1f, canBuildHere ? 1.0f : 0f, 0.0f,
-                1f, false
+                color,
+                2f
         );
+
+        poseStack.popPose();
+        source.endBatch();
+
+        poseStack.pushPose();
+        poseStack.mulPose(event.getModelViewMatrix());
+        poseStack.translate(-camera.x(), -camera.y(), -camera.z());
 
         List<StructureTemplate.Palette> palettes = ((StructureTemplateMixin) template).getPalettes();
         for (StructureTemplate.Palette palette : palettes) {
@@ -118,12 +133,15 @@ public class PlacerRender {
                 var pos = StructureTemplate.transform(info.pos(), Mirror.NONE, rotation, BlockPos.ZERO).offset(shiftedLookingAt);
                 poseStack.translate(pos.getX(), pos.getY(), pos.getZ());
 
-                Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
-                        info.state(),
+                var renderState = new BlockModelRenderState();
+                Minecraft.getInstance().getBlockModelResolver().update(renderState, info.state(), BlockDisplayContext.create());
+
+                renderState.submit(
                         poseStack,
-                        source,
-                        LevelRenderer.getLightColor(level, pos),
-                        OverlayTexture.NO_OVERLAY
+                        submitNodeStorage,
+                        LevelRenderer.getLightCoords(level, pos),
+                        OverlayTexture.NO_OVERLAY,
+                        0
                 );
 
                 poseStack.popPose();
@@ -131,7 +149,5 @@ public class PlacerRender {
         }
 
         poseStack.popPose();
-
-        source.endBatch();
     }
 }

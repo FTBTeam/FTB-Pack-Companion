@@ -7,7 +7,8 @@ import dev.ftb.packcompanion.features.structureplacer.network.ProvideStructurePa
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -24,21 +25,21 @@ public class StructurePlacerFeature extends Feature.Common {
     private static final DeferredRegister<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
     private static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPE_REGISTRY = getRegistry(Registries.DATA_COMPONENT_TYPE);
 
-    public static final DeferredHolder<Item, PlacerItem> STRUCTURE_PLACER = ITEM_REGISTRY.register("structure_placer", () ->
-            new PlacerItem(new Item.Properties().stacksTo(1))
+    public static final DeferredHolder<Item, PlacerItem> STRUCTURE_PLACER = ITEM_REGISTRY.register("structure_placer", (id) ->
+            new PlacerItem(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, id)))
     );
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> STRUCTURE_PLACER_DATA_COMPONENT_TYPE = DATA_COMPONENT_TYPE_REGISTRY.register("structure_id", (b) ->
-            DataComponentType.<ResourceLocation>builder()
-                    .persistent(ResourceLocation.CODEC)
-                    .networkSynchronized(ResourceLocation.STREAM_CODEC)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> STRUCTURE_PLACER_DATA_COMPONENT_TYPE = DATA_COMPONENT_TYPE_REGISTRY.register("structure_id", (b) ->
+            DataComponentType.<Identifier>builder()
+                    .persistent(Identifier.CODEC)
+                    .networkSynchronized(Identifier.STREAM_CODEC)
                     .build()
     );
 
     public StructurePlacerFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             NeoForge.EVENT_BUS.addListener(PlacerRender::renderPlacerPreview);
         }
     }
@@ -56,7 +57,7 @@ public class StructurePlacerFeature extends Feature.Common {
         translations.addItem(STRUCTURE_PLACER, "Structure Placer");
 
         collector.addItemModelProvider(provider -> {
-            provider.basicItem(STRUCTURE_PLACER.get());
+//            provider.basicItem(STRUCTURE_PLACER.get());
         });
     }
 }
