@@ -1,5 +1,10 @@
 # Changelog
 
+## [21.1.21]
+
+### Added
+* Blacklist based Operator command feedback filtering. See [README.md](https://github.com/FTBTeam/FTB-Pack-Companion/blob/ff9ee67b462bfb283e6d38f76988569013d7df60/README.md#command-broadcasting-filtering) for more information.
+
 ## [21.1.20]
 
 ### Added
