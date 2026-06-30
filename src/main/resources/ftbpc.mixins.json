@@ -13,6 +13,7 @@
   ],
   "mixins": [
     "features.accessor.StructureTemplateMixin",
+    "features.cmdfilterfeedback.CommandSourceStackMixin",
     "features.performance.ReloadableServerResourcesMixin",
     "features.sparsestructures.RegistryDataLoaderMixin",
     "features.spawners.SpawnDataMixin",
