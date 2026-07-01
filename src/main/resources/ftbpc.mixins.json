@@ -15,6 +15,7 @@
     "features.accessor.StructureTemplateMixin",
     "features.cmdfilterfeedback.CommandSourceStackMixin",
     "features.performance.ReloadableServerResourcesMixin",
+    "features.reciperemover.RecipeManagerMixin",
     "features.sparsestructures.RegistryDataLoaderMixin",
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
