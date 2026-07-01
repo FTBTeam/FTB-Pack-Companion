@@ -1,5 +1,10 @@
 # Changelog
 
+## [21.1.22]
+
+### Added
+* Added `_.` (Underscore) utilities to KubeJS for general utilities when working with Minecraft and FTB Mods. See more documentation in the [KubeDocs.md](https://github.com/FTBTeam/FTB-Pack-Companion/blob/03e4e1c82bca935475e8f81d27d3c3b21b376831/KubeDocs.md) file.
+
 ## [21.1.21]
 
 ### Added
