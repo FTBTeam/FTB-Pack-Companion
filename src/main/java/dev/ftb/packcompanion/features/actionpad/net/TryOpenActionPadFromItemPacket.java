@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion.features.actionpad.net;
 
 import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.features.actionpad.PadActions;
 import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.actionpad.ActionPadItem;
@@ -42,6 +43,11 @@ public class TryOpenActionPadFromItemPacket {
             if (!FMLEnvironment.production) {
                 // Bypass check in dev
                 hasPlayersOnline = true;
+            }
+
+            if (!PCServerConfig.ENABLE_TPA_ACTION_PAD.get()) {
+                // Force disable TPA action pad if the config is disabled, even in dev
+                hasPlayersOnline = false;
             }
 
             for (var itemStack : player.getInventory().items) {

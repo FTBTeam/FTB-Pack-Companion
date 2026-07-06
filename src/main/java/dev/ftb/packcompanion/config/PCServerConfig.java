@@ -82,6 +82,11 @@ public interface PCServerConfig {
             GameType.CODEC
     ).comment("A mapping of dimension IDs to forced game modes. Players entering the dimension will have their game mode changed accordingly."));
 
+    SNBTConfig MISC = CONFIG.addGroup("misc");
+
+    BooleanValue ENABLE_TPA_ACTION_PAD = MISC.addBoolean("enable_tpa_action_pad", true)
+            .comment("If true, players can use the Action Pad item to send teleport requests to other players.");
+
     static void load(MinecraftServer server) {
         ConfigUtil.loadDefaulted(CONFIG, server.getWorldPath(ConfigUtil.SERVER_CONFIG_DIR), PackCompanionAPI.MOD_ID);
     }
