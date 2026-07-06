@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion.features.actionpad;
 
 import dev.ftb.packcompanion.PackCompanion;
+import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.features.actionpad.net.OpenActionPadPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -29,6 +30,11 @@ public class ActionPadItem extends Item {
             if (!FMLEnvironment.production) {
                 // Bypass check in dev
                 hasPlayersOnline = true;
+            }
+
+            if (!PCServerConfig.ENABLE_TPA_ACTION_PAD.get()) {
+                // Force disable TPA action pad if the config is disabled, even in dev
+                hasPlayersOnline = false;
             }
 
             PackCompanion.NETWORK.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new OpenActionPadPacket(PadActions.get().getUnlockedActions(player), hasPlayersOnline));
