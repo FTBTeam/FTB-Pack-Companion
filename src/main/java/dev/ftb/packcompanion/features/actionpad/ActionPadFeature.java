@@ -1,6 +1,5 @@
 package dev.ftb.packcompanion.features.actionpad;
 
-import dev.ftb.mods.ftblibrary.FTBLibrary;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.actionpad.client.ActionPadClient;
@@ -16,6 +15,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -89,5 +89,9 @@ public class ActionPadFeature extends Feature.Common {
             var tagKey = TagKey.create(Registries.ITEM, new ResourceLocation("curios:curio"));
             provider.appendItemTag(tagKey).add(ACTION_PAD.get());
         });
+    }
+
+    public static boolean isEssentialsLoaded() {
+        return ModList.get().isLoaded("ftbessentials");
     }
 }

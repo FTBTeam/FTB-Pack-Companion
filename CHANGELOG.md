@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [20.1.8]
 
 ### Added
+* Support for FTB Essentials integration allowing the Action pad to have it's TPA option disabled if Essentials has TPA disabled 
+
+### Removed
+* Removed the `misc.enable_tpa_action_pad` config option to the server config as it is now handled by FTB Essentials in preference for Essentials integration
+
+## [20.1.8]
+
+### Added
 * Added `misc.enable_tpa_action_pad` config option to the server config to allow disabling the TPA action pad feature
 
 ## [20.1.7]
