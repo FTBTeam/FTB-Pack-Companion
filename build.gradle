@@ -144,6 +144,8 @@ repositories {
 dependencies {
     modImplementation "dev.ftb.mods:ftb-library-forge:${ftb_library_version}"
     modRuntimeOnly "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+	modCompileOnly("curse.maven:ftb-essentials-410811:7609948")
+//	modRuntimeOnly("curse.maven:ftb-essentials-410811:7609948")
 
     modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
     modRuntimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}") { transitive = false }

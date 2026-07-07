@@ -1,10 +1,10 @@
 package dev.ftb.packcompanion.features.actionpad.net;
 
 import dev.ftb.packcompanion.PackCompanion;
-import dev.ftb.packcompanion.config.PCServerConfig;
-import dev.ftb.packcompanion.features.actionpad.PadActions;
 import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.actionpad.ActionPadItem;
+import dev.ftb.packcompanion.features.actionpad.PadActions;
+import dev.ftb.packcompanion.features.actionpad.integrations.Essentials;
 import dev.ftb.packcompanion.integrations.InventorySearcher;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,7 +45,7 @@ public class TryOpenActionPadFromItemPacket {
                 hasPlayersOnline = true;
             }
 
-            if (!PCServerConfig.ENABLE_TPA_ACTION_PAD.get()) {
+            if (ActionPadFeature.isEssentialsLoaded() && !Essentials.isTPAEnabled()) {
                 // Force disable TPA action pad if the config is disabled, even in dev
                 hasPlayersOnline = false;
             }
