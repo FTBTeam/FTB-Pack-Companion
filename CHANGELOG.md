@@ -1,5 +1,18 @@
 # Changelog
 
+## [21.1.22]
+
+### Added
+* Added `_.` (Underscore) utilities to KubeJS for general utilities when working with Minecraft and FTB Mods. See more documentation in the [KubeDocs.md](https://github.com/FTBTeam/FTB-Pack-Companion/blob/03e4e1c82bca935475e8f81d27d3c3b21b376831/KubeDocs.md) file.
+* Added a new `RecipeRemover` feature that injects at the point of reading recipe jsons and will prevent the json from ever reading!
+  * You can add recipes to remove by creating a folder under `config/ftbpc/removals` then add a JSON file named after the `modid`.`json` so for Minecraft recipes you would create `config/ftbpc/removals/minecraft.json` and then add a list of recipe ids to remove. For example:
+  * ```json
+    [
+      "stone_pickaxe",
+      "stone_shovel"
+    ]
+    ```
+
 ## [21.1.21]
 
 ### Added

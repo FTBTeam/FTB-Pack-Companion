@@ -145,15 +145,11 @@ repositories {
     }
 }
 
+def testingTwilightForest = false
+def testingFancyMenu = false
+
 dependencies {
     implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}")
-
-    implementation "curse.maven:fancymenu-367706:8089432"
-    runtimeOnly "curse.maven:konkrete-410295:5453385"
-    runtimeOnly "curse.maven:melody-938643:5453382"
-
-    compileOnly "curse.maven:irisshaders-455508:6661598"
-    compileOnly "curse.maven:embeddium-908741:6118392"
 
     compileOnly "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
     localRuntime "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
@@ -161,18 +157,36 @@ dependencies {
     compileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
     localRuntime "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
 
+    compileOnly "dev.ftb.mods:ftb-quests-neoforge:${ftb_quests_version}"
+    localRuntime "dev.ftb.mods:ftb-quests-neoforge:${ftb_quests_version}"
+
+    compileOnly "curse.maven:fancymenu-367706:8089432"
+    if (testingFancyMenu) {
+        runtimeOnly "curse.maven:fancymenu-367706:8089432"
+        runtimeOnly "curse.maven:konkrete-410295:5453385"
+        runtimeOnly "curse.maven:melody-938643:5453382"
+    }
+
+    compileOnly "curse.maven:irisshaders-455508:6661598"
+    compileOnly "curse.maven:embeddium-908741:6118392"
+
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     runtimeOnly "curse.maven:ftb-essentials-410811:6979622"
-//    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
-//    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
+
+    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
+    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 
     compileOnly "curse.maven:reliquified-twilight-forest-1186617:6880511"
-    runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
-    runtimeOnly "curse.maven:octo-lib-916747:6932487"
-    runtimeOnly "curse.maven:relics-mod-445274:7533442"
-    runtimeOnly "curse.maven:architectury-api-419699:5786327"
+
+    if (testingTwilightForest) {
+        runtimeOnly "curse.maven:reliquified-twilight-forest-1186617:6880511"
+        runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
+        runtimeOnly "curse.maven:octo-lib-916747:6932487"
+        runtimeOnly "curse.maven:relics-mod-445274:7533442"
+        runtimeOnly "curse.maven:architectury-api-419699:5786327"
+    }
 }
 
 tasks.register("sourcesJar", Jar) {
