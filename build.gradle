@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.141'
-    id "me.modmuss50.mod-publish-plugin" version "0.8.3"
+    id "me.modmuss50.mod-publish-plugin" version "2.1.0"
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -271,6 +271,8 @@ publishMods {
         javaVersions.add(JavaVersion.VERSION_21)
 
         requires("ftb-library-forge")
+        client = true
+        server = true
     }
 }
 
