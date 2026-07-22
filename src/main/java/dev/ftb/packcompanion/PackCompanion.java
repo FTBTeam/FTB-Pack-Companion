@@ -8,6 +8,7 @@ import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.forcedgamemodes.ForcedGameModesFeature;
 import dev.ftb.packcompanion.features.forcedgamerule.ForcedGameRulesFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
+import dev.ftb.packcompanion.features.reciperemover.RecipeRemover;
 import dev.ftb.packcompanion.features.schematic.SchematicPasteFeature;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
 import dev.ftb.packcompanion.features.structureplacer.StructurePlacerFeature;
@@ -63,7 +64,8 @@ public class PackCompanion {
             ForcedGameRulesFeature::new,
             ForcedGameModesFeature::new,
             SchematicPasteFeature::new,
-            StructurePlacerFeature::new
+            StructurePlacerFeature::new,
+            RecipeRemover::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();

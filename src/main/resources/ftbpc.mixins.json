@@ -10,6 +10,7 @@
   ],
   "mixins": [
     "features.accessor.StructureTemplateMixin",
+    "features.reciperemover.RecipeManagerMixin",
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
     "features.structurerotation.JigsawPlacementMixin"

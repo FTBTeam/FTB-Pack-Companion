@@ -8,6 +8,15 @@
   * This item will show an in-world render of the structure it will place as well as validate space to place.
   * The idea of this item is that they are named and setup by pack developers.
 
+* Added a new `RecipeRemover` feature
+  * You can add recipes to remove by creating a folder under `config/ftbpc/removals` then add a JSON file named after the `modid`.`json` so for Minecraft recipes you would create `config/ftbpc/removals/minecraft.json` and then add a list of recipe ids to remove. For example:
+  * ```json
+    [
+      "stone_pickaxe",
+      "stone_shovel"
+    ]
+    ```
+
 ## [26.1.2.1]
 
 ### Changed
