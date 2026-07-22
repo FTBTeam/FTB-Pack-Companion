@@ -5,6 +5,7 @@ import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.structureplacer.client.PlacerRender;
 import dev.ftb.packcompanion.features.structureplacer.network.ProvideStructurePacket;
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -57,7 +58,7 @@ public class StructurePlacerFeature extends Feature.Common {
         translations.addItem(STRUCTURE_PLACER, "Structure Placer");
 
         collector.addItemModelProvider(provider -> {
-//            provider.basicItem(STRUCTURE_PLACER.get());
+            provider.generateFlatItem(STRUCTURE_PLACER.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         });
     }
 }
