@@ -27,6 +27,8 @@ Your best friend when developing a Modpack. With an ever-growing list of feature
 * [Toast Removals](#toast-removals)
   * Removal of tutorial toasts, social interaction toasts and more via config.
 * [Forced Seed (Single player)](#forced-seed)
+* [Command broadcasting filtering](#command-broadcasting-filtering)
+  * Allow for specific users commands to not broadcast to other admins
 
 ### Action Pad
 
@@ -207,6 +209,24 @@ It should look like this
   ]
 }
 ```
+
+### Command broadcasting filtering
+
+In certain situations, you may need to have players as operators but not have other operators see their commands. Say you are testing a modpack, all players are ops but the server admins commands might not need to be broadcasted to all the other ops on the server. This feature allows you to do that via the server config.
+`ftbpc-server.snbt`
+
+```snbt
+{
+    command_feedback_filtering: {
+        blacklisted_ops: ["player-uuid-with-dashes"]
+        hidden_command_feedback_keys: ["commands.give.success"]
+    }
+}
+```
+
+Command translation keys are **filtered by prefix** meaning keys like `commands.give.success` will also filter out `commands.give.success*` (`commands.give.success.single` for example)
+
+The way this works is that any players in the blacklist will not have their command feedback broadcasted to any players not in the blacklist. This means blacklisted OP's can see other blacklisted OP's commands but not the other OP's that are not blacklisted.
 
 ## Support
 

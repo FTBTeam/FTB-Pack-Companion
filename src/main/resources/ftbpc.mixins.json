@@ -11,6 +11,7 @@
   "mixins": [
     "features.accessor.StructureTemplateMixin",
     "features.reciperemover.RecipeManagerMixin",
+    "features.cmdfilterfeedback.CommandSourceStackMixin",
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
     "features.structurerotation.JigsawPlacementMixin"
