@@ -1,5 +1,23 @@
 # Changelog
 
+## [26.1.2.2]
+
+### Added
+* A new item that can act as a single use "Structure placer", creatively called a Structure placer
+  * This can use any valid structures `/give Dev ftbpc:structure_placer[ftbpc:structure_id="minecraft:pillager_outpost/watchtower"]`
+  * This item will show an in-world render of the structure it will place as well as validate space to place.
+  * The idea of this item is that they are named and setup by pack developers.
+* Added `_.` (Underscore) utilities to KubeJS for general utilities when working with Minecraft and FTB Mods. See more documentation in the [KubeDocs.md](https://github.com/FTBTeam/FTB-Pack-Companion/blob/03e4e1c82bca935475e8f81d27d3c3b21b376831/KubeDocs.md) file.
+* Blacklist based Operator command feedback filtering. See [README.md](https://github.com/FTBTeam/FTB-Pack-Companion/blob/ff9ee67b462bfb283e6d38f76988569013d7df60/README.md#command-broadcasting-filtering) for more information.
+* Added a new `RecipeRemover` feature
+  * You can add recipes to remove by creating a folder under `config/ftbpc/removals` then add a JSON file named after the `modid`.`json` so for Minecraft recipes you would create `config/ftbpc/removals/minecraft.json` and then add a list of recipe ids to remove. For example:
+  * ```json
+    [
+      "stone_pickaxe",
+      "stone_shovel"
+    ]
+    ```
+
 ## [26.1.2.1]
 
 ### Changed

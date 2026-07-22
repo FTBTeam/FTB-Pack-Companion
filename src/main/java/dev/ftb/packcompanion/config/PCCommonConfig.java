@@ -80,6 +80,14 @@ public interface PCCommonConfig {
             .excludedFromGui()
             .comment("Game rules that are forced on the server. The keys must be valid game rule IDs."));
 
+    Config STRUCTURE_PLACER = CONFIG.addGroup("structure_placer");
+
+    StringMapValue STRUCTURE_PLACER_TEMPLATES = STRUCTURE_PLACER.add(new StringMapValue(
+            STRUCTURE_PLACER,
+            "templates",
+            Map.of()
+    ).comment("Structure templates available for the Structure Placer feature. The key is the template name, and the value is the resource location of the structure."));
+
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);
     }
