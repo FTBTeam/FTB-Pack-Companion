@@ -1,6 +1,7 @@
 package dev.ftb.packcompanion.core;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +20,11 @@ public final class AsyncChunkLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncChunkLoader.class);
 
     private static final int TIMEOUT_TICKS = 6000;
+
+    private static final int TICKET_DISTANCE = 2;
+
+    private static final TicketType<ChunkPos> ASYNC_LOAD =
+            TicketType.create("ftbpc_async_load", Comparator.comparingLong(ChunkPos::toLong));
 
     private static final Deque<PendingLoad> PENDING = new ArrayDeque<>();
 
@@ -32,8 +39,9 @@ public final class AsyncChunkLoader {
         List<ChunkPos> chunks = new ArrayList<>();
         for (int cx = centerChunkX - radius; cx <= centerChunkX + radius; cx++) {
             for (int cz = centerChunkZ - radius; cz <= centerChunkZ + radius; cz++) {
-                chunks.add(new ChunkPos(cx, cz));
-                level.setChunkForced(cx, cz, true);
+                ChunkPos pos = new ChunkPos(cx, cz);
+                chunks.add(pos);
+                level.getChunkSource().addRegionTicket(ASYNC_LOAD, pos, TICKET_DISTANCE, pos);
             }
         }
 
@@ -52,7 +60,7 @@ public final class AsyncChunkLoader {
             return;
         }
 
-        List<Runnable> ready = new ArrayList<>();
+        List<PendingLoad> ready = new ArrayList<>();
         Iterator<PendingLoad> it = PENDING.iterator();
         while (it.hasNext()) {
             PendingLoad job = it.next();
@@ -64,20 +72,28 @@ public final class AsyncChunkLoader {
             } catch (Exception e) {
                 LOGGER.error("AsyncChunkLoader readiness check failed; dropping job", e);
                 it.remove();
+                job.releaseTickets();
                 continue;
             }
 
             if (done || job.age > TIMEOUT_TICKS) {
+                if (!done) {
+                    LOGGER.warn("AsyncChunkLoader gave up after {} ticks waiting for {} chunk(s) in {}",
+                            TIMEOUT_TICKS, job.chunks.size(), job.level.dimension().location());
+                }
                 it.remove();
-                ready.add(job.callback);
+                ready.add(job);
             }
         }
 
-        for (Runnable callback : ready) {
+        for (PendingLoad job : ready) {
             try {
-                callback.run();
+                job.applyForced();
+                job.callback.run();
             } catch (Throwable t) {
                 LOGGER.error("AsyncChunkLoader callback failed", t);
+            } finally {
+                job.releaseTickets();
             }
         }
     }
@@ -101,6 +117,24 @@ public final class AsyncChunkLoader {
                 }
             }
             return true;
+        }
+
+        private void applyForced() {
+            for (ChunkPos pos : chunks) {
+                if (level.hasChunk(pos.x, pos.z)) {
+                    level.setChunkForced(pos.x, pos.z, true);
+                }
+            }
+        }
+
+        private void releaseTickets() {
+            try {
+                for (ChunkPos pos : chunks) {
+                    level.getChunkSource().removeRegionTicket(ASYNC_LOAD, pos, TICKET_DISTANCE, pos);
+                }
+            } catch (Throwable t) {
+                LOGGER.error("AsyncChunkLoader failed to release chunk tickets", t);
+            }
         }
     }
 }
