@@ -19,8 +19,7 @@
     "features.jigsaw.JigsawPlacementMixin",
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
-    "patches.jer.JERPluginLoadFixMixin",
-    "patches.config.ConfigFileWatcherFixMixin"
+    "patches.jer.JERPluginLoadFixMixin"
   ],
   "injectors": {
     "defaultRequire": 1
