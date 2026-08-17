@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [20.1.12]
+
+### Fixed
+* `AsyncChunkLoader` now requests chunks with a chunk ticket instead of force-loading them up front, so chunks are only marked as forced once they have actually loaded
+* Chunk tickets are released when a job finishes, fails, or times out
+* A warning is now logged when a chunk load job gives up after the timeout
+
 ## [20.1.11]
 
 ### Fixed
