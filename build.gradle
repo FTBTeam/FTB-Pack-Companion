@@ -143,6 +143,16 @@ repositories {
         name = "Illusive Soulworks maven"
         url = "https://maven.theillusivec4.top/"
     }
+
+    maven {
+        url = "https://maven.createmod.net"
+    }
+
+    maven {
+        url = "https://maven.ryanhcode.dev/releases"
+        content { includeGroup "dev.ryanhcode.sable-companion" }
+    }
+
 }
 
 def testingTwilightForest = false
