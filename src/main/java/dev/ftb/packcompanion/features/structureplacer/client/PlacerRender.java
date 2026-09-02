@@ -25,14 +25,18 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class PlacerRender {
     private static final MemorisedValue<PosWithRotation, Either<Boolean, List<BlockPos>>> canBuild = new MemorisedValue<>();
     private static final PlacerRenderState renderState = new PlacerRenderState();
+
+    private static final Map<Rotation, BlockPos> ROTATIONAL_OFFSET_FIXER = Map.of(
+            Rotation.NONE, BlockPos.ZERO,
+            Rotation.CLOCKWISE_90,  new BlockPos(-1, 0, 0),
+            Rotation.CLOCKWISE_180, new BlockPos(-1, 0, -1),
+            Rotation.COUNTERCLOCKWISE_90, new BlockPos(0, 0, -1)
+    );
 
     public static void renderPlacerPreview(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
@@ -67,8 +71,6 @@ public class PlacerRender {
             return;
         }
 
-        var nudgeOffset = PlacerItem.nudgeOffset(stack).orElse(BlockPos.ZERO);
-
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
 
@@ -79,30 +81,20 @@ public class PlacerRender {
         var render = source.getBuffer(RenderType.LINES);
 
         Rotation rotation = PlacerItem.rotation(stack).orElse(Rotation.NONE);
+        var placementBeforeRotation = placementPos.immutable();
+        var subtractionOffset = ROTATIONAL_OFFSET_FIXER.get(rotation);
+        placementPos = placementPos.subtract(subtractionOffset);
 
         var template = processedTemplate.getHeldTemplate();
 
         // Determine if we can build here
-        var canBuildOrInvalidLocations = canBuild.get(new PosWithRotation(placementPos, rotation), (key) -> PlacerItem.isValidPlacementArea(level, processedTemplate, key));
+        var canBuildOrInvalidLocations = canBuild.get(new PosWithRotation(placementBeforeRotation, rotation), (key) -> PlacerItem.isValidPlacementArea(level, processedTemplate, key));
 
         var canBuildSimple = canBuildOrInvalidLocations.left().orElse(false);
 
         // Ease the rendered ghost toward the snapped target position/rotation instead of jumping instantly.
         // The snapped values above still drive canBuildHere and actual placement.
-        var pose = renderState.next(processedTemplate.getId(), placementPos, angleForRotation(rotation), nudgeOffset);
-
-        var easedNudge = pose.nudgeOffset();
-        poseStack.pushPose();
-        poseStack.translate(pose.position().x - easedNudge.x(), pose.position().y - easedNudge.y(), pose.position().z - easedNudge.z());
-        LevelRenderer.renderVoxelShape(
-                poseStack,
-                render,
-                Shapes.block(),
-                0, 0, 0,
-                0f, 0f, 1f,
-                1f, false
-        );
-        poseStack.popPose();
+        var pose = renderState.next(processedTemplate.getId(), placementPos, angleForRotation(rotation));
 
         poseStack.pushPose();
         poseStack.translate(pose.position().x, pose.position().y, pose.position().z);
