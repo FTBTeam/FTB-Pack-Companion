@@ -3,6 +3,7 @@ package dev.ftb.packcompanion.features.structureplacer.network;
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.structureplacer.PlacerItem;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -34,5 +35,6 @@ public record RotatePlacerPacket(boolean previous) implements CustomPacketPayloa
 
         var newRotation = Rotation.values()[newOrdinal];
         PlacerItem.setRotation(itemInHand.get(), newRotation);
+        context.player().displayClientMessage(Component.translatable("ftbpackcompanion.structureplacer.rotated"), true);
     }
 }

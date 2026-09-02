@@ -64,6 +64,10 @@ public class StructurePlacerFeature extends Feature.Common {
         translations.add("ftbpackcompanion.structureplacer.anchor_rotate", "[%s] Anchor | [%s] Rotate");
         translations.add("ftbpackcompanion.structureplacer.nudge_hint", "Hold [V] to nudge");
 
+        translations.add("ftbpackcompanion.structureplacer.anchored", "Anchored");
+        translations.add("ftbpackcompanion.structureplacer.released", "Released");
+        translations.add("ftbpackcompanion.structureplacer.rotated", "Rotated");
+
         collector.addItemModelProvider(provider -> {
             provider.generateFlatItem(STRUCTURE_PLACER.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         });

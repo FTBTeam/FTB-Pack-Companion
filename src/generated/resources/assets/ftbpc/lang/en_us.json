@@ -19,9 +19,12 @@
   "ftbpackcompanion.shaders_notice.title": "Would you like to use shaders?",
   "ftbpackcompanion.spawn": "Spawn",
   "ftbpackcompanion.structureplacer.anchor_rotate": "[%s] Anchor | [%s] Rotate",
+  "ftbpackcompanion.structureplacer.anchored": "Anchored",
   "ftbpackcompanion.structureplacer.nudge_hint": "Hold [V] to nudge",
   "ftbpackcompanion.structureplacer.nudge_x_z": "[W / S] Forwards/Backwards | [A / D] Left/Right",
   "ftbpackcompanion.structureplacer.nudge_y": "[Q / E] Up/Down | [R] Reset Position",
+  "ftbpackcompanion.structureplacer.released": "Released",
+  "ftbpackcompanion.structureplacer.rotated": "Rotated",
   "ftbpackcompanion.tpa": "Request Teleport",
   "item.ftbpc.action_pad": "Action Pad",
   "item.ftbpc.structure_placer": "Structure Placer"

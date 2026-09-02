@@ -4,6 +4,7 @@ import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.structureplacer.PlacerItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -31,8 +32,10 @@ public record AnchorPlacerPacket() implements CustomPacketPayload {
         if (anchorPos.isEmpty()) {
             var blockPos = PlacerItem.blockPosFromPick(context.player());
             PlacerItem.setAnchorPos(itemInHand.get(), blockPos);
+            context.player().displayClientMessage(Component.translatable("ftbpackcompanion.structureplacer.anchored"), true);
         } else {
             PlacerItem.setAnchorPos(itemInHand.get(), null);
+            context.player().displayClientMessage(Component.translatable("ftbpackcompanion.structureplacer.released"), true);
         }
     }
 }
