@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -38,7 +37,7 @@ public record PlacerDataComponent(
     }
 
     public PlacerDataComponent withAnchorPos(BlockPos anchorPos) {
-        return new PlacerDataComponent(structureId, Optional.of(anchorPos), rotation, nudgeOffset);
+        return new PlacerDataComponent(structureId, Optional.ofNullable(anchorPos), rotation, nudgeOffset);
     }
 
     public PlacerDataComponent withRotation(Rotation rotation) {
