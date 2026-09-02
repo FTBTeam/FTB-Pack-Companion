@@ -35,6 +35,6 @@ public record RotatePlacerPacket(boolean previous) implements CustomPacketPayloa
 
         var newRotation = Rotation.values()[newOrdinal];
         PlacerItem.setRotation(itemInHand.get(), newRotation);
-        context.player().displayClientMessage(Component.translatable("ftbpackcompanion.structureplacer.rotated"), true);
+        context.player().sendOverlayMessage(Component.translatable("ftbpackcompanion.structureplacer.rotated"));
     }
 }

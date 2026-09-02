@@ -1,7 +1,7 @@
 package dev.ftb.packcompanion.features.structureplacer.client;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -14,12 +14,12 @@ public class PlacerRenderState {
     private static final double ROTATION_HALF_LIFE_SECONDS = 0.12;
     private static final long STALE_THRESHOLD_NANOS = 250_000_000L;
 
-    private ResourceLocation structureId;
+    private Identifier structureId;
     private Vec3 position;
     private float angleDegrees;
     private long lastUpdateNanos = -1;
 
-    public Pose next(ResourceLocation structureId, BlockPos targetPos, float targetAngleDegrees) {
+    public Pose next(Identifier structureId, BlockPos targetPos, float targetAngleDegrees) {
         long now = System.nanoTime();
         var target = Vec3.atLowerCornerOf(targetPos);
 

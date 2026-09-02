@@ -32,10 +32,10 @@ public record AnchorPlacerPacket() implements CustomPacketPayload {
         if (anchorPos.isEmpty()) {
             var blockPos = PlacerItem.blockPosFromPick(context.player());
             PlacerItem.setAnchorPos(itemInHand.get(), blockPos);
-            context.player().displayClientMessage(Component.translatable("ftbpackcompanion.structureplacer.anchored"), true);
+            context.player().sendOverlayMessage(Component.translatable("ftbpackcompanion.structureplacer.anchored"));
         } else {
             PlacerItem.setAnchorPos(itemInHand.get(), null);
-            context.player().displayClientMessage(Component.translatable("ftbpackcompanion.structureplacer.released"), true);
+            context.player().sendOverlayMessage(Component.translatable("ftbpackcompanion.structureplacer.released"));
         }
     }
 }

@@ -5,6 +5,7 @@ import dev.ftb.packcompanion.features.structureplacer.network.NudgePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
@@ -61,7 +62,7 @@ public class PlacerActionsController {
         } else if (key == GLFW.GLFW_KEY_E) {
             nudge(0, -1, 0); // Move down
         } else if (key == GLFW.GLFW_KEY_R) {
-            PacketDistributor.sendToServer(new NudgePacket(0, 0, 0, true)); // Reset position
+            ClientPacketDistributor.sendToServer(new NudgePacket(0, 0, 0, true)); // Reset position
         }
     }
 
@@ -81,7 +82,7 @@ public class PlacerActionsController {
         int worldX = right.getStepX() * x + forward.getStepX() * z;
         int worldZ = right.getStepZ() * x + forward.getStepZ() * z;
 
-        PacketDistributor.sendToServer(new NudgePacket(worldX, y, worldZ));
+        ClientPacketDistributor.sendToServer(new NudgePacket(worldX, y, worldZ));
     }
 
     public boolean isFocused() {

@@ -1,20 +1,20 @@
 package dev.ftb.packcompanion.features.structureplacer.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.structureplacer.PlacerItem;
 import dev.ftb.packcompanion.features.structureplacer.ProcessedStructureTemplate;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.gui.GuiLayer;
+import org.joml.Matrix3x2fStack;
 
 import java.util.Optional;
 
-public class PlacerActionsOverlay implements LayeredDraw.Layer {
-    public static final ResourceLocation ID = PackCompanion.id("placer_actions_overlay");
+public class PlacerActionsOverlay implements GuiLayer {
+    public static final Identifier ID = PackCompanion.id("placer_actions_overlay");
 
     private final PlacerActionsController controller;
 
@@ -23,7 +23,7 @@ public class PlacerActionsOverlay implements LayeredDraw.Layer {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         Minecraft instance = Minecraft.getInstance();
         var player = instance.player;
         if (player == null) {
@@ -51,10 +51,10 @@ public class PlacerActionsOverlay implements LayeredDraw.Layer {
         var y = screenBottom - 90;
 
         // Draw the overlay text
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.translate(screenCenterX, y, 0);
-        pose.scale(0.85f, 0.85f, 1f);
+        Matrix3x2fStack pose = guiGraphics.pose();
+        pose.pushMatrix();
+        pose.translate(screenCenterX, y);
+        pose.scale(0.85f, 0.85f);
         if (controller.isFocused()) {
             drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_x_z"), 0, -(16 * 2), 0xFFFFFF);
             drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_y"), 0, -16, 0xFFFFFF);
@@ -67,10 +67,10 @@ public class PlacerActionsOverlay implements LayeredDraw.Layer {
                 PlacerKeys.ANCHOR_POS_KEY.getTranslatedKeyMessage().getString(),
                 PlacerKeys.ROTATE_POS_KEY.getTranslatedKeyMessage().getString()
         ), 0, 0, 0xFFFFFF);
-        pose.popPose();
+        pose.popMatrix();
     }
 
-    private void drawStringWithBackground(GuiGraphics guiGraphics, Component text, int x, int y, int color) {
+    private void drawStringWithBackground(GuiGraphicsExtractor guiGraphics, Component text, int x, int y, int color) {
         var font = Minecraft.getInstance().font;
         var textWidth = font.width(text);
         var textHeight = font.lineHeight;
@@ -82,6 +82,6 @@ public class PlacerActionsOverlay implements LayeredDraw.Layer {
         guiGraphics.fill(x - padding, y - padding, x + textWidth + padding - 1, y + textHeight + padding - 1, 0x80000000);
 
         // Draw the text
-        guiGraphics.drawString(font, text, x, y, color);
+        guiGraphics.text(font, text, x, y, color);
     }
 }

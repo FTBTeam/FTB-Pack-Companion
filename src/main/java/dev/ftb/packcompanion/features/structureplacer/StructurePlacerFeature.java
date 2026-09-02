@@ -4,6 +4,7 @@ import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
 import dev.ftb.packcompanion.features.structureplacer.client.StructurePlacerFeatureClient;
 import dev.ftb.packcompanion.features.structureplacer.network.*;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -36,7 +37,7 @@ public class StructurePlacerFeature extends Feature.Common {
     public StructurePlacerFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             StructurePlacerFeatureClient.init(modEventBus);
         }
     }

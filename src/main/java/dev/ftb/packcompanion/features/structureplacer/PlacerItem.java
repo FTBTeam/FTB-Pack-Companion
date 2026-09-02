@@ -1,7 +1,6 @@
 package dev.ftb.packcompanion.features.structureplacer;
 
 import com.mojang.datafixers.util.Either;
-import dev.ftb.packcompanion.features.structureplacer.client.PlacerRender;
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
@@ -19,7 +18,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.BlockHitResult;
@@ -68,7 +66,7 @@ public class PlacerItem extends Item {
             var placementCheck = PlacerItem.isValidPlacementArea(level, new ProcessedStructureTemplate(structureId, structure), posWithRotation);
             if (!placementCheck.left().orElse(false)) {
                 // TODO: translation
-                player.displayClientMessage(Component.literal("Invalid placement area!"), true);
+                player.sendOverlayMessage(Component.literal("Invalid placement area!"));
                 return;
             }
 
@@ -114,7 +112,7 @@ public class PlacerItem extends Item {
         return null;
     }
 
-    public Optional<Pair<ResourceLocation, StructureTemplate>> getStructureServer(ItemStack itemStack, Level level) {
+    public Optional<Pair<Identifier, StructureTemplate>> getStructureServer(ItemStack itemStack, Level level) {
         if (!(level instanceof ServerLevel)) {
             throw new IllegalStateException("getStructureServer can only be called on the server side");
         }
@@ -169,7 +167,7 @@ public class PlacerItem extends Item {
     }
 
     @Nullable
-    public static ResourceLocation getStructureIdFromItem(ItemStack stack) {
+    public static Identifier getStructureIdFromItem(ItemStack stack) {
         PlacerDataComponent placerDataComponent = stack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get());
         if (placerDataComponent == null) {
             return null;
@@ -178,7 +176,7 @@ public class PlacerItem extends Item {
         return placerDataComponent.structureId();
     }
 
-    public static void setStructureId(ResourceLocation structureId, ItemStack stack) {
+    public static void setStructureId(Identifier structureId, ItemStack stack) {
         var data = stack.getOrDefault(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), PlacerDataComponent.EMPTY);
         stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), data.withStructureId(structureId));
     }
