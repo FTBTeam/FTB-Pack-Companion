@@ -40,10 +40,7 @@ public class PlacerItem extends Item {
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        var oldData = oldStack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get());
-        var newData = newStack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get());
-
-        return !Objects.equals(oldData, newData);
+        return false;
     }
 
     @Override
