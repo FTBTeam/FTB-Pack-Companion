@@ -55,6 +55,13 @@ public class StructurePlacerFeature extends Feature.Common {
         DataGatherCollector.TranslationCollector translations = collector.translationCollector();
 
         translations.addItem(STRUCTURE_PLACER, "Structure Placer");
+        translations.add("ftbpackcompanion.key.anchor_pos", "Anchor Position");
+        translations.add("ftbpackcompanion.key.rotate_pos", "Rotate Template");
+
+        translations.add("ftbpackcompanion.structureplacer.nudge_x_z", "[W / S] Forwards/Backwards | [A / D] Left/Right");
+        translations.add("ftbpackcompanion.structureplacer.nudge_y", "[Q / E] Up/Down | [R] Reset Position");
+        translations.add("ftbpackcompanion.structureplacer.anchor_rotate", "[%s] Anchor | [%s] Rotate");
+        translations.add("ftbpackcompanion.structureplacer.nudge_hint", "Hold [V] to nudge");
 
         collector.addItemModelProvider(provider -> {
             provider.basicItem(STRUCTURE_PLACER.get());

@@ -2,14 +2,16 @@ package dev.ftb.packcompanion.features.structureplacer.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ftb.packcompanion.PackCompanion;
-import dev.ftb.packcompanion.features.structureplacer.PlacerDataComponent;
 import dev.ftb.packcompanion.features.structureplacer.PlacerItem;
-import dev.ftb.packcompanion.features.structureplacer.StructurePlacerFeature;
+import dev.ftb.packcompanion.features.structureplacer.ProcessedStructureTemplate;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.Optional;
 
 public class PlacerActionsOverlay implements LayeredDraw.Layer {
     public static final ResourceLocation ID = PackCompanion.id("placer_actions_overlay");
@@ -37,8 +39,8 @@ public class PlacerActionsOverlay implements LayeredDraw.Layer {
             return;
         }
 
-        var dataComponent = playerPlacerItem.get().getOrDefault(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), PlacerDataComponent.EMPTY);
-        if (dataComponent.structureId() == null) {
+        Optional<ProcessedStructureTemplate> structure = ((PlacerItem) playerPlacerItem.get().getItem()).getStructureClient(playerPlacerItem.get(), player.level());
+        if (structure.isEmpty()) {
             return;
         }
 
@@ -48,24 +50,27 @@ public class PlacerActionsOverlay implements LayeredDraw.Layer {
         // The bottom of the screen allowing for the hotbar, health, and the hint text
         var y = screenBottom - 90;
 
-        // TODO: Translations.
         // Draw the overlay text
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
         pose.translate(screenCenterX, y, 0);
         pose.scale(0.85f, 0.85f, 1f);
         if (controller.isFocused()) {
-            drawStringWithBackground(guiGraphics, "[W] Forwards | [S] Backwards | [A] Left | [D] Right", 0, -(16 * 2), 0xFFFFFF);
-            drawStringWithBackground(guiGraphics, "[Q] Up | [E] Down | [R] Reset", 0, -16, 0xFFFFFF);
-            drawStringWithBackground(guiGraphics, "[,] Anchor | [.] Rotate", 0, 0, 0xFFFFFF);
+            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_x_z"), 0, -(16 * 2), 0xFFFFFF);
+            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_y"), 0, -16, 0xFFFFFF);
         } else {
-            drawStringWithBackground(guiGraphics, "Hold V to nudge", 0, -16, 0xFFFFFF);
-            drawStringWithBackground(guiGraphics, "[,] Anchor | [.] Rotate", 0, 0, 0xFFFFFF);
+            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_hint"), 0, -16, 0xFFFFFF);
         }
+
+        drawStringWithBackground(guiGraphics, Component.translatable(
+                "ftbpackcompanion.structureplacer.anchor_rotate",
+                PlacerKeys.ANCHOR_POS_KEY.getTranslatedKeyMessage().getString(),
+                PlacerKeys.ROTATE_POS_KEY.getTranslatedKeyMessage().getString()
+        ), 0, 0, 0xFFFFFF);
         pose.popPose();
     }
 
-    private void drawStringWithBackground(GuiGraphics guiGraphics, String text, int x, int y, int color) {
+    private void drawStringWithBackground(GuiGraphics guiGraphics, Component text, int x, int y, int color) {
         var font = Minecraft.getInstance().font;
         var textWidth = font.width(text);
         var textHeight = font.lineHeight;
