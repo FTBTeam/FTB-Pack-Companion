@@ -10,12 +10,18 @@ import dev.ftb.packcompanion.features.structureplacer.ProcessedStructureTemplate
 import dev.ftb.packcompanion.mixin.features.accessor.StructureTemplateMixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
@@ -64,6 +70,8 @@ public class PlacerRender {
             return;
         }
 
+        SubmitNodeStorage submitNodeStorage = Minecraft.getInstance().gameRenderer.getSubmitNodeStorage();
+
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
 
@@ -85,6 +93,11 @@ public class PlacerRender {
 
         var canBuildSimple = canBuildOrInvalidLocations.left().orElse(false);
 
+        int color = ARGB.colorFromFloat(1F, 0F, 1F, 0F); // Green for can build
+        if (!canBuildSimple) {
+            color = ARGB.colorFromFloat(1F, 1F, 0F, 0F); // Red for cannot build
+        }
+
         // Ease the rendered ghost toward the snapped target position/rotation instead of jumping instantly.
         // The snapped values above still drive canBuildHere and actual placement.
         var pose = renderState.next(processedTemplate.getId(), placementPos, angleForRotation(rotation));
@@ -97,24 +110,24 @@ public class PlacerRender {
         // Render the outline in the structure's own (unrotated) local space too, so it rides the same
         // tweened transform as the blocks below instead of snapping ahead of them mid-rotation.
         var size = template.getSize();
-        LevelRenderer.renderVoxelShape(
+        ShapeRenderer.renderShape(
                 poseStack,
                 render,
                 Shapes.create(new AABB(0, 0, 0, size.getX(), size.getY(), size.getZ())),
                 0, 0, 0,
-                canBuildSimple ? 0.0f : 1f, canBuildSimple ? 1.0f : 0f, 0.0f,
-                1f, false
+                color,
+                2f
         );
 
         var invalidLocations = canBuildOrInvalidLocations.right().orElse(Collections.emptyList());
         for (var invalidPos : invalidLocations) {
-            LevelRenderer.renderVoxelShape(
+            ShapeRenderer.renderShape(
                     poseStack,
                     render,
                     Shapes.block(),
                     invalidPos.getX(), invalidPos.getY(), invalidPos.getZ(),
-                    1f, 0f, 0f,
-                    1f, false
+                    color,
+                    2f
             );
         }
 
@@ -128,12 +141,15 @@ public class PlacerRender {
                 poseStack.pushPose();
                 poseStack.translate(info.pos().getX(), info.pos().getY(), info.pos().getZ());
 
-                Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
-                        info.state(),
+                var renderState = new BlockModelRenderState();
+                Minecraft.getInstance().getBlockModelResolver().update(renderState, info.state(), BlockDisplayContext.create());
+
+                renderState.submit(
                         poseStack,
-                        source,
-                        15728880,
-                        OverlayTexture.NO_OVERLAY
+                        submitNodeStorage,
+                        LevelRenderer.getLightCoords(level, info.pos()),
+                        OverlayTexture.NO_OVERLAY,
+                        0
                 );
 
                 poseStack.popPose();

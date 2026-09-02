@@ -8,6 +8,7 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -30,8 +31,8 @@ public class StructurePlacerFeature extends Feature.Common {
                     .build()
     );
 
-    public static final DeferredHolder<Item, PlacerItem> STRUCTURE_PLACER = ITEM_REGISTRY.register("structure_placer", () ->
-            new PlacerItem(new Item.Properties().stacksTo(1))
+    public static final DeferredHolder<Item, PlacerItem> STRUCTURE_PLACER = ITEM_REGISTRY.register("structure_placer", (id) ->
+            new PlacerItem(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, id)))
     );
 
     public StructurePlacerFeature(IEventBus modEventBus, ModContainer container) {
