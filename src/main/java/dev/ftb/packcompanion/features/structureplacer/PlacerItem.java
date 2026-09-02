@@ -87,18 +87,16 @@ public class PlacerItem extends Item {
 
     @Nullable
     public static BlockPos placementPos(ItemStack stack, Player player) {
-        var offset = BlockPos.ZERO;
         var nudge = nudgeOffset(stack).orElse(BlockPos.ZERO);
-        offset = offset.offset(nudge);
 
         var anchor = anchorPos(stack);
         if (anchor.isPresent()) {
-            return anchor.get().offset(offset);
+            return anchor.get().offset(nudge);
         }
 
         var blockPos = blockPosFromPick(player);
         if (blockPos != null) {
-            return blockPos.offset(offset);
+            return blockPos.offset(nudge);
         }
 
         return null;

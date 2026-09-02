@@ -19,7 +19,7 @@ public record NudgePacket(int x, int y, int z, boolean reset) implements CustomP
             NudgePacket::new
     );
 
-    public NudgePacket(int z, int y, int x) {
+    public NudgePacket(int x, int y, int z) {
         this(x, y, z, false);
     }
 
