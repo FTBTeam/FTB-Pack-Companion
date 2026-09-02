@@ -17,31 +17,27 @@ public class PlacerRenderState {
     private ResourceLocation structureId;
     private Vec3 position;
     private float angleDegrees;
-    private Vec3 nudgeOffset;
     private long lastUpdateNanos = -1;
 
-    public Pose next(ResourceLocation structureId, BlockPos targetPos, float targetAngleDegrees, BlockPos targetNudgeOffset) {
+    public Pose next(ResourceLocation structureId, BlockPos targetPos, float targetAngleDegrees) {
         long now = System.nanoTime();
         var target = Vec3.atLowerCornerOf(targetPos);
-        var targetNudge = Vec3.atLowerCornerOf(targetNudgeOffset);
 
         boolean reset = position == null || !structureId.equals(this.structureId) || isStale(now);
 
         if (reset) {
             position = target;
             angleDegrees = targetAngleDegrees;
-            nudgeOffset = targetNudge;
         } else {
             double dt = (now - lastUpdateNanos) / 1_000_000_000.0;
             position = position.lerp(target, smoothingFactor(dt, HALF_LIFE_SECONDS));
             angleDegrees = (float) (angleDegrees + Mth.wrapDegrees(targetAngleDegrees - angleDegrees) * smoothingFactor(dt, ROTATION_HALF_LIFE_SECONDS));
-            nudgeOffset = nudgeOffset.lerp(targetNudge, smoothingFactor(dt, HALF_LIFE_SECONDS));
         }
 
         this.structureId = structureId;
         lastUpdateNanos = now;
 
-        return new Pose(position, angleDegrees, nudgeOffset);
+        return new Pose(position, angleDegrees);
     }
 
     private boolean isStale(long now) {
@@ -52,5 +48,5 @@ public class PlacerRenderState {
         return 1.0 - Math.pow(0.5, dtSeconds / halfLifeSeconds);
     }
 
-    public record Pose(Vec3 position, float angleDegrees, Vec3 nudgeOffset) {}
+    public record Pose(Vec3 position, float angleDegrees) {}
 }
