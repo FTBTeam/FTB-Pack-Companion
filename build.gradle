@@ -123,6 +123,16 @@ repositories {
             includeGroup "top.theillusivec4.curios"
         }
     }
+
+    maven {
+        url = "https://maven.createmod.net"
+    }
+
+    maven {
+        url = "https://maven.ryanhcode.dev/releases"
+        content { includeGroup "dev.ryanhcode.sable-companion" }
+    }
+
 }
 
 dependencies {

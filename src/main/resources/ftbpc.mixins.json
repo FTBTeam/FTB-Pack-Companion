@@ -6,7 +6,10 @@
   "client": [
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
-    "features.singleplayerseed.WorldGenSettingsComponentMixin"
+    "features.performance.TagCollectorMixin",
+    "features.singleplayerseed.WorldGenSettingsComponentMixin",
+    "features.structureplacer.KeyboardHandlerMixin",
+    "fixes.SoundEngineMixin"
   ],
   "mixins": [
     "features.accessor.StructureTemplateMixin",
