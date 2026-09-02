@@ -56,17 +56,17 @@ public class PlacerActionsOverlay implements GuiLayer {
         pose.translate(screenCenterX, y);
         pose.scale(0.85f, 0.85f);
         if (controller.isFocused()) {
-            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_x_z"), 0, -(16 * 2), 0xFFFFFF);
-            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_y"), 0, -16, 0xFFFFFF);
+            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_x_z"), 0, -(16 * 2), 0xFFFFFFFF);
+            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_y"), 0, -16, 0xFFFFFFFF);
         } else {
-            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_hint"), 0, -16, 0xFFFFFF);
+            drawStringWithBackground(guiGraphics, Component.translatable("ftbpackcompanion.structureplacer.nudge_hint"), 0, -16, 0xFFFFFFFF);
         }
 
         drawStringWithBackground(guiGraphics, Component.translatable(
                 "ftbpackcompanion.structureplacer.anchor_rotate",
                 PlacerKeys.ANCHOR_POS_KEY.getTranslatedKeyMessage().getString(),
                 PlacerKeys.ROTATE_POS_KEY.getTranslatedKeyMessage().getString()
-        ), 0, 0, 0xFFFFFF);
+        ), 0, 0, 0xFFFFFFFF);
         pose.popMatrix();
     }
 
