@@ -2,7 +2,6 @@ package dev.ftb.packcompanion.features.structureplacer.client;
 
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.structureplacer.PlacerItem;
-import dev.ftb.packcompanion.features.structureplacer.StructurePlacerFeature;
 import dev.ftb.packcompanion.features.structureplacer.network.AnchorPlacerPacket;
 import dev.ftb.packcompanion.features.structureplacer.network.RotatePlacerPacket;
 import net.minecraft.client.KeyMapping;

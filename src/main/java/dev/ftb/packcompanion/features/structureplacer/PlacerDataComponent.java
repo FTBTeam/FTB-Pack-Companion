@@ -7,16 +7,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Rotation;
 
 import java.util.Optional;
 
 public record PlacerDataComponent(
+        ResourceLocation structureId,
         Optional<BlockPos> anchorPos,
         Optional<Rotation> rotation,
         Optional<BlockPos> nudgeOffset
 ) {
-    public static final PlacerDataComponent EMPTY = new PlacerDataComponent(Optional.empty(), Optional.empty(), Optional.empty());
+    public static final PlacerDataComponent EMPTY = new PlacerDataComponent(null, Optional.empty(), Optional.empty(), Optional.empty());
 
     private static final StreamCodec<ByteBuf, Rotation> ROTATION_STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, Enum::ordinal,
@@ -31,13 +33,31 @@ public record PlacerDataComponent(
             }
     );
 
+    public PlacerDataComponent withStructureId(ResourceLocation structureId) {
+        return new PlacerDataComponent(structureId, anchorPos, rotation, nudgeOffset);
+    }
+
+    public PlacerDataComponent withAnchorPos(BlockPos anchorPos) {
+        return new PlacerDataComponent(structureId, Optional.of(anchorPos), rotation, nudgeOffset);
+    }
+
+    public PlacerDataComponent withRotation(Rotation rotation) {
+        return new PlacerDataComponent(structureId, anchorPos, Optional.of(rotation), nudgeOffset);
+    }
+
+    public PlacerDataComponent withNudgeOffset(BlockPos nudgeOffset) {
+        return new PlacerDataComponent(structureId, anchorPos, rotation, Optional.of(nudgeOffset));
+    }
+
     public static final Codec<PlacerDataComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf("structure_id").forGetter(PlacerDataComponent::structureId),
             BlockPos.CODEC.optionalFieldOf("anchor_pos").forGetter(PlacerDataComponent::anchorPos),
             Rotation.CODEC.optionalFieldOf("rotation").forGetter(PlacerDataComponent::rotation),
             BlockPos.CODEC.optionalFieldOf("nudge_offset").forGetter(PlacerDataComponent::nudgeOffset)
     ).apply(instance, PlacerDataComponent::new));
 
     public static final StreamCodec<ByteBuf, PlacerDataComponent> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC, PlacerDataComponent::structureId,
             ByteBufCodecs.optional(BlockPos.STREAM_CODEC), PlacerDataComponent::anchorPos,
             ByteBufCodecs.optional(ROTATION_STREAM_CODEC), PlacerDataComponent::rotation,
             ByteBufCodecs.optional(BlockPos.STREAM_CODEC), PlacerDataComponent::nudgeOffset,
