@@ -20,7 +20,8 @@ public class KeyboardHandlerMixin {
                 key == GLFW.GLFW_KEY_A ||
                 key == GLFW.GLFW_KEY_D ||
                 key == GLFW.GLFW_KEY_Q ||
-                key == GLFW.GLFW_KEY_E) {
+                key == GLFW.GLFW_KEY_E ||
+                key == GLFW.GLFW_KEY_R) {
                 ci.cancel();
             }
         }

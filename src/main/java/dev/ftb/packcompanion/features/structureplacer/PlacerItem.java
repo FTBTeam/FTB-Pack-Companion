@@ -39,6 +39,14 @@ public class PlacerItem extends Item {
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        var oldData = oldStack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get());
+        var newData = newStack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get());
+
+        return !Objects.equals(oldData, newData);
+    }
+
+    @Override
     public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         var itemStack = player.getItemInHand(usedHand);
         if (level.isClientSide()) {
@@ -166,12 +174,18 @@ public class PlacerItem extends Item {
     }
 
     @Nullable
-    public static Identifier getStructureIdFromItem(ItemStack stack) {
-        return stack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT_TYPE.get());
+    public static ResourceLocation getStructureIdFromItem(ItemStack stack) {
+        PlacerDataComponent placerDataComponent = stack.get(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get());
+        if (placerDataComponent == null) {
+            return null;
+        }
+
+        return placerDataComponent.structureId();
     }
 
-    public static void setStructureId(Identifier structureId, ItemStack stack) {
-        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT_TYPE.get(), structureId);
+    public static void setStructureId(ResourceLocation structureId, ItemStack stack) {
+        var data = stack.getOrDefault(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), PlacerDataComponent.EMPTY);
+        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), data.withStructureId(structureId));
     }
 
     public static Optional<BlockPos> anchorPos(ItemStack stack) {
@@ -181,14 +195,7 @@ public class PlacerItem extends Item {
 
     public static void setAnchorPos(ItemStack stack, @Nullable BlockPos anchorPos) {
         PlacerDataComponent placerDataComponent = stack.getOrDefault(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), PlacerDataComponent.EMPTY);
-
-        PlacerDataComponent updatedPlacerDataComponent = new PlacerDataComponent(
-                Optional.ofNullable(anchorPos),
-                placerDataComponent.rotation(),
-                placerDataComponent.nudgeOffset()
-        );
-
-        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), updatedPlacerDataComponent);
+        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), placerDataComponent.withAnchorPos(anchorPos));
     }
 
     public static Optional<Rotation> rotation(ItemStack stack) {
@@ -198,13 +205,7 @@ public class PlacerItem extends Item {
 
     public static void setRotation(ItemStack stack, @Nullable Rotation rotation) {
         PlacerDataComponent placerDataComponent = stack.getOrDefault(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), PlacerDataComponent.EMPTY);
-        PlacerDataComponent updatedPlacerDataComponent = new PlacerDataComponent(
-                placerDataComponent.anchorPos(),
-                Optional.ofNullable(rotation),
-                placerDataComponent.nudgeOffset()
-        );
-
-        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), updatedPlacerDataComponent);
+        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), placerDataComponent.withRotation(rotation));
     }
 
     public static Optional<BlockPos> nudgeOffset(ItemStack stack) {
@@ -214,13 +215,7 @@ public class PlacerItem extends Item {
 
     public static void setNudgeOffset(ItemStack stack, @Nullable BlockPos nudgeOffset) {
         PlacerDataComponent placerDataComponent = stack.getOrDefault(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), PlacerDataComponent.EMPTY);
-        PlacerDataComponent updatedPlacerDataComponent = new PlacerDataComponent(
-                placerDataComponent.anchorPos(),
-                placerDataComponent.rotation(),
-                Optional.ofNullable(nudgeOffset)
-        );
-
-        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), updatedPlacerDataComponent);
+        stack.set(StructurePlacerFeature.STRUCTURE_PLACER_DATA_COMPONENT.get(), placerDataComponent.withNudgeOffset(nudgeOffset));
     }
 
     public static Optional<ItemStack> getPlacerItemStack(Player player) {

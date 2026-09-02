@@ -60,6 +60,8 @@ public class PlacerActionsController {
             nudge(0, 1, 0); // Move up
         } else if (key == GLFW.GLFW_KEY_E) {
             nudge(0, -1, 0); // Move down
+        } else if (key == GLFW.GLFW_KEY_R) {
+            PacketDistributor.sendToServer(new NudgePacket(0, 0, 0, true)); // Reset position
         }
     }
 
