@@ -9,7 +9,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class StructurePlacerFeatureClient {
     public static void init(IEventBus modEventBus) {
-        NeoForge.EVENT_BUS.addListener(PlacerRender::renderPlacerPreview);
+        NeoForge.EVENT_BUS.addListener(PlacerRender::submitStructurePreview);
         modEventBus.addListener(StructurePlacerFeatureClient::registerGuiLayers);
         modEventBus.addListener(StructurePlacerFeatureClient::onClientInit);
         modEventBus.addListener(PlacerKeys::onRegisterKeyBindings);

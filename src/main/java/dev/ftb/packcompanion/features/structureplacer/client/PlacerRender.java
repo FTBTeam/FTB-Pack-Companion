@@ -11,22 +11,18 @@ import dev.ftb.packcompanion.mixin.features.accessor.StructureTemplateMixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ShapeRenderer;
-import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 import java.util.*;
 
@@ -41,7 +37,7 @@ public class PlacerRender {
             Rotation.COUNTERCLOCKWISE_90, new BlockPos(0, 0, -1)
     );
 
-    public static void renderPlacerPreview(RenderLevelStageEvent.AfterTranslucentParticles event) {
+    public static void submitStructurePreview(SubmitCustomGeometryEvent event) {
         var player = Minecraft.getInstance().player;
         var level = Minecraft.getInstance().level;
         if (player == null || level == null) {
@@ -61,27 +57,14 @@ public class PlacerRender {
             return;
         }
 
-        renderPreview(event, placerStack, placerItem, structure.get(), player, level);
-    }
-
-    private static void renderPreview(RenderLevelStageEvent event, ItemStack stack, PlacerItem placerItem, ProcessedStructureTemplate processedTemplate, Player player, Level level) {
-        var placementPos = PlacerItem.placementPos(stack, player);
+        var placementPos = PlacerItem.placementPos(placerStack, player);
         if (placementPos == null) {
             return;
         }
 
-        SubmitNodeStorage submitNodeStorage = Minecraft.getInstance().gameRenderer.getSubmitNodeStorage();
+        var processedTemplate = structure.get();
 
-        PoseStack poseStack = event.getPoseStack();
-        poseStack.pushPose();
-
-        var camera = event.getLevelRenderState().cameraRenderState.pos;
-        poseStack.translate(-camera.x(), -camera.y(), -camera.z());
-
-        var source = Minecraft.getInstance().renderBuffers().bufferSource();
-        var render = source.getBuffer(RenderTypes.LINES);
-
-        Rotation rotation = PlacerItem.rotation(stack).orElse(Rotation.NONE);
+        Rotation rotation = PlacerItem.rotation(placerStack).orElse(Rotation.NONE);
         var placementBeforeRotation = placementPos.immutable();
         var subtractionOffset = ROTATIONAL_OFFSET_FIXER.get(rotation);
         placementPos = placementPos.subtract(subtractionOffset);
@@ -98,38 +81,20 @@ public class PlacerRender {
             color = ARGB.colorFromFloat(1F, 1F, 0F, 0F); // Red for cannot build
         }
 
-        // Ease the rendered ghost toward the snapped target position/rotation instead of jumping instantly.
-        // The snapped values above still drive canBuildHere and actual placement.
         var pose = renderState.next(processedTemplate.getId(), placementPos, angleForRotation(rotation));
 
+        var invalidLocations = canBuildOrInvalidLocations.right().orElse(Collections.emptyList());
+
+        PoseStack poseStack = event.getPoseStack();
+        var camera = event.getLevelRenderState().cameraRenderState.pos;
+
+        var source = Minecraft.getInstance().renderBuffers().bufferSource();
+        var render = source.getBuffer(RenderTypes.LINES);
+
         poseStack.pushPose();
+        poseStack.translate(-camera.x(), -camera.y(), -camera.z());
         poseStack.translate(pose.position().x, pose.position().y, pose.position().z);
         poseStack.mulPose(Axis.YP.rotationDegrees(pose.angleDegrees()));
-        poseStack.scale(1.001f, 1.001f, 1.001f); // Slightly scale up the outline so it doesn't Z-fight with the blocks below
-
-        // Render the outline in the structure's own (unrotated) local space too, so it rides the same
-        // tweened transform as the blocks below instead of snapping ahead of them mid-rotation.
-        var size = template.getSize();
-        ShapeRenderer.renderShape(
-                poseStack,
-                render,
-                Shapes.create(new AABB(0, 0, 0, size.getX(), size.getY(), size.getZ())),
-                0, 0, 0,
-                color,
-                2f
-        );
-
-        var invalidLocations = canBuildOrInvalidLocations.right().orElse(Collections.emptyList());
-        for (var invalidPos : invalidLocations) {
-            ShapeRenderer.renderShape(
-                    poseStack,
-                    render,
-                    Shapes.block(),
-                    invalidPos.getX(), invalidPos.getY(), invalidPos.getZ(),
-                    color,
-                    2f
-            );
-        }
 
         List<StructureTemplate.Palette> palettes = ((StructureTemplateMixin) template).getPalettes();
         for (StructureTemplate.Palette palette : palettes) {
@@ -141,13 +106,14 @@ public class PlacerRender {
                 poseStack.pushPose();
                 poseStack.translate(info.pos().getX(), info.pos().getY(), info.pos().getZ());
 
-                var renderState = new BlockModelRenderState();
-                Minecraft.getInstance().getBlockModelResolver().update(renderState, info.state(), BlockDisplayContext.create());
+                var blockRenderState = new BlockModelRenderState();
+                Minecraft.getInstance().getBlockModelResolver().update(blockRenderState, info.state(), BlockDisplayContext.create());
 
-                renderState.submit(
+                var worldPos = StructureTemplate.transform(info.pos(), Mirror.NONE, rotation, BlockPos.ZERO).offset(placementBeforeRotation);
+                blockRenderState.submit(
                         poseStack,
-                        submitNodeStorage,
-                        LevelRenderer.getLightCoords(level, info.pos()),
+                        event.getSubmitNodeCollector(),
+                        LevelRenderer.getLightCoords(level, worldPos),
                         OverlayTexture.NO_OVERLAY,
                         0
                 );
@@ -156,9 +122,28 @@ public class PlacerRender {
             }
         }
 
-        poseStack.popPose();
-        poseStack.popPose();
+        var size = template.getSize();
+        ShapeRenderer.renderShape(
+                poseStack,
+                render,
+                Shapes.create(new AABB(0, 0, 0, size.getX(), size.getY(), size.getZ()).inflate(0.01)),
+                0, 0, 0,
+                color,
+                2f
+        );
 
+        for (var invalidPos : invalidLocations) {
+            ShapeRenderer.renderShape(
+                    poseStack,
+                    render,
+                    Shapes.create(new AABB(0, 0, 0, 1, 1, 1).inflate(0.01)),
+                    invalidPos.getX(), invalidPos.getY(), invalidPos.getZ(),
+                    color,
+                    2f
+            );
+        }
+
+        poseStack.popPose();
         source.endBatch();
     }
 
