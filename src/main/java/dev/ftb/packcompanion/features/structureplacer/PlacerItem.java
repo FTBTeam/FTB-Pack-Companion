@@ -40,7 +40,7 @@ public class PlacerItem extends Item {
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        return false;
+        return !oldStack.is(newStack.getItem());
     }
 
     @Override
