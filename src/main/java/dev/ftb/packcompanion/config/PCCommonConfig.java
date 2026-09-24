@@ -3,6 +3,7 @@ package dev.ftb.packcompanion.config;
 import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
 import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
+import dev.ftb.mods.ftblibrary.snbt.config.StringMapValue;
 import dev.ftb.mods.ftblibrary.snbt.config.StringValue;
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.config.values.ChunkPosCustomYHashValue;
@@ -52,6 +53,14 @@ public interface PCCommonConfig {
             "rules",
             Map.of()
     ).comment("Game rules that are forced on the server. The keys must be valid game rule IDs."));
+
+    SNBTConfig STRUCTURE_PLACER = CONFIG.addGroup("structure_placer");
+
+    StringMapValue STRUCTURE_PLACER_TEMPLATES = STRUCTURE_PLACER.add(new StringMapValue(
+            STRUCTURE_PLACER,
+            "templates",
+            Map.of()
+    ).comment("Structure templates available for the Structure Placer feature. The key is the template name, and the value is the resource location of the structure."));
 
     static void init() {
         ConfigManager.getInstance().registerServerConfig(CONFIG, PackCompanion.MOD_ID + ".common", true);

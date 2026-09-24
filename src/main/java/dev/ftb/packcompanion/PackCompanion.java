@@ -11,8 +11,10 @@ import dev.ftb.packcompanion.features.forcedgamerule.ForcedGameRulesFeature;
 import dev.ftb.packcompanion.features.loot.RandomNameLootFeature;
 import dev.ftb.packcompanion.features.onboarding.shadernotice.ShaderNotice;
 import dev.ftb.packcompanion.features.raiders.NoRaiderRailgunFeature;
+import dev.ftb.packcompanion.features.reciperemover.RecipeRemover;
 import dev.ftb.packcompanion.features.schematic.SchematicPasteFeature;
 import dev.ftb.packcompanion.features.spawners.SpawnerFeature;
+import dev.ftb.packcompanion.features.structureplacer.StructurePlacerFeature;
 import dev.ftb.packcompanion.features.structures.StructuresFeature;
 import dev.ftb.packcompanion.features.actionpad.ActionPadFeature;
 import dev.ftb.packcompanion.features.triggerblock.TriggerBlockFeature;
@@ -66,8 +68,10 @@ public class PackCompanion {
             ActionPadFeature::new,
             ForcedGameRulesFeature::new,
             ForcedGameModesFeature::new,
+            NoRaiderRailgunFeature::new,
             SchematicPasteFeature::new,
-            NoRaiderRailgunFeature::new
+            StructurePlacerFeature::new,
+            RecipeRemover::new
     );
 
     private final List<Feature> createdFeatures = new ArrayList<>();

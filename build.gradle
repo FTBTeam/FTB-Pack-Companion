@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.141'
-    id "me.modmuss50.mod-publish-plugin" version "0.8.3"
+    id "me.modmuss50.mod-publish-plugin" version "2.1.0"
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -43,6 +43,21 @@ neoForge {
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        clientAuth {
+            client()
+            devLogin = true
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        clientAuth2 {
+            client()
+            devLogin = true
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'devlogin.launch_profile', "auth2"
         }
 
         server {
@@ -128,17 +143,23 @@ repositories {
         name = "Illusive Soulworks maven"
         url = "https://maven.theillusivec4.top/"
     }
+
+    maven {
+        url = "https://maven.createmod.net"
+    }
+
+    maven {
+        url = "https://maven.ryanhcode.dev/releases"
+        content { includeGroup "dev.ryanhcode.sable-companion" }
+    }
+
 }
+
+def testingTwilightForest = false
+def testingFancyMenu = false
 
 dependencies {
     implementation("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}")
-
-    implementation "curse.maven:fancymenu-367706:8089432"
-    runtimeOnly "curse.maven:konkrete-410295:5453385"
-    runtimeOnly "curse.maven:melody-938643:5453382"
-
-    compileOnly "curse.maven:irisshaders-455508:6661598"
-    compileOnly "curse.maven:embeddium-908741:6118392"
 
     compileOnly "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
     localRuntime "dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}"
@@ -146,18 +167,36 @@ dependencies {
     compileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
     localRuntime "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
 
+    compileOnly "dev.ftb.mods:ftb-quests-neoforge:${ftb_quests_version}"
+    localRuntime "dev.ftb.mods:ftb-quests-neoforge:${ftb_quests_version}"
+
+    compileOnly "curse.maven:fancymenu-367706:8089432"
+    if (testingFancyMenu) {
+        runtimeOnly "curse.maven:fancymenu-367706:8089432"
+        runtimeOnly "curse.maven:konkrete-410295:5453385"
+        runtimeOnly "curse.maven:melody-938643:5453382"
+    }
+
+    compileOnly "curse.maven:irisshaders-455508:6661598"
+    compileOnly "curse.maven:embeddium-908741:6118392"
+
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     runtimeOnly "curse.maven:ftb-essentials-410811:6979622"
-//    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
-//    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
+
+    api("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261")
+    interfaceInjectionData("dev.latvian.mods:kubejs-neoforge:2101.7.2-build.261") // optional
 
     compileOnly "curse.maven:reliquified-twilight-forest-1186617:6880511"
-    runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
-    runtimeOnly "curse.maven:octo-lib-916747:6932487"
-    runtimeOnly "curse.maven:relics-mod-445274:7533442"
-    runtimeOnly "curse.maven:architectury-api-419699:5786327"
+
+    if (testingTwilightForest) {
+        runtimeOnly "curse.maven:reliquified-twilight-forest-1186617:6880511"
+        runtimeOnly "curse.maven:the-twilight-forest-227639:7398100"
+        runtimeOnly "curse.maven:octo-lib-916747:6932487"
+        runtimeOnly "curse.maven:relics-mod-445274:7533442"
+        runtimeOnly "curse.maven:architectury-api-419699:5786327"
+    }
 }
 
 tasks.register("sourcesJar", Jar) {
@@ -242,6 +281,8 @@ publishMods {
         javaVersions.add(JavaVersion.VERSION_21)
 
         requires("ftb-library-forge")
+        client = true
+        server = true
     }
 }
 
