@@ -1,5 +1,11 @@
 # Changelog
 
+## [21.1.23]
+
+### Added
+* Added the `ftbpc:equidistant_ring` structure placement type for arranging structures in configurable circular formations around a center point
+  * Thanks @Tazz
+
 ## [21.1.22]
 
 ### Added
