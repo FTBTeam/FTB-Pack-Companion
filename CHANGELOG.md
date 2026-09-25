@@ -6,6 +6,9 @@
 * Added the `ftbpc:equidistant_ring` structure placement type for arranging structures in configurable circular formations around a center point
   * Integrated from the Radial Placements mod - thanks @Tazz
 
+### Fixed
+* Holding the `Nudge` key didn't correctly lookup the other keybindings so the player would move whilst nudging
+
 ## [26.1.2.2]
 
 ### Added
