@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Debug(export = true)
 @Mixin(KeyboardHandler.class)
 public class KeyboardHandlerMixin {
-    @Inject(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;set(Lcom/mojang/blaze3d/platform/InputConstants$Key;Z)V", ordinal = 2), cancellable = true)
+    @Inject(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;set(Lcom/mojang/blaze3d/platform/InputConstants$Key;Z)V", ordinal = 3), cancellable = true)
     public void ftbpc$preventKeypressWhilstFocused(long handle, int action, KeyEvent event, CallbackInfo ci) {
         if (PlacerActionsController.INSTANCE.isFocused()) {
             var key = event.key();
