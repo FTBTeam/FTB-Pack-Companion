@@ -1,4 +1,5 @@
 {
+  "block.ftbpc.rtp_portal": "Random Portal",
   "block.ftbpc.trigger_block": "Player Trigger",
   "ftbpackcompanion.actionpad.tpa.request_sent": "TP request sent to",
   "ftbpackcompanion.command.bypass.added": "Added %s to the forced gamemode bypass list.",
@@ -27,5 +28,6 @@
   "ftbpackcompanion.structureplacer.rotated": "Rotated",
   "ftbpackcompanion.tpa": "Request Teleport",
   "item.ftbpc.action_pad": "Action Pad",
+  "item.ftbpc.rtp_portal": "Random Portal",
   "item.ftbpc.structure_placer": "Structure Placer"
 }
