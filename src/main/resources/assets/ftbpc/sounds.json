@@ -1,0 +1,11 @@
+{
+  "rtp_portal": {
+    "category": "blocks",
+    "sounds": [
+      {
+        "name": "ftbpc:rtp_portal",
+        "attenuation_distance": 10
+      }
+    ]
+  }
+}

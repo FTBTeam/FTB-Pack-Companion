@@ -6,7 +6,8 @@
   "client": [
     "features.notoast.AdvancementToastMixin",
     "features.notoast.TutorialMixin",
-    "features.singleplayerseed.WorldGenSettingsComponentMixin"
+    "features.singleplayerseed.WorldGenSettingsComponentMixin",
+    "features.structureplacer.KeyboardHandlerMixin"
   ],
   "mixins": [
     "features.accessor.StructureTemplateMixin",
