@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "ftbpc:block/rtp_portal_ns"
+    },
+    "axis=z": {
+      "model": "ftbpc:block/rtp_portal_ew"
+    }
+  }
+}
