@@ -3,6 +3,8 @@
 ## [26.1.2.3]
 
 ### Added
+* Added nudging, anchor and rotation support for the structure placer
+* Added an RTP Portal block into the game
 * Added the `ftbpc:equidistant_ring` structure placement type for arranging structures in configurable circular formations around a center point
   * Integrated from the Radial Placements mod - thanks @Tazz
 
