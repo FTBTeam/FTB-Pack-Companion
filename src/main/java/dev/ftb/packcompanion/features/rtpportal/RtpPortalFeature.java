@@ -14,6 +14,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.flag.FeatureFlag;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -72,7 +74,7 @@ public class RtpPortalFeature extends Feature.Common {
     }
 
     private void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey().equals(CreativeModeTabs.OP_BLOCKS)) {
+        if (event.getParameters().hasPermissions() && event.getTabKey().equals(CreativeModeTabs.OP_BLOCKS)) {
             event.accept(new ItemStack(RTP_PORTAL_ITEM.get()));
         }
     }

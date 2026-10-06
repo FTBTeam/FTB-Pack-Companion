@@ -1,5 +1,10 @@
 # Changelog
 
+## [26.1.2.4]
+
+### Fixed 
+* Don't show the RTP Portal block inside the OP creative menu when the OP creative menu is disabled
+
 ## [26.1.2.3]
 
 ### Added
