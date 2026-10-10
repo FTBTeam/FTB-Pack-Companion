@@ -15,7 +15,8 @@
     "features.cmdfilterfeedback.CommandSourceStackMixin",
     "features.spawners.SpawnDataMixin",
     "features.spawners.SpawnerMixin",
-    "features.structurerotation.JigsawPlacementMixin"
+    "features.structurerotation.JigsawPlacementMixin",
+    "features.paintingvariantdrops.PaintingMixin"
   ],
   "injectors": {
     "defaultRequire": 1
