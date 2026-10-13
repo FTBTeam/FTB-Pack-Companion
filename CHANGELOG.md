@@ -1,5 +1,11 @@
 # Changelog
 
+## [26.1.2.5]
+
+### Added
+* Added `ftbpc:drops_with_variant` painting variant tag
+  * Painting variants in this tag will drop an item with the painting variant preserved on the item
+
 ## [26.1.2.4]
 
 ### Fixed 
