@@ -2,17 +2,14 @@ package dev.ftb.packcompanion.features.structureplacer;
 
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
-import dev.ftb.packcompanion.features.structureplacer.client.PlacerRender;
-import dev.ftb.packcompanion.features.structureplacer.network.ProvideStructurePacket;
-import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
+import dev.ftb.packcompanion.features.structureplacer.client.StructurePlacerFeatureClient;
+import dev.ftb.packcompanion.features.structureplacer.network.*;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -24,22 +21,22 @@ public class StructurePlacerFeature extends Feature.Common {
     private static final DeferredRegister<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
     private static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPE_REGISTRY = getRegistry(Registries.DATA_COMPONENT_TYPE);
 
-    public static final DeferredHolder<Item, PlacerItem> STRUCTURE_PLACER = ITEM_REGISTRY.register("structure_placer", () ->
-            new PlacerItem(new Item.Properties().stacksTo(1))
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<PlacerDataComponent>> STRUCTURE_PLACER_DATA_COMPONENT = DATA_COMPONENT_TYPE_REGISTRY.register("placer_data", (b) ->
+            DataComponentType.<PlacerDataComponent>builder()
+                    .persistent(PlacerDataComponent.CODEC)
+                    .networkSynchronized(PlacerDataComponent.STREAM_CODEC)
+                    .build()
     );
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> STRUCTURE_PLACER_DATA_COMPONENT_TYPE = DATA_COMPONENT_TYPE_REGISTRY.register("structure_id", (b) ->
-            DataComponentType.<ResourceLocation>builder()
-                    .persistent(ResourceLocation.CODEC)
-                    .networkSynchronized(ResourceLocation.STREAM_CODEC)
-                    .build()
+    public static final DeferredHolder<Item, PlacerItem> STRUCTURE_PLACER = ITEM_REGISTRY.register("structure_placer", () ->
+            new PlacerItem(new Item.Properties().stacksTo(1))
     );
 
     public StructurePlacerFeature(IEventBus modEventBus, ModContainer container) {
         super(modEventBus, container);
 
         if (FMLEnvironment.dist.isClient()) {
-            NeoForge.EVENT_BUS.addListener(PlacerRender::renderPlacerPreview);
+            StructurePlacerFeatureClient.init(modEventBus);
         }
     }
 
@@ -47,6 +44,10 @@ public class StructurePlacerFeature extends Feature.Common {
     public void registerPackets(PayloadRegistrar registrar) {
         registrar.playToServer(RequestStructurePacket.TYPE, RequestStructurePacket.STREAM_CODEC, RequestStructurePacket::handle);
         registrar.playToClient(ProvideStructurePacket.TYPE, ProvideStructurePacket.STREAM_CODEC, ProvideStructurePacket::handle);
+
+        registrar.playToServer(AnchorPlacerPacket.TYPE, AnchorPlacerPacket.STREAM_CODEC, AnchorPlacerPacket::handle);
+        registrar.playToServer(RotatePlacerPacket.TYPE, RotatePlacerPacket.STREAM_CODEC, RotatePlacerPacket::handle);
+        registrar.playToServer(NudgePacket.TYPE, NudgePacket.STREAM_CODEC, NudgePacket::handle);
     }
 
     @Override
@@ -54,6 +55,17 @@ public class StructurePlacerFeature extends Feature.Common {
         DataGatherCollector.TranslationCollector translations = collector.translationCollector();
 
         translations.addItem(STRUCTURE_PLACER, "Structure Placer");
+        translations.add("ftbpackcompanion.key.anchor_pos", "Anchor Position");
+        translations.add("ftbpackcompanion.key.rotate_pos", "Rotate Template");
+
+        translations.add("ftbpackcompanion.structureplacer.nudge_x_z", "[W / S] Forwards/Backwards | [A / D] Left/Right");
+        translations.add("ftbpackcompanion.structureplacer.nudge_y", "[Q / E] Up/Down | [R] Reset Position");
+        translations.add("ftbpackcompanion.structureplacer.anchor_rotate", "[%s] Anchor | [%s] Rotate");
+        translations.add("ftbpackcompanion.structureplacer.nudge_hint", "Hold [V] to nudge");
+
+        translations.add("ftbpackcompanion.structureplacer.anchored", "Anchored");
+        translations.add("ftbpackcompanion.structureplacer.released", "Released");
+        translations.add("ftbpackcompanion.structureplacer.rotated", "Rotated");
 
         collector.addItemModelProvider(provider -> {
             provider.basicItem(STRUCTURE_PLACER.get());

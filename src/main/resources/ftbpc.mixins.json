@@ -9,6 +9,7 @@
     "features.notoast.TutorialMixin",
     "features.performance.TagCollectorMixin",
     "features.singleplayerseed.WorldGenSettingsComponentMixin",
+    "features.structureplacer.KeyboardHandlerMixin",
     "fixes.SoundEngineMixin"
   ],
   "mixins": [
