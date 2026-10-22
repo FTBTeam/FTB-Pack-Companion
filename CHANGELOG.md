@@ -1,5 +1,10 @@
 # Changelog
 
+## [26.1.2.6]
+
+### Fixed
+* Shader notice not showing when your first connection is to a server
+
 ## [26.1.2.5]
 
 ### Added
