@@ -6,6 +6,17 @@
 * Added the `ftbpc:equidistant_ring` structure placement type for arranging structures in configurable circular formations around a center point
   * Thanks @Tazz
 
+### Changed
+* Reworked the Structure placer item
+  * Press `,` (Anchor Position) to lock the placement position in place, press again to release it
+  * Press `.` (Rotate Template) to rotate the structure, hold shift to rotate the other way. Rotation no longer follows the direction you're facing
+  * Hold `V` to nudge the placement one block at a time: `W / S` forwards/backwards, `A / D` left/right, `Q / E` up/down, `R` to reset. Movement is blocked while nudging
+  * **Breaking:** the item data component `ftbpc:structure_id` has been replaced by `ftbpc:placer_data`. Existing items will need to be recreated, for example: `/give @p ftbpc:structure_placer[ftbpc:placer_data={structure_id:"minecraft:pillager_outpost/watchtower"}]`
+
+### Fixed
+* Shader notice not showing when your first connection is to a server
+* Structure placer no longer plays the re-equip animation every time its data changes
+
 ## [21.1.22]
 
 ### Added
