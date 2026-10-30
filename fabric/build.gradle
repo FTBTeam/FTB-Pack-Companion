@@ -1,9 +1,6 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.gradleup.shadow" version "8.3.9"
 }
-
-def ENV = System.getenv()
 
 architectury {
     platformSetupLoomIde()
@@ -28,7 +25,7 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
-    modApi ("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive false }
+    modImplementation("dev.ftb.mods:ftb-library-fabric:${rootProject.ftb_library_version}") { transitive false }
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
@@ -46,18 +43,18 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
 }
 
 remapJar {
     injectAccessWidener = true
-    input.set shadowJar.archiveFile
+    inputFile.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier = null
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 sourcesJar {
@@ -72,73 +69,34 @@ components.java {
     }
 }
 
-def ftbURL = "https://maven.ftb.dev/release"
-def sapsURL = "https://maven.saps.dev/minecraft"
-def mavenVersion = rootProject.version
-if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
-    ftbURL = "https://maven.ftb.dev/snapshot"
-    mavenVersion += "-SNAPSHOT"
-}
-
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            groupId = rootProject.maven_group
-            artifactId = "${rootProject.archivesBaseName}-${project.name}"
-            version = mavenVersion
-
-            artifact(remapJar) {
-                builtBy remapJar
-            }
+        mavenForge(MavenPublication) {
+            artifactId = "${rootProject.archives_base_name}-${project.name}"
+            version ftbPublishing.mavenVersion
+            from components.java
         }
     }
 
     repositories {
-        if (ENV.FTB_MAVEN_TOKEN) {
+        if (ftbPublishing.ftbToken) {
             maven {
-                url ftbURL
+                url ftbPublishing.ftbURL
                 credentials {
-                    username = "ftb"
-                    password = "${ENV.FTB_MAVEN_TOKEN}"
+                    username = ftbPublishing.ftbUser
+                    password = ftbPublishing.ftbToken
                 }
             }
         }
 
-        if (ENV.SAPS_TOKEN) {
+        if (ftbPublishing.sapsToken) {
             maven {
-                url sapsURL
+                url ftbPublishing.sapsURL
                 credentials {
-                    username = "ftb"
-                    password = "${ENV.SAPS_TOKEN}"
+                    username = ftbPublishing.sapsUser
+                    password = ftbPublishing.sapsToken
                 }
             }
-        }
-    }
-}
-
-def relType = "release"
-if (ENV.TAG != null) {
-    if (ENV.TAG.contains("alpha")) {
-        relType = "alpha"
-    } else if (ENV.TAG.contains("beta")) {
-        relType = "beta"
-    }
-}
-
-if (ENV.CURSEFORGE_KEY) {
-    curseforge {
-        apiKey = ENV.CURSEFORGE_KEY
-        project {
-            id = rootProject.curseforge_id
-            releaseType = relType
-            addGameVersion "Fabric"
-            addGameVersion rootProject.minecraft_version
-            mainArtifact(remapJar.archiveFile)
-            relations {
-                requiredDependency 'ftb-library-fabric'
-            }
-            changelog = file("./../CHANGELOG.md")
-            changelogType = 'markdown'
         }
     }
 }

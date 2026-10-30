@@ -1,6 +1,6 @@
 package dev.ftb.packcompanion.mixin.features.notoast;
 
-import dev.ftb.packcompanion.config.Config;
+import dev.ftb.packcompanion.config.PCClientConfig;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.client.tutorial.TutorialStepInstance;
 import org.jetbrains.annotations.Nullable;
@@ -34,12 +34,7 @@ public abstract class TutorialMixin {
         }
     }
 
-    /**
-     * We have to default to false if the config isn't loaded yet as this can run very early
-     *
-     * @return if the toast feature should be run
-     */
     private static boolean enabled() {
-        return Config.isLoaded() && Config.get().featureToast.enabled;
+        return PCClientConfig.DISABLE_TUTORIAL_TOASTS.get();
     }
 }

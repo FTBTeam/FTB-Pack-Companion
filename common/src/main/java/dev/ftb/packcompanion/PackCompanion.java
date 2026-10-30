@@ -1,19 +1,22 @@
 package dev.ftb.packcompanion;
 
 import dev.architectury.event.events.common.CommandRegistrationEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
-import dev.ftb.packcompanion.config.Config;
+import dev.architectury.utils.Env;
+import dev.architectury.utils.EnvExecutor;
+import dev.ftb.packcompanion.config.PCCommonConfig;
+import dev.ftb.packcompanion.config.PCServerConfig;
 import dev.ftb.packcompanion.registry.LootTableRegistries;
 import dev.ftb.packcompanion.registry.ReloadResourceManager;
 import dev.ftb.packcompanion.registry.StructureProcessorRegistry;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 
 public class PackCompanion {
     public static final String MOD_ID = "ftbpc";
 
     public static void init() {
-        Config.init();
-
         // Registry
         LootTableRegistries.REGISTRY.register();
         StructureProcessorRegistry.REGISTRY.register();
@@ -22,5 +25,18 @@ public class PackCompanion {
         ReloadListenerRegistry.register(PackType.SERVER_DATA, ReloadResourceManager.INSTANCE);
 
         CommandRegistrationEvent.EVENT.register(CommandRegistry::setup);
+
+        // config stuff
+        LifecycleEvent.SERVER_BEFORE_START.register(PackCompanion::serverBeforeStart);
+        LifecycleEvent.SETUP.register(PackCompanion::onSetup);
+        EnvExecutor.runInEnv(Env.CLIENT, () -> PackCompanionClient::init);
+    }
+
+    private static void onSetup() {
+        PCCommonConfig.load();
+    }
+
+    private static void serverBeforeStart(MinecraftServer server) {
+        PCServerConfig.load(server);
     }
 }
