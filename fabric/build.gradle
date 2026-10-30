@@ -1,9 +1,6 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.gradleup.shadow" version "8.3.9"
 }
-
-def ENV = System.getenv()
 
 architectury {
     platformSetupLoomIde()
@@ -46,18 +43,18 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
 }
 
 remapJar {
     injectAccessWidener = true
-    input.set shadowJar.archiveFile
+    inputFile.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier = null
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 sourcesJar {
@@ -100,24 +97,6 @@ publishing {
                     password = ftbPublishing.sapsToken
                 }
             }
-        }
-    }
-}
-
-if (ENV.CURSEFORGE_KEY) {
-    curseforge {
-        apiKey = ENV.CURSEFORGE_KEY
-        project {
-            id = rootProject.curseforge_id
-            releaseType = ftbPublishing.relType
-            addGameVersion "Fabric"
-            addGameVersion rootProject.minecraft_version
-            mainArtifact(remapJar.archiveFile)
-            relations {
-                requiredDependency 'ftb-library-fabric'
-            }
-            changelog = ENV.CHANGELOG // expected to exist if ENV.CURSEFORGE_KEY does
-            changelogType = 'markdown'
         }
     }
 }
