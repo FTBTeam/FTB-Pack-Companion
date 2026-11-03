@@ -5,7 +5,7 @@ import dev.latvian.mods.rhino.Undefined;
 
 public class KubeStd {
     /**
-     * {@link net.minecraft.resources.ResourceLocation} utility functions
+     * {@link net.minecraft.resources.Identifier} utility functions
      */
     public Id id = new Id();
 

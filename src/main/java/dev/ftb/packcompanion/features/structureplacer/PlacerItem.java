@@ -1,17 +1,21 @@
 package dev.ftb.packcompanion.features.structureplacer;
 
 import com.mojang.datafixers.util.Either;
+import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.features.structureplacer.network.RequestStructurePacket;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -28,6 +32,8 @@ import java.time.Instant;
 import java.util.*;
 
 public class PlacerItem extends Item {
+    public static final TagKey<Block> VALIDATE_REMOVAL_BLOCKS = TagKey.create(Registries.BLOCK, PackCompanion.id("placer_allowed_removal"));
+
     private static final Map<Identifier, @Nullable ProcessedStructureTemplate> clientStructureCache = new HashMap<>();
     private static final Set<Identifier> requestedStructures = new HashSet<>();
     private static final Map<Identifier, Instant> requestTimestamps = new HashMap<>();
@@ -64,10 +70,28 @@ public class PlacerItem extends Item {
             // Verify if the placement area is valid
             var posWithRotation = new PosWithRotation(placementPos, rotation);
             var placementCheck = PlacerItem.isValidPlacementArea(level, new ProcessedStructureTemplate(structureId, structure), posWithRotation);
-            if (!placementCheck.left().orElse(false)) {
-                // TODO: translation
-                player.sendOverlayMessage(Component.literal("Invalid placement area!"));
+            if (placementCheck.left().isEmpty()) {
+                player.sendOverlayMessage(Component.translatable("ftbpackcompanion.structureplacer.invalid-placement"));
                 return;
+            }
+
+            // Before we place, remove the blocks that are valid for removal. Drop them at the players feet.
+            var playerPos = player.blockPosition().above();
+            var validForRemoval = placementCheck.left().orElse(List.of());
+            for (var pos : validForRemoval) {
+                var state = level.getBlockState(pos);
+                // If we're air, or we don't have the tag, we skip it. This should never happen, but just in case.
+                if (state.isAir() || !state.is(VALIDATE_REMOVAL_BLOCKS)) {
+                    continue;
+                }
+
+                // Drop the block as an item
+                var blockEntity = level.getBlockEntity(pos);
+                List<ItemStack> drops = Block.getDrops(state, (ServerLevel) level, pos, blockEntity, player, itemStack);
+                for (var drop : drops) {
+                    Block.popResource(level, playerPos, drop);
+                }
+                level.removeBlock(pos, false);
             }
 
             structure.placeInWorld((ServerLevelAccessor) level, placementPos, placementPos, settings, level.getRandom(), Block.UPDATE_ALL);
@@ -225,7 +249,7 @@ public class PlacerItem extends Item {
         return Optional.empty();
     }
 
-    public static Either<Boolean, List<BlockPos>> isValidPlacementArea(Level level, ProcessedStructureTemplate template, PosWithRotation pos) {
+    public static Either<List<BlockPos>, List<BlockPos>> isValidPlacementArea(Level level, ProcessedStructureTemplate template, PosWithRotation pos) {
         var solidBlocks = template.getSolidBlockPositions().stream()
                 .map(inputPos -> {
                     var transformedPos = StructureTemplate.transform(inputPos, Mirror.NONE, pos.rotation(), BlockPos.ZERO)
@@ -234,10 +258,17 @@ public class PlacerItem extends Item {
                 }).toList();
 
         List<BlockPos> invalidLocations = new ArrayList<>();
+        List<BlockPos> returnPositions = new ArrayList<>();
         for (var potentialPos : solidBlocks) {
             var state = potentialPos.state();
             if (!state.isAir() && !state.canBeReplaced()) {
-                invalidLocations.add(potentialPos.inStructure());
+                if (state.is(VALIDATE_REMOVAL_BLOCKS)) {
+                    // This ones are used in the real world, so we need to move them to the correct place.
+                    returnPositions.add(potentialPos.inWorld());
+                } else {
+                    // Used in the render.
+                    invalidLocations.add(potentialPos.inStructure());
+                }
             }
         }
 
@@ -245,6 +276,7 @@ public class PlacerItem extends Item {
             return Either.right(invalidLocations);
         }
 
-        return Either.left(true);
+        // We return a list of block positions that are valid for removal
+        return Either.left(returnPositions);
     }
 }

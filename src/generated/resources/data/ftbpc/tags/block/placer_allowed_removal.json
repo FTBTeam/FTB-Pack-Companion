@@ -1,0 +1,20 @@
+{
+  "values": [
+    "minecraft:grass_block",
+    "minecraft:dirt",
+    "#minecraft:base_stone_overworld",
+    "#minecraft:base_stone_nether",
+    "minecraft:cobblestone",
+    "minecraft:podzol",
+    "minecraft:mycelium",
+    "#minecraft:sand",
+    "#minecraft:terracotta",
+    "minecraft:gravel",
+    "minecraft:dirt_path",
+    "minecraft:snow_block",
+    "minecraft:snow",
+    "minecraft:ice",
+    "minecraft:packed_ice",
+    "minecraft:blue_ice"
+  ]
+}

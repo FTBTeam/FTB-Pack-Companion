@@ -36,8 +36,6 @@ public class PlacerActionsController {
         }
     }
 
-
-    // TODO: We need a way of blocking this from moving the player if we're focused
     public void onKeyUp(int key) {
         // We always reset focus on key up incase the player managed to get stuck into a focused state.
         // TODO: KeyMapping, not hardcoded.
