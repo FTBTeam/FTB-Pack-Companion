@@ -1,6 +1,8 @@
-// 26.1.2	2026-07-22T10:48:57.170942	Model Definitions - ftbpc
+// 26.1.2	2026-11-03T11:19:14.628334	Model Definitions - ftbpc
+57234172d88c3960aa4def27db5848f37fade041 assets/ftbpc/blockstates/rtp_portal.json
 5d8b1f502203f6ed77ce3453f8b82730c3b87c10 assets/ftbpc/blockstates/trigger_block.json
 6831a04de2706b65325a312e20ae1436d63fb516 assets/ftbpc/items/action_pad.json
+adf7d73f2a6cded639963180a773588832e65908 assets/ftbpc/items/rtp_portal.json
 392f893c13306e6a70006b33e79c161d5d692ff8 assets/ftbpc/items/structure_placer.json
 5a1cf22122423ea32d51a338ed6eb3b5b37b0d89 assets/ftbpc/items/trigger_block.json
 4b2714a3814186b7f5e76b7f59b779d5af6f3c03 assets/ftbpc/models/block/trigger_block.json
