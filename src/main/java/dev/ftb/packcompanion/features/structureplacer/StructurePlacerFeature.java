@@ -9,10 +9,13 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -70,8 +73,31 @@ public class StructurePlacerFeature extends Feature.Common {
         translations.add("ftbpackcompanion.structureplacer.released", "Released");
         translations.add("ftbpackcompanion.structureplacer.rotated", "Rotated");
 
+        translations.add("ftbpackcompanion.structureplacer.invalid-placement", "Invalid placement area!");
+
         collector.addItemModelProvider(provider -> {
             provider.generateFlatItem(STRUCTURE_PLACER.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        });
+
+        // Pre-populate with some reasonable replacement blocks for the placer.
+        collector.addBlockTagProvider(provider -> {
+            provider.appendBlockTag(PlacerItem.VALIDATE_REMOVAL_BLOCKS)
+                    .add(Blocks.GRASS_BLOCK)
+                    .add(Blocks.DIRT)
+                    .addTag(BlockTags.BASE_STONE_OVERWORLD)
+                    .addTag(BlockTags.BASE_STONE_NETHER)
+                    .add(Blocks.COBBLESTONE)
+                    .add(Blocks.PODZOL)
+                    .add(Blocks.MYCELIUM)
+                    .addTag(BlockTags.SAND)
+                    .addTag(BlockTags.TERRACOTTA)
+                    .add(Blocks.GRAVEL)
+                    .add(Blocks.DIRT_PATH)
+                    .add(Blocks.SNOW_BLOCK)
+                    .add(Blocks.SNOW)
+                    .add(Blocks.ICE)
+                    .add(Blocks.PACKED_ICE)
+                    .add(Blocks.BLUE_ICE);
         });
     }
 }

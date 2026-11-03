@@ -2,8 +2,10 @@ package dev.ftb.packcompanion.features.kube.mods;
 
 import dev.ftb.mods.ftbchunks.api.ClaimResult;
 import dev.ftb.mods.ftbchunks.api.ClaimedChunk;
+import dev.ftb.mods.ftbchunks.api.ClaimedChunkManager;
 import dev.ftb.mods.ftbchunks.api.FTBChunksAPI;
 import dev.ftb.mods.ftblibrary.math.ChunkDimPos;
+import dev.ftb.mods.ftbteams.api.Team;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -14,8 +16,16 @@ import java.util.UUID;
 public class FTBChunks {
     public static final FTBChunks INSTANCE = new FTBChunks();
 
+    public FTBChunksAPI.API api() {
+        return FTBChunksAPI.api();
+    }
+
+    public ClaimedChunkManager manager() {
+        return FTBChunksAPI.api().getManager();
+    }
+
     public @Nullable ClaimedChunk chunkData(Level level, int x, int z) {
-        return FTBChunksAPI.api().getManager().getChunk(new ChunkDimPos(level.dimension(), x, z));
+        return manager().getChunk(new ChunkDimPos(level.dimension(), x, z));
     }
 
     public boolean isClaimed(Level level, int x, int z) {

@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -27,7 +28,7 @@ import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import java.util.*;
 
 public class PlacerRender {
-    private static final MemorisedValue<PosWithRotation, Either<Boolean, List<BlockPos>>> canBuild = new MemorisedValue<>();
+    private static final MemorisedValue<PosWithRotation, Either<List<BlockPos>, List<BlockPos>>> canBuild = new MemorisedValue<>();
     private static final PlacerRenderState renderState = new PlacerRenderState();
 
     private static final Map<Rotation, BlockPos> ROTATIONAL_OFFSET_FIXER = Map.of(
@@ -74,7 +75,7 @@ public class PlacerRender {
         // Determine if we can build here
         var canBuildOrInvalidLocations = canBuild.get(new PosWithRotation(placementBeforeRotation, rotation), (key) -> PlacerItem.isValidPlacementArea(level, processedTemplate, key));
 
-        var canBuildSimple = canBuildOrInvalidLocations.left().orElse(false);
+        var canBuildSimple = canBuildOrInvalidLocations.left().isPresent();
 
         int color = ARGB.colorFromFloat(1F, 0F, 1F, 0F); // Green for can build
         if (!canBuildSimple) {
@@ -95,8 +96,20 @@ public class PlacerRender {
         poseStack.translate(-camera.x(), -camera.y(), -camera.z());
         poseStack.translate(pose.position().x, pose.position().y, pose.position().z);
         poseStack.mulPose(Axis.YP.rotationDegrees(pose.angleDegrees()));
+        // Scale the whole render by 1.001 to avoid z-fighting with the blocks themselves
+        poseStack.scale(1.001F, 1.001F, 1.001F);
 
         List<StructureTemplate.Palette> palettes = ((StructureTemplateMixin) template).getPalettes();
+
+        // Default to the max light value.
+        // Logically, the block the player is standing on (the one above that block) should be air, and thus should be usable for light.
+        int firstNonSolidLightIndex = 15728880;
+        var blockWithPlayerInIt = player.blockPosition().above();
+        BlockState blockState = level.getBlockState(blockWithPlayerInIt);
+        if (blockState.isAir() || blockState.canBeReplaced()) {
+            firstNonSolidLightIndex = LevelRenderer.getLightCoords(level, blockWithPlayerInIt);
+        }
+
         for (StructureTemplate.Palette palette : palettes) {
             for (StructureTemplate.StructureBlockInfo info : palette.blocks()) {
                 if (info.state().isAir()) {
@@ -109,11 +122,10 @@ public class PlacerRender {
                 var blockRenderState = new BlockModelRenderState();
                 Minecraft.getInstance().getBlockModelResolver().update(blockRenderState, info.state(), BlockDisplayContext.create());
 
-                var worldPos = StructureTemplate.transform(info.pos(), Mirror.NONE, rotation, BlockPos.ZERO).offset(placementBeforeRotation);
                 blockRenderState.submit(
                         poseStack,
                         event.getSubmitNodeCollector(),
-                        LevelRenderer.getLightCoords(level, worldPos),
+                        firstNonSolidLightIndex,
                         OverlayTexture.NO_OVERLAY,
                         0
                 );

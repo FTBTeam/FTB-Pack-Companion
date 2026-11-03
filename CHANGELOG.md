@@ -1,5 +1,17 @@
 # Changelog
 
+## [26.1.2.7]
+
+### Added
+* `ftbchunks` KubeJS binding now exposes `.api()` and `.manager()` to allow for simpler access to their API and manager classes.
+
+### Fixed
+* Structure lighting should now be more consistent and not cause darkness issues when recessing into the ground.
+
+### Changes
+* The structure placer can now replace configured blocks in-world and upon placement, will return those blocks back to the player. This is helpful for when a player wants to nudge the structure into grass.
+  * Configured blocks are handled via the `ftbpc:placer_allowed_removal` tag. This tag has a few standard blocks by default like dirt, grass, stone, etc.
+
 ## [26.1.2.6]
 
 ### Fixed
