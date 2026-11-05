@@ -6,12 +6,7 @@ import com.mojang.serialization.JsonOps;
 import dev.ftb.packcompanion.PackCompanion;
 import dev.ftb.packcompanion.core.DataGatherCollector;
 import dev.ftb.packcompanion.core.Feature;
-import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
-import net.minecraft.client.data.models.blockstates.PropertyDispatch;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -107,13 +102,13 @@ public class RtpPortalFeature extends Feature.Common {
         collector.translationCollector().add("block.ftbpc.rtp_portal", "Random Portal");
         collector.translationCollector().add("item.ftbpc.rtp_portal", "Random Portal");
 
-        collector.addBlockStateProvider(provider -> {
-            RtpPortalBlock block = RTP_PORTAL_BLOCK.get();
-            provider.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-                    .with(PropertyDispatch.initial(RtpPortalBlock.AXIS)
-                            .select(Direction.Axis.X, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block, "_ns")))
-                            .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block, "_ew")))));
-            provider.registerSimpleItemModel(RTP_PORTAL_ITEM.get(), ModelLocationUtils.getModelLocation(RTP_PORTAL_ITEM.get()));
-        });
+//        collector.addBlockStateProvider(provider -> {
+//            RtpPortalBlock block = RTP_PORTAL_BLOCK.get();
+//            provider.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
+//                    .with(PropertyDispatch.initial(RtpPortalBlock.AXIS)
+//                            .select(Direction.Axis.X, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block, "_ns")))
+//                            .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block, "_ew")))));
+//            provider.registerSimpleItemModel(RTP_PORTAL_ITEM.get(), ModelLocationUtils.getModelLocation(RTP_PORTAL_ITEM.get()));
+//        });
     }
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## [26.1.2.8]
+
+### Fixed
+* Stopped loading client only classes on the server... Whoops...
+
 ## [26.1.2.7]
 
 ### Added
